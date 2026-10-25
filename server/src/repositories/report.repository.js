@@ -15,10 +15,10 @@ const reportRepository = {
     mentor_id,
     student_name,
     support_need_observed,
-    session_focus, // Fallback for initial controller payload
+    session_focus, // Fallback
     observations,
     recommended_action,
-    action_items, // Fallback for initial controller payload
+    action_items, // Fallback
   }) {
     const finalSupportNeed =
       support_need_observed || session_focus || 'General academic and emotional support';
@@ -42,11 +42,11 @@ const reportRepository = {
   },
 
   /**
-   * Fetch all active reports filed by a specific mentor (enforces mentor isolation)
+   * Fetch all active reports filed by a specific mentor (enforces strict mentor isolation)
    */
   async findByMentorId(mentorId) {
     const text = `
-      SELECT *
+      SELECT id, mentor_id, student_name, support_need_observed, observations, recommended_action, created_at, updated_at
       FROM student_support_reports
       WHERE mentor_id = $1 AND deleted_at IS NULL
       ORDER BY created_at DESC;
@@ -56,18 +56,30 @@ const reportRepository = {
   },
 
   /**
-   * Fetch all reports across the system with mentor details (admin view only)
+   * Fetch all reports across the system with mentor details (admin view only - Query 5)
    */
-  async findAll(limit = 100) {
+  async findAll({ limit = 100, offset = 0 } = {}) {
     const text = `
-      SELECT r.*, m.name AS mentor_name, m.email AS mentor_email
+      SELECT
+        r.id AS report_id,
+        r.id,
+        r.student_name,
+        r.support_need_observed,
+        r.observations,
+        r.recommended_action,
+        r.created_at,
+        r.created_at AS report_date,
+        m.id AS mentor_id,
+        m.name AS mentor_name,
+        m.email AS mentor_email,
+        m.university AS mentor_university
       FROM student_support_reports r
       JOIN mentor_profiles m ON m.id = r.mentor_id
       WHERE r.deleted_at IS NULL
       ORDER BY r.created_at DESC
-      LIMIT $1;
+      LIMIT $1 OFFSET $2;
     `;
-    const res = await db.query(text, [limit]);
+    const res = await db.query(text, [limit, offset]);
     return res.rows;
   },
 
