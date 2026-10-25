@@ -1,0 +1,142 @@
+/**
+ * Bilunex - Page Specific Styles
+ * Hero sections, features grid, admin portal sidebar, and mentor forms.
+ */
+
+/* Hero Banner */
+.hero {
+  background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%);
+  color: #ffffff;
+  padding: var(--space-12) 0;
+  text-align: center;
+}
+
+.hero h1 {
+  color: #ffffff;
+  font-size: var(--font-size-4xl);
+  margin-bottom: var(--space-4);
+}
+
+.hero p {
+  font-size: var(--font-size-lg);
+  max-width: 680px;
+  margin: 0 auto var(--space-6);
+  opacity: 0.95;
+}
+
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width: 640px) {
+  .hero-actions {
+    flex-direction: row;
+  }
+}
+
+/* Page Intro / Headers */
+.page-header {
+  margin-bottom: var(--space-8);
+  text-align: center;
+}
+
+.page-header p {
+  color: var(--color-text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Feature Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+@media (min-width: 768px) {
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Form Container Card */
+.form-card {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Admin & Mentor Layout */
+.portal-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .portal-layout {
+    flex-direction: row;
+  }
+
+  .portal-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+  }
+
+  .portal-main {
+    flex: 1;
+  }
+}
+
+.portal-nav {
+  list-style: none;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+}
+
+.portal-nav a {
+  display: block;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-main);
+  font-weight: 500;
+}
+
+.portal-nav a:hover,
+.portal-nav a.active {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+/* Stat Cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.stat-value {
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

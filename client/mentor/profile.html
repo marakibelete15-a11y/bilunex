@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mentor Profile & Students | Bilunex</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="../public/index.html" class="brand-logo">
+          Bilunex <span class="brand-tag">Mentor Portal</span>
+        </a>
+        <div style="display: flex; align-items: center; gap: var(--space-4)">
+          <span
+            id="mentor-display"
+            style="font-size: var(--font-size-sm); color: var(--color-text-muted)"
+            >Mentor</span
+          >
+          <button id="logout-btn" class="btn btn-outline btn-sm">Sign Out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="container portal-layout">
+        <!-- Portal Sidebar -->
+        <aside class="portal-sidebar">
+          <ul class="portal-nav">
+            <li><a href="profile.html" class="active">My Profile & Sessions</a></li>
+            <li><a href="report.html">Submit Support Report</a></li>
+          </ul>
+        </aside>
+
+        <section class="portal-main">
+          <div class="page-header" style="text-align: left">
+            <h1 id="welcome-heading">Welcome, Mentor</h1>
+            <p>Review your assigned student caseload and history of submitted support reports.</p>
+          </div>
+
+          <!-- Mentor Details Card -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <h3 class="card-title">Caseload Overview</h3>
+            <p id="mentor-bio" style="color: var(--color-text-muted)">
+              Loading mentor credentials...
+            </p>
+            <a
+              href="report.html"
+              class="btn btn-secondary btn-sm"
+              style="margin-top: var(--space-2)"
+              >+ Submit Student Support Report</a
+            >
+          </div>
+
+          <!-- History of Reports Card -->
+          <div class="card">
+            <h3 class="card-title">My Filed Support Reports</h3>
+            <p class="card-subtitle">
+              Confidential session summaries submitted to Bilunex administrators
+            </p>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Student</th>
+                    <th>Session Focus</th>
+                    <th>Progress Rating</th>
+                  </tr>
+                </thead>
+                <tbody id="reports-table-body">
+                  <tr>
+                    <td colspan="4" style="text-align: center; color: var(--color-text-muted)">
+                      Loading your reports...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+      // Enforce role-based access
+      auth.protectPage('mentor', 'login.html');
+
+      const user = auth.getUser();
+      if (user && user.email) {
+        document.getElementById('mentor-display').textContent = user.name || user.email;
+        document.getElementById('welcome-heading').textContent =
+          `Welcome, ${user.name || 'Mentor'}`;
+      }
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        auth.logout('login.html');
+      });
+
+      async function loadMentorData() {
+        try {
+          const res = await apiClient.get('/mentor/profile');
+          if (res.data) {
+            document.getElementById('mentor-bio').textContent =
+              `Expertise: ${res.data.expertise || 'General'} | Assigned Students: ${res.data.studentsCount || 0}`;
+          }
+        } catch (err) {
+          document.getElementById('mentor-bio').textContent = 'Profile active.';
+        }
+
+        try {
+          const reportsRes = await apiClient.get('/mentor/reports');
+          const reports = reportsRes.data || [];
+          const tbody = document.getElementById('reports-table-body');
+          if (reports.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="4" style="text-align:center;">No reports filed yet. Click "Submit Student Support Report" to file your first session summary.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = reports
+            .map(
+              r => `
+          <tr>
+            <td>${new Date(r.created_at).toLocaleDateString()}</td>
+            <td><strong>${r.student_name}</strong></td>
+            <td>${r.session_focus}</td>
+            <td><span class="badge badge-approved">${r.progress_rating} / 5</span></td>
+          </tr>
+        `
+            )
+            .join('');
+        } catch (err) {
+          document.getElementById('reports-table-body').innerHTML =
+            '<tr><td colspan="4" style="text-align:center; color: var(--color-text-muted);">No reports recorded yet.</td></tr>';
+        }
+      }
+
+      loadMentorData();
+    </script>
+  </body>
+</html>

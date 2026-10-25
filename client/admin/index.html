@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard | Bilunex</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <!-- Admin Header -->
+    <header class="site-header" style="background-color: #0f172a; border-bottom: 1px solid #1e293b">
+      <div class="container header-inner">
+        <span class="brand-logo" style="color: #ffffff">
+          Bilunex
+          <span class="brand-tag" style="background-color: #ef4444; color: #ffffff"
+            >Admin Console</span
+          >
+        </span>
+        <div style="display: flex; align-items: center; gap: var(--space-4)">
+          <span id="admin-user-display" style="color: #94a3b8; font-size: var(--font-size-sm)"
+            >Admin</span
+          >
+          <button
+            id="logout-btn"
+            class="btn btn-outline btn-sm"
+            style="color: #ffffff; border-color: #334155"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="container portal-layout">
+        <!-- Admin Sidebar -->
+        <aside class="portal-sidebar">
+          <ul class="portal-nav">
+            <li><a href="index.html" class="active">Dashboard Overview</a></li>
+            <li><a href="applications.html">Mentor Applications</a></li>
+            <li><a href="mentors.html">Active Mentors</a></li>
+          </ul>
+        </aside>
+
+        <!-- Main Admin Panel -->
+        <section class="portal-main">
+          <div class="page-header" style="text-align: left; margin-bottom: var(--space-6)">
+            <h1>Administrative Overview</h1>
+            <p>
+              Monitor registrations, mentor applications, and student support reports across
+              Bilunex.
+            </p>
+          </div>
+
+          <!-- Metric Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="stat-parents">--</div>
+              <div class="stat-label">Parent Registrations</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="stat-applications">--</div>
+              <div class="stat-label">Pending Mentor Apps</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="stat-mentors">--</div>
+              <div class="stat-label">Active Mentors</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="stat-reports">--</div>
+              <div class="stat-label">Support Reports Filed</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title">Recent Activity</h3>
+            <p class="card-subtitle">Latest incoming requests requiring staff attention</p>
+            <div id="activity-feedback"></div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-activity-body">
+                  <tr>
+                    <td colspan="5" style="text-align: center; color: var(--color-text-muted)">
+                      Loading recent activity...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/ui.js"></script>
+    <script>
+      // Guard page access
+      auth.protectPage('admin', 'login.html');
+
+      const user = auth.getUser();
+      if (user && user.email) {
+        document.getElementById('admin-user-display').textContent = user.email;
+      }
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        auth.logout('login.html');
+      });
+
+      // Placeholder data loader
+      async function loadDashboard() {
+        try {
+          const res = await apiClient.get('/admin/overview');
+          if (res.data) {
+            document.getElementById('stat-parents').textContent = res.data.parentsCount || 0;
+            document.getElementById('stat-applications').textContent =
+              res.data.applicationsCount || 0;
+            document.getElementById('stat-mentors').textContent = res.data.mentorsCount || 0;
+            document.getElementById('stat-reports').textContent = res.data.reportsCount || 0;
+          }
+        } catch (err) {
+          // Fallback display if database is in initial state
+          document.getElementById('stat-parents').textContent = '0';
+          document.getElementById('stat-applications').textContent = '0';
+          document.getElementById('stat-mentors').textContent = '0';
+          document.getElementById('stat-reports').textContent = '0';
+          document.getElementById('recent-activity-body').innerHTML = `
+          <tr><td colspan="5" style="text-align: center; color: var(--color-text-muted);">No recent pending items found.</td></tr>
+        `;
+        }
+      }
+
+      loadDashboard();
+    </script>
+  </body>
+</html>

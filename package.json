@@ -1,0 +1,38 @@
+{
+  "name": "bilunex-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bilunex tutoring, mentoring, and counseling support platform monorepo",
+  "scripts": {
+    "dev": "npm --prefix server run dev",
+    "start": "npm --prefix server run start",
+    "lint": "npm --prefix server run lint",
+    "lint:fix": "npm --prefix server run lint:fix",
+    "format": "prettier --write \"**/*.{js,json,md,html,css}\"",
+    "format:check": "prettier --check \"**/*.{js,json,md,html,css}\"",
+    "test": "npm --prefix server run test",
+    "test:watch": "npm --prefix server run test:watch",
+    "migrate": "npm --prefix server run migrate",
+    "migrate:down": "npm --prefix server run migrate:down",
+    "seed": "npm --prefix server run seed",
+    "db:reset": "npm --prefix server run db:reset",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.1",
+    "prettier": "^3.4.2"
+  },
+  "lint-staged": {
+    "server/**/*.js": [
+      "npm --prefix server run lint:fix",
+      "prettier --write"
+    ],
+    "client/**/*.js": [
+      "prettier --write"
+    ],
+    "**/*.{json,md,html,css}": [
+      "prettier --write"
+    ]
+  }
+}

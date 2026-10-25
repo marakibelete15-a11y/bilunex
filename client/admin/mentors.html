@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Active Mentors | Bilunex Admin</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <header class="site-header" style="background-color: #0f172a; border-bottom: 1px solid #1e293b">
+      <div class="container header-inner">
+        <span class="brand-logo" style="color: #ffffff">
+          Bilunex
+          <span class="brand-tag" style="background-color: #ef4444; color: #ffffff"
+            >Admin Console</span
+          >
+        </span>
+        <div style="display: flex; align-items: center; gap: var(--space-4)">
+          <span id="admin-user-display" style="color: #94a3b8; font-size: var(--font-size-sm)"
+            >Admin</span
+          >
+          <button
+            id="logout-btn"
+            class="btn btn-outline btn-sm"
+            style="color: #ffffff; border-color: #334155"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="container portal-layout">
+        <aside class="portal-sidebar">
+          <ul class="portal-nav">
+            <li><a href="index.html">Dashboard Overview</a></li>
+            <li><a href="applications.html">Mentor Applications</a></li>
+            <li><a href="mentors.html" class="active">Active Mentors</a></li>
+          </ul>
+        </aside>
+
+        <section class="portal-main">
+          <div class="page-header" style="text-align: left">
+            <h1>Mentor Directory</h1>
+            <p>Active tutors and mentors approved for student assignment.</p>
+          </div>
+
+          <div class="card">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Mentor</th>
+                    <th>Subjects</th>
+                    <th>Assigned Students</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="mentors-table-body">
+                  <tr>
+                    <td colspan="4" style="text-align: center; color: var(--color-text-muted)">
+                      Loading active mentors...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+      auth.protectPage('admin', 'login.html');
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        auth.logout('login.html');
+      });
+
+      async function loadMentors() {
+        const tbody = document.getElementById('mentors-table-body');
+        try {
+          const res = await apiClient.get('/admin/mentors');
+          const mentors = res.data || [];
+          if (mentors.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="4" style="text-align:center;">No mentors currently registered.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = mentors
+            .map(
+              m => `
+          <tr>
+            <td><strong>${m.full_name}</strong><br><small>${m.email}</small></td>
+            <td>${m.expertise}</td>
+            <td>${m.assigned_students_count || 0}</td>
+            <td><span class="badge badge-approved">Active</span></td>
+          </tr>
+        `
+            )
+            .join('');
+        } catch (err) {
+          tbody.innerHTML =
+            '<tr><td colspan="4" style="text-align:center; color: var(--color-text-muted);">No active mentors loaded.</td></tr>';
+        }
+      }
+
+      loadMentors();
+    </script>
+  </body>
+</html>

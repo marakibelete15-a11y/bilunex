@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mentor Applications | Bilunex Admin</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <header class="site-header" style="background-color: #0f172a; border-bottom: 1px solid #1e293b">
+      <div class="container header-inner">
+        <span class="brand-logo" style="color: #ffffff">
+          Bilunex
+          <span class="brand-tag" style="background-color: #ef4444; color: #ffffff"
+            >Admin Console</span
+          >
+        </span>
+        <div style="display: flex; align-items: center; gap: var(--space-4)">
+          <span id="admin-user-display" style="color: #94a3b8; font-size: var(--font-size-sm)"
+            >Admin</span
+          >
+          <button
+            id="logout-btn"
+            class="btn btn-outline btn-sm"
+            style="color: #ffffff; border-color: #334155"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="container portal-layout">
+        <aside class="portal-sidebar">
+          <ul class="portal-nav">
+            <li><a href="index.html">Dashboard Overview</a></li>
+            <li><a href="applications.html" class="active">Mentor Applications</a></li>
+            <li><a href="mentors.html">Active Mentors</a></li>
+          </ul>
+        </aside>
+
+        <section class="portal-main">
+          <div class="page-header" style="text-align: left">
+            <h1>Mentor Applications</h1>
+            <p>Review candidate credentials, experience, and approve or reject submissions.</p>
+          </div>
+
+          <div id="alert-container"></div>
+
+          <div class="card">
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Applicant</th>
+                    <th>Expertise</th>
+                    <th>Experience</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="applications-table-body">
+                  <tr>
+                    <td colspan="5" style="text-align: center; color: var(--color-text-muted)">
+                      Loading applications...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/ui.js"></script>
+    <script>
+      auth.protectPage('admin', 'login.html');
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        auth.logout('login.html');
+      });
+
+      async function loadApplications() {
+        const tbody = document.getElementById('applications-table-body');
+        try {
+          const res = await apiClient.get('/admin/applications');
+          const apps = res.data || [];
+          if (apps.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="5" style="text-align:center;">No pending applications found.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = apps
+            .map(
+              app => `
+          <tr>
+            <td>
+              <strong>${app.full_name}</strong><br>
+              <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">${app.email} &bull; ${app.phone}</span>
+            </td>
+            <td>${app.expertise}</td>
+            <td>${app.years_experience} yrs</td>
+            <td><span class="badge badge-${app.status}">${app.status}</span></td>
+            <td>
+              <button class="btn btn-sm btn-primary" onclick="updateStatus(${app.id}, 'approved')">Approve</button>
+              <button class="btn btn-sm btn-outline" onclick="updateStatus(${app.id}, 'rejected')">Reject</button>
+            </td>
+          </tr>
+        `
+            )
+            .join('');
+        } catch (err) {
+          tbody.innerHTML =
+            '<tr><td colspan="5" style="text-align:center; color: var(--color-text-muted);">No applications registered yet.</td></tr>';
+        }
+      }
+
+      async function updateStatus(id, status) {
+        try {
+          await apiClient.patch(`/admin/applications/${id}`, { status });
+          ui.showAlert('#alert-container', 'success', `Application ${status} successfully.`, 3000);
+          loadApplications();
+        } catch (err) {
+          ui.showAlert('#alert-container', 'error', err.message || 'Status update failed.');
+        }
+      }
+
+      loadApplications();
+    </script>
+  </body>
+</html>

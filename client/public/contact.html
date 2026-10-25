@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact Us | Bilunex</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="index.html" class="brand-logo">Bilunex <span class="brand-tag">Contact</span></a>
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="site-nav">
+          <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="about.html" class="nav-link">About</a></li>
+            <li><a href="services.html" class="nav-link">Services</a></li>
+            <li><a href="stories.html" class="nav-link">Stories</a></li>
+            <li><a href="contact.html" class="nav-link active">Contact</a></li>
+          </ul>
+          <div class="nav-cta">
+            <a href="for-parents.html" class="btn btn-primary btn-sm">For Parents</a>
+            <a href="become-a-mentor.html" class="btn btn-secondary btn-sm">Become a Mentor</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h1>Get in Touch</h1>
+          <p>
+            Have questions about our programs, partnerships, or enrollment? We would love to hear
+            from you.
+          </p>
+        </div>
+
+        <div class="card form-card">
+          <div id="form-feedback"></div>
+
+          <form id="contact-form" novalidate>
+            <div class="form-group">
+              <label for="name" class="form-label">Your Name <span class="required">*</span></label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                class="form-control"
+                placeholder="Jane Doe"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="email" class="form-label"
+                >Email Address <span class="required">*</span></label
+              >
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-control"
+                placeholder="jane@example.com"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="subject" class="form-label"
+                >Subject <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                id="subject"
+                name="subject"
+                class="form-control"
+                placeholder="Partnership inquiry"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="message" class="form-label"
+                >Message <span class="required">*</span></label
+              >
+              <textarea
+                id="message"
+                name="message"
+                class="form-control"
+                placeholder="How can we help you?"
+                required
+              ></textarea>
+              <div class="form-error"></div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn btn-primary btn-block">
+              Send Message
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-bottom"><p>&copy; 2026 Bilunex Platform. All rights reserved.</p></div>
+      </div>
+    </footer>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/validation.js"></script>
+    <script src="../js/ui.js"></script>
+    <script>
+      const form = document.getElementById('contact-form');
+      const submitBtn = document.getElementById('submit-btn');
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        formValidator.clearAllErrors(form);
+
+        const name = document.getElementById('name');
+        const email = document.getElementById('email');
+        const subject = document.getElementById('subject');
+        const message = document.getElementById('message');
+
+        let isValid = true;
+        if (!formValidator.isRequired(name.value)) {
+          formValidator.showError(name, 'Name is required');
+          isValid = false;
+        }
+        if (!formValidator.isValidEmail(email.value)) {
+          formValidator.showError(email, 'Valid email is required');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(subject.value)) {
+          formValidator.showError(subject, 'Subject is required');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(message.value)) {
+          formValidator.showError(message, 'Message is required');
+          isValid = false;
+        }
+
+        if (!isValid) return;
+
+        try {
+          ui.setLoading(submitBtn, true, 'Sending...');
+          const response = await apiClient.post('/public/contact', {
+            name: name.value.trim(),
+            email: email.value.trim(),
+            subject: subject.value.trim(),
+            message: message.value.trim(),
+          });
+          ui.showAlert(
+            '#form-feedback',
+            'success',
+            response.message || 'Thank you! Your message has been received.'
+          );
+          form.reset();
+        } catch (err) {
+          ui.showAlert(
+            '#form-feedback',
+            'error',
+            err.message || 'Failed to send message. Please try again.'
+          );
+        } finally {
+          ui.setLoading(submitBtn, false);
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>For Parents | Bilunex Student Registration</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="index.html" class="brand-logo">Bilunex <span class="brand-tag">Parents</span></a>
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="site-nav">
+          <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="about.html" class="nav-link">About</a></li>
+            <li><a href="services.html" class="nav-link">Services</a></li>
+            <li><a href="stories.html" class="nav-link">Stories</a></li>
+            <li><a href="contact.html" class="nav-link">Contact</a></li>
+          </ul>
+          <div class="nav-cta">
+            <a href="for-parents.html" class="btn btn-primary btn-sm active">For Parents</a>
+            <a href="become-a-mentor.html" class="btn btn-secondary btn-sm">Become a Mentor</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h1>Register Your Student</h1>
+          <p>
+            Take the first step toward personalized academic tutoring, mentoring, or counseling
+            support.
+          </p>
+        </div>
+
+        <div class="card form-card">
+          <!-- Status / Feedback Banner Container -->
+          <div id="form-feedback"></div>
+
+          <form id="parent-registration-form" novalidate>
+            <div class="form-group">
+              <label for="parent_name" class="form-label"
+                >Parent / Guardian Full Name <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                id="parent_name"
+                name="parent_name"
+                class="form-control"
+                placeholder="Jane Doe"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="email" class="form-label"
+                >Email Address <span class="required">*</span></label
+              >
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-control"
+                placeholder="parent@example.com"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="phone" class="form-label"
+                >Phone Number <span class="required">*</span></label
+              >
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                class="form-control"
+                placeholder="+1 (555) 000-0000"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="student_name" class="form-label"
+                >Student Full Name <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                id="student_name"
+                name="student_name"
+                class="form-control"
+                placeholder="Alex Doe"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="student_grade" class="form-label"
+                >Grade / Educational Level <span class="required">*</span></label
+              >
+              <select id="student_grade" name="student_grade" class="form-control" required>
+                <option value="">Select Grade Level</option>
+                <option value="Elementary (K-5)">Elementary (K-5)</option>
+                <option value="Middle School (6-8)">Middle School (6-8)</option>
+                <option value="High School (9-12)">High School (9-12)</option>
+                <option value="College / Vocational">College / Vocational</option>
+              </select>
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="support_type" class="form-label"
+                >Requested Support Category <span class="required">*</span></label
+              >
+              <select id="support_type" name="support_type" class="form-control" required>
+                <option value="">Select Primary Support Needed</option>
+                <option value="tutoring">Academic Tutoring</option>
+                <option value="mentoring">1-on-1 Mentorship</option>
+                <option value="counseling">Counseling Support</option>
+                <option value="combined">Combined / Holistic Support</option>
+              </select>
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="notes" class="form-label">Additional Goals or Notes</label>
+              <textarea
+                id="notes"
+                name="notes"
+                class="form-control"
+                placeholder="Tell us about the student's strengths, interests, and areas needing support..."
+              ></textarea>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn btn-primary btn-block">
+              Submit Registration
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-bottom"><p>&copy; 2026 Bilunex Platform. All rights reserved.</p></div>
+      </div>
+    </footer>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/validation.js"></script>
+    <script src="../js/ui.js"></script>
+    <script>
+      // Placeholder handler wired to backend API
+      const form = document.getElementById('parent-registration-form');
+      const submitBtn = document.getElementById('submit-btn');
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        formValidator.clearAllErrors(form);
+
+        const parentNameInput = document.getElementById('parent_name');
+        const emailInput = document.getElementById('email');
+        const phoneInput = document.getElementById('phone');
+        const studentNameInput = document.getElementById('student_name');
+        const gradeInput = document.getElementById('student_grade');
+        const supportTypeInput = document.getElementById('support_type');
+        const notesInput = document.getElementById('notes');
+
+        let isValid = true;
+        if (!formValidator.isRequired(parentNameInput.value)) {
+          formValidator.showError(parentNameInput, 'Parent name is required');
+          isValid = false;
+        }
+        if (!formValidator.isValidEmail(emailInput.value)) {
+          formValidator.showError(emailInput, 'Please provide a valid email address');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(phoneInput.value)) {
+          formValidator.showError(phoneInput, 'Phone number is required');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(studentNameInput.value)) {
+          formValidator.showError(studentNameInput, 'Student name is required');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(gradeInput.value)) {
+          formValidator.showError(gradeInput, 'Please select student grade level');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(supportTypeInput.value)) {
+          formValidator.showError(supportTypeInput, 'Please select requested support category');
+          isValid = false;
+        }
+
+        if (!isValid) return;
+
+        const payload = {
+          parent_name: parentNameInput.value.trim(),
+          email: emailInput.value.trim(),
+          phone: phoneInput.value.trim(),
+          student_name: studentNameInput.value.trim(),
+          student_grade: gradeInput.value,
+          support_type: supportTypeInput.value,
+          notes: notesInput.value.trim(),
+        };
+
+        try {
+          ui.setLoading(submitBtn, true, 'Submitting Registration...');
+          const response = await apiClient.post('/public/parents/register', payload);
+          ui.showAlert(
+            '#form-feedback',
+            'success',
+            response.message ||
+              'Registration submitted successfully! Our coordinator will contact you shortly.'
+          );
+          form.reset();
+        } catch (err) {
+          ui.showAlert(
+            '#form-feedback',
+            'error',
+            err.message || 'Failed to submit registration. Please try again.'
+          );
+        } finally {
+          ui.setLoading(submitBtn, false);
+        }
+      });
+    </script>
+  </body>
+</html>

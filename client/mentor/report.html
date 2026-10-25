@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submit Support Report | Bilunex Mentor Portal</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="../public/index.html" class="brand-logo">
+          Bilunex <span class="brand-tag">Mentor Portal</span>
+        </a>
+        <div style="display: flex; align-items: center; gap: var(--space-4)">
+          <span
+            id="mentor-display"
+            style="font-size: var(--font-size-sm); color: var(--color-text-muted)"
+            >Mentor</span
+          >
+          <button id="logout-btn" class="btn btn-outline btn-sm">Sign Out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="container portal-layout">
+        <aside class="portal-sidebar">
+          <ul class="portal-nav">
+            <li><a href="profile.html">My Profile & Sessions</a></li>
+            <li><a href="report.html" class="active">Submit Support Report</a></li>
+          </ul>
+        </aside>
+
+        <section class="portal-main">
+          <div class="page-header" style="text-align: left">
+            <h1>Submit Student Support Report</h1>
+            <p>
+              Document session progress, academic hurdles, and emotional observations for
+              safeguarding.
+            </p>
+          </div>
+
+          <div class="card form-card" style="max-width: 720px; margin: 0">
+            <div id="report-feedback"></div>
+
+            <form id="support-report-form" novalidate>
+              <div class="form-group">
+                <label for="student_name" class="form-label"
+                  >Student Name <span class="required">*</span></label
+                >
+                <input
+                  type="text"
+                  id="student_name"
+                  class="form-control"
+                  placeholder="Alex Doe"
+                  required
+                />
+                <div class="form-error"></div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4)">
+                <div class="form-group">
+                  <label for="session_date" class="form-label"
+                    >Session Date <span class="required">*</span></label
+                  >
+                  <input type="date" id="session_date" class="form-control" required />
+                  <div class="form-error"></div>
+                </div>
+
+                <div class="form-group">
+                  <label for="duration_minutes" class="form-label"
+                    >Duration (Minutes) <span class="required">*</span></label
+                  >
+                  <input
+                    type="number"
+                    id="duration_minutes"
+                    class="form-control"
+                    placeholder="60"
+                    min="15"
+                    max="240"
+                    required
+                  />
+                  <div class="form-error"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="session_focus" class="form-label"
+                  >Session Focus & Academic Topics <span class="required">*</span></label
+                >
+                <input
+                  type="text"
+                  id="session_focus"
+                  class="form-control"
+                  placeholder="Algebra Quadratic equations & study routine planning"
+                  required
+                />
+                <div class="form-error"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="observations" class="form-label"
+                  >Key Observations & Emotional Engagement <span class="required">*</span></label
+                >
+                <textarea
+                  id="observations"
+                  class="form-control"
+                  placeholder="Describe the student's mood, receptiveness, breakthroughs, or areas of frustration..."
+                  required
+                ></textarea>
+                <div class="form-error"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="action_items" class="form-label">Action Items / Follow-up Tasks</label>
+                <textarea
+                  id="action_items"
+                  class="form-control"
+                  placeholder="Practice problems assigned, routine goals for next week..."
+                ></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="progress_rating" class="form-label"
+                  >Overall Progress Rating (1 to 5) <span class="required">*</span></label
+                >
+                <select id="progress_rating" class="form-control" required>
+                  <option value="">Select rating</option>
+                  <option value="5">5 - Excellent Breakthrough</option>
+                  <option value="4">4 - Solid Steady Progress</option>
+                  <option value="3">3 - Satisfactory / Baseline</option>
+                  <option value="2">2 - Needs Reinforcement</option>
+                  <option value="1">1 - Stalled / Needs Intervention</option>
+                </select>
+                <div class="form-error"></div>
+              </div>
+
+              <button type="submit" id="submit-btn" class="btn btn-secondary btn-block">
+                File Support Report
+              </button>
+            </form>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/validation.js"></script>
+    <script src="../js/ui.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+      auth.protectPage('mentor', 'login.html');
+
+      const user = auth.getUser();
+      if (user && user.email) {
+        document.getElementById('mentor-display').textContent = user.name || user.email;
+      }
+
+      document.getElementById('logout-btn').addEventListener('click', () => {
+        auth.logout('login.html');
+      });
+
+      // Default today's date
+      document.getElementById('session_date').value = new Date().toISOString().split('T')[0];
+
+      const form = document.getElementById('support-report-form');
+      const submitBtn = document.getElementById('submit-btn');
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        formValidator.clearAllErrors(form);
+
+        const studentName = document.getElementById('student_name');
+        const sessionDate = document.getElementById('session_date');
+        const duration = document.getElementById('duration_minutes');
+        const focus = document.getElementById('session_focus');
+        const observations = document.getElementById('observations');
+        const actionItems = document.getElementById('action_items');
+        const rating = document.getElementById('progress_rating');
+
+        let isValid = true;
+        if (!formValidator.isRequired(studentName.value)) {
+          formValidator.showError(studentName, 'Student name is required');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(sessionDate.value)) {
+          formValidator.showError(sessionDate, 'Session date is required');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(duration.value)) {
+          formValidator.showError(duration, 'Duration is required');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(focus.value)) {
+          formValidator.showError(focus, 'Session focus is required');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(observations.value)) {
+          formValidator.showError(observations, 'Observations are required');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(rating.value)) {
+          formValidator.showError(rating, 'Please select a progress rating');
+          isValid = false;
+        }
+
+        if (!isValid) return;
+
+        const payload = {
+          student_name: studentName.value.trim(),
+          session_date: sessionDate.value,
+          duration_minutes: parseInt(duration.value, 10),
+          session_focus: focus.value.trim(),
+          observations: observations.value.trim(),
+          action_items: actionItems.value.trim(),
+          progress_rating: parseInt(rating.value, 10),
+        };
+
+        try {
+          ui.setLoading(submitBtn, true, 'Submitting Report...');
+          const res = await apiClient.post('/mentor/reports', payload);
+          ui.showAlert(
+            '#report-feedback',
+            'success',
+            res.message || 'Support report filed successfully!',
+            4000
+          );
+          form.reset();
+          document.getElementById('session_date').value = new Date().toISOString().split('T')[0];
+        } catch (err) {
+          ui.showAlert('#report-feedback', 'error', err.message || 'Failed to submit report.');
+        } finally {
+          ui.setLoading(submitBtn, false);
+        }
+      });
+    </script>
+  </body>
+</html>

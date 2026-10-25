@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Become a Mentor | Bilunex Application</title>
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="index.html" class="brand-logo">Bilunex <span class="brand-tag">Mentors</span></a>
+        <button class="nav-toggle" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="site-nav">
+          <ul class="nav-links">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="about.html" class="nav-link">About</a></li>
+            <li><a href="services.html" class="nav-link">Services</a></li>
+            <li><a href="stories.html" class="nav-link">Stories</a></li>
+            <li><a href="contact.html" class="nav-link">Contact</a></li>
+          </ul>
+          <div class="nav-cta">
+            <a href="for-parents.html" class="btn btn-primary btn-sm">For Parents</a>
+            <a href="become-a-mentor.html" class="btn btn-secondary btn-sm active"
+              >Become a Mentor</a
+            >
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h1>Join Our Mentorship Network</h1>
+          <p>
+            Make a lasting impact on young minds through academic coaching and positive role
+            modeling.
+          </p>
+        </div>
+
+        <div class="card form-card">
+          <div id="form-feedback"></div>
+
+          <form id="mentor-application-form" novalidate>
+            <div class="form-group">
+              <label for="full_name" class="form-label"
+                >Full Name <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                id="full_name"
+                name="full_name"
+                class="form-control"
+                placeholder="Dr. Sarah Johnson"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="email" class="form-label"
+                >Email Address <span class="required">*</span></label
+              >
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-control"
+                placeholder="mentor@example.com"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="phone" class="form-label"
+                >Phone Number <span class="required">*</span></label
+              >
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                class="form-control"
+                placeholder="+1 (555) 123-4567"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="expertise" class="form-label"
+                >Subjects / Areas of Expertise <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                id="expertise"
+                name="expertise"
+                class="form-control"
+                placeholder="e.g. Mathematics, Physics, Life Mentoring"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="years_experience" class="form-label"
+                >Years of Experience <span class="required">*</span></label
+              >
+              <input
+                type="number"
+                id="years_experience"
+                name="years_experience"
+                min="0"
+                max="50"
+                class="form-control"
+                placeholder="3"
+                required
+              />
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="bio" class="form-label"
+                >Professional Background & Motivation <span class="required">*</span></label
+              >
+              <textarea
+                id="bio"
+                name="bio"
+                class="form-control"
+                placeholder="Tell us about your educational background and why you want to mentor students..."
+                required
+              ></textarea>
+              <div class="form-error"></div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn btn-secondary btn-block">
+              Submit Mentor Application
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-bottom"><p>&copy; 2026 Bilunex Platform. All rights reserved.</p></div>
+      </div>
+    </footer>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/validation.js"></script>
+    <script src="../js/ui.js"></script>
+    <script>
+      const form = document.getElementById('mentor-application-form');
+      const submitBtn = document.getElementById('submit-btn');
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        formValidator.clearAllErrors(form);
+
+        const fullName = document.getElementById('full_name');
+        const email = document.getElementById('email');
+        const phone = document.getElementById('phone');
+        const expertise = document.getElementById('expertise');
+        const yearsExp = document.getElementById('years_experience');
+        const bio = document.getElementById('bio');
+
+        let isValid = true;
+        if (!formValidator.isRequired(fullName.value)) {
+          formValidator.showError(fullName, 'Full name is required');
+          isValid = false;
+        }
+        if (!formValidator.isValidEmail(email.value)) {
+          formValidator.showError(email, 'Please provide a valid email');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(phone.value)) {
+          formValidator.showError(phone, 'Phone number is required');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(expertise.value)) {
+          formValidator.showError(expertise, 'Expertise areas are required');
+          isValid = false;
+        }
+        if (!formValidator.isRequired(yearsExp.value)) {
+          formValidator.showError(yearsExp, 'Years of experience is required');
+          isValid = false;
+        }
+        if (!formValidator.hasMinLength(bio.value, 20)) {
+          formValidator.showError(bio, 'Please write at least 20 characters about your background');
+          isValid = false;
+        }
+
+        if (!isValid) return;
+
+        const payload = {
+          full_name: fullName.value.trim(),
+          email: email.value.trim(),
+          phone: phone.value.trim(),
+          expertise: expertise.value.trim(),
+          years_experience: parseInt(yearsExp.value, 10),
+          bio: bio.value.trim(),
+        };
+
+        try {
+          ui.setLoading(submitBtn, true, 'Submitting Application...');
+          const response = await apiClient.post('/public/mentors/apply', payload);
+          ui.showAlert(
+            '#form-feedback',
+            'success',
+            response.message ||
+              'Application submitted! Our admissions team will review your application.'
+          );
+          form.reset();
+        } catch (err) {
+          ui.showAlert(
+            '#form-feedback',
+            'error',
+            err.message || 'Application failed to submit. Please try again.'
+          );
+        } finally {
+          ui.setLoading(submitBtn, false);
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,69 @@
+name: Bilunex CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: bilunex_user
+          POSTGRES_PASSWORD: bilunex_password
+          POSTGRES_DB: bilunex_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x, 24.x]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: 'server/package-lock.json'
+
+      - name: Install server dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Check code formatting
+        working-directory: ./server
+        run: npm run format:check
+
+      - name: Lint source code
+        working-directory: ./server
+        run: npm run lint
+
+      - name: Run automated test suite
+        working-directory: ./server
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://bilunex_user:bilunex_password@localhost:5432/bilunex_test
+          TEST_DATABASE_URL: postgresql://bilunex_user:bilunex_password@localhost:5432/bilunex_test
+          JWT_SECRET: ci_test_secret_key_minimum_16_characters
+          JWT_EXPIRES_IN: 1d
+          EMAIL_HOST: localhost
+          EMAIL_PORT: 2525
+          EMAIL_USER: test_user
+          EMAIL_PASS: test_password
+          ADMIN_NOTIFICATION_EMAIL: admin@bilunex.org
+          CLIENT_URL: http://localhost:5000
+        run: npm test
