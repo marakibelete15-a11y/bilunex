@@ -1,75 +1,174 @@
 /**
  * Bilunex - Admin Controller
- * Handles HTTP requests for administrative dashboard statistics, applications, and mentor rosters.
+ * Handles HTTP requests for admin authentication, intake management, candidate screening,
+ * mentor activation, inquiry resolution, and session report audits.
+ * Controllers NEVER write SQL directly.
  */
 
-const mentorService = require('../services/mentor.service');
-const parentRepository = require('../repositories/parent.repository');
-const mentorRepository = require('../repositories/mentor.repository');
-const reportRepository = require('../repositories/report.repository');
+const adminService = require('../services/admin.service');
 const { sendSuccess } = require('../utils/response');
 
 const adminController = {
   /**
-   * Get administrative overview metrics
+   * Admin Login
+   * POST /api/v1/admin/auth/login
+   */
+  async login(req, res, next) {
+    try {
+      const { email, password } = req.body;
+      const result = await adminService.login({
+        email,
+        password,
+        ip: req.ip,
+      });
+      return sendSuccess(res, result, 'Admin authenticated successfully', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Get Current Admin Profile
+   * GET /api/v1/admin/auth/me
+   */
+  async getMe(req, res, next) {
+    try {
+      const admin = await adminService.getMe(req.user.id);
+      return sendSuccess(res, admin, 'Admin profile retrieved successfully', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * List Parent Registrations with search, filters, pagination
+   * GET /api/v1/admin/parent-registrations
+   */
+  async getParentRegistrations(req, res, next) {
+    try {
+      const result = await adminService.getParentRegistrations({
+        filters: req.query,
+        adminUser: req.user,
+        ip: req.ip,
+      });
+      return sendSuccess(res, result, 'Parent registrations retrieved successfully', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * List Mentor Applications with status filter & pagination
+   * GET /api/v1/admin/mentor-applications
+   */
+  async getMentorApplications(req, res, next) {
+    try {
+      const result = await adminService.getMentorApplications({
+        filters: req.query,
+      });
+      return sendSuccess(res, result, 'Mentor applications retrieved successfully', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Update Mentor Application Status
+   * PATCH /api/v1/admin/mentor-applications/:id/status
+   */
+  async updateMentorApplicationStatus(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const updated = await adminService.updateMentorApplicationStatus({
+        id,
+        status,
+        adminUser: req.user,
+        ip: req.ip,
+      });
+      return sendSuccess(res, updated, `Mentor application status updated to ${status}`, 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Activate Accepted Mentor (ACID transaction)
+   * POST /api/v1/admin/mentor-applications/:id/activate
+   */
+  async activateMentor(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { initial_password } = req.body || {};
+      const mentorProfile = await adminService.activateMentor({
+        applicationId: id,
+        initialPassword: initial_password,
+        adminUser: req.user,
+      });
+      return sendSuccess(
+        res,
+        mentorProfile,
+        'Mentor profile created and activated successfully',
+        201
+      );
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * List Contact & Counseling Inquiries
+   * GET /api/v1/admin/inquiries
+   */
+  async getInquiries(req, res, next) {
+    try {
+      const result = await adminService.getInquiries({
+        filters: req.query,
+      });
+      return sendSuccess(res, result, 'Inquiries retrieved successfully', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Summary Counts Across Intakes & Applications
+   * GET /api/v1/admin/reports/summary
+   */
+  async getReportsSummary(req, res, next) {
+    try {
+      const summary = await adminService.getReportsSummary();
+      return sendSuccess(res, summary, 'Operational summary metrics retrieved', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * List Student Support Reports with Mentor Names
+   * GET /api/v1/admin/student-support-reports
+   */
+  async getStudentSupportReports(req, res, next) {
+    try {
+      const result = await adminService.getStudentSupportReports({
+        filters: req.query,
+        adminUser: req.user,
+        ip: req.ip,
+      });
+      return sendSuccess(res, result, 'Student support reports retrieved successfully', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Backward-compatible overview helper
    * GET /api/v1/admin/overview
    */
   async getOverview(req, res, next) {
     try {
-      const [parentsCount, applicationsCount, mentorsCount, reportsCount] = await Promise.all([
-        parentRepository.countAll().catch(() => 0),
-        mentorRepository.countPendingApplications().catch(() => 0),
-        mentorRepository.countActiveMentors().catch(() => 0),
-        reportRepository.countAll().catch(() => 0),
-      ]);
-
-      return sendSuccess(res, {
-        parentsCount,
-        applicationsCount,
-        mentorsCount,
-        reportsCount,
-      });
-    } catch (err) {
-      next(err);
-    }
-  },
-
-  /**
-   * Get all mentor applications
-   * GET /api/v1/admin/applications
-   */
-  async getApplications(req, res, next) {
-    try {
-      const applications = await mentorService.getApplications();
-      return sendSuccess(res, applications, 'Mentor applications retrieved');
-    } catch (err) {
-      next(err);
-    }
-  },
-
-  /**
-   * Update mentor application status (approve / reject)
-   * PATCH /api/v1/admin/applications/:id
-   */
-  async updateApplicationStatus(req, res, next) {
-    try {
-      const { id } = req.params;
-      const { status } = req.body;
-      const updated = await mentorService.updateApplicationStatus(id, status);
-      return sendSuccess(res, updated, `Application status updated to ${status}`);
-    } catch (err) {
-      next(err);
-    }
-  },
-
-  /**
-   * Get all active mentors
-   * GET /api/v1/admin/mentors
-   */
-  async getMentors(req, res, next) {
-    try {
-      const mentors = await mentorService.getActiveMentors();
-      return sendSuccess(res, mentors, 'Active mentors retrieved');
+      const summary = await adminService.getReportsSummary();
+      return sendSuccess(res, summary, 'Dashboard overview metrics retrieved', 200);
     } catch (err) {
       next(err);
     }
