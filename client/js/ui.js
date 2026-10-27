@@ -1,72 +1,160 @@
 /**
- * Bilunex - UI Helpers
- * DOM helpers, mobile navigation toggle, alert notifications, and loading states.
+ * Bilunex - UI Helpers (ES Module)
+ * Accessible alerts, button loading states, and mobile navigation toggling.
+ * Enforces rule: Zero innerHTML injection with user text; strictly uses textContent & safe DOM methods.
  */
 
-const ui = {
+export const ui = {
   /**
-   * Display an alert banner in a target container
-   * @param {HTMLElement|string} target - Container element or selector
-   * @param {'success'|'error'|'info'} type - Alert style
-   * @param {string} message - Message to display
-   * @param {number} [autoDismissMs] - Optional auto dismiss time in ms
+   * Display an accessible alert banner in a target container
+   * @param {HTMLElement|string} target - Container element or CSS selector
+   * @param {'success'|'error'|'info'|'warning'} type - Alert style
+   * @param {string} message - User-facing text message
+   * @param {number} [autoDismissMs=0] - Optional timeout to auto-remove alert
    */
   showAlert(target, type, message, autoDismissMs = 0) {
     const container = typeof target === 'string' ? document.querySelector(target) : target;
     if (!container) return;
 
-    const alertEl = document.createElement('div');
-    alertEl.className = `alert alert-${type === 'error' ? 'error' : type === 'info' ? 'info' : 'success'}`;
-    alertEl.innerHTML = `<span>${message}</span>`;
+    // Safely clear existing contents without innerHTML
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
 
-    container.innerHTML = '';
+    const alertEl = document.createElement('div');
+    alertEl.className = `alert alert-${type}`;
+    alertEl.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    alertEl.setAttribute('aria-live', 'polite');
+
+    // Accessible visual status icon indicator
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'alert-icon';
+    iconSpan.setAttribute('aria-hidden', 'true');
+    iconSpan.textContent = type === 'success' ? '✓' : type === 'error' ? '⚠' : 'ℹ';
+
+    const textSpan = document.createElement('span');
+    textSpan.className = 'alert-text';
+    textSpan.textContent = message; // Safe: textContent prevents XSS injection
+
+    alertEl.appendChild(iconSpan);
+    alertEl.appendChild(textSpan);
+
     container.appendChild(alertEl);
+
+    // Scroll container into view if offscreen
+    const rect = container.getBoundingClientRect();
+    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+      container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
     if (autoDismissMs > 0) {
       setTimeout(() => {
-        alertEl.remove();
+        if (alertEl.parentElement) {
+          alertEl.remove();
+        }
       }, autoDismissMs);
     }
   },
 
   /**
-   * Toggle button loading state
-   * @param {HTMLButtonElement} buttonEl
-   * @param {boolean} isLoading
-   * @param {string} [loadingText]
+   * Clear any active alerts in a container
+   * @param {HTMLElement|string} target
    */
-  setLoading(buttonEl, isLoading, loadingText = 'Processing...') {
-    if (!buttonEl) return;
-    if (isLoading) {
-      buttonEl.dataset.originalText = buttonEl.innerHTML;
-      buttonEl.disabled = true;
-      buttonEl.textContent = loadingText;
-    } else {
-      buttonEl.disabled = false;
-      buttonEl.innerHTML = buttonEl.dataset.originalText || 'Submit';
+  clearAlert(target) {
+    const container = typeof target === 'string' ? document.querySelector(target) : target;
+    if (!container) return;
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
     }
   },
 
   /**
-   * Initialize mobile navigation menu toggle
+   * Toggle accessible button loading state with spinner
+   * @param {HTMLButtonElement} buttonEl
+   * @param {boolean} isLoading
+   * @param {string} [loadingText='Processing...']
+   */
+  setButtonLoading(buttonEl, isLoading, loadingText = 'Processing...') {
+    if (!buttonEl) return;
+
+    if (isLoading) {
+      buttonEl.dataset.originalText = buttonEl.textContent.trim();
+      buttonEl.disabled = true;
+      buttonEl.setAttribute('aria-busy', 'true');
+
+      // Clear button text safely and insert spinner + text
+      while (buttonEl.firstChild) {
+        buttonEl.removeChild(buttonEl.firstChild);
+      }
+
+      const spinner = document.createElement('span');
+      spinner.className = 'btn-spinner';
+      spinner.setAttribute('aria-hidden', 'true');
+
+      const text = document.createElement('span');
+      text.textContent = ` ${loadingText}`;
+
+      buttonEl.appendChild(spinner);
+      buttonEl.appendChild(text);
+    } else {
+      buttonEl.disabled = false;
+      buttonEl.removeAttribute('aria-busy');
+
+      while (buttonEl.firstChild) {
+        buttonEl.removeChild(buttonEl.firstChild);
+      }
+      buttonEl.textContent = buttonEl.dataset.originalText || 'Submit';
+    }
+  },
+
+  /**
+   * Initialize accessible mobile navigation drawer toggle
    */
   initMobileNav() {
     const navToggle = document.querySelector('.nav-toggle');
-    const siteNav = document.querySelector('.site-nav');
+    const primaryNav = document.querySelector('.primary-nav');
 
-    if (navToggle && siteNav) {
-      navToggle.addEventListener('click', () => {
-        const isOpen = siteNav.classList.toggle('is-open');
-        navToggle.setAttribute('aria-expanded', String(isOpen));
-      });
-    }
+    if (!navToggle || !primaryNav) return;
+
+    const toggleNav = open => {
+      const isCurrentlyOpen = navToggle.getAttribute('aria-expanded') === 'true';
+      const shouldOpen = typeof open === 'boolean' ? open : !isCurrentlyOpen;
+
+      navToggle.setAttribute('aria-expanded', String(shouldOpen));
+      if (shouldOpen) {
+        primaryNav.classList.add('is-open');
+      } else {
+        primaryNav.classList.remove('is-open');
+      }
+    };
+
+    navToggle.addEventListener('click', e => {
+      e.stopPropagation();
+      toggleNav();
+    });
+
+    // Close menu when pressing Escape key
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && navToggle.getAttribute('aria-expanded') === 'true') {
+        toggleNav(false);
+        navToggle.focus();
+      }
+    });
+
+    // Close menu on click outside
+    document.addEventListener('click', e => {
+      if (
+        navToggle.getAttribute('aria-expanded') === 'true' &&
+        !primaryNav.contains(e.target) &&
+        !navToggle.contains(e.target)
+      ) {
+        toggleNav(false);
+      }
+    });
   },
 };
 
-// Auto-initialize mobile navigation on DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-  ui.initMobileNav();
-});
-
-// Expose globally
-window.ui = ui;
+// Global fallback for vanilla non-modular scripts
+if (typeof window !== 'undefined') {
+  window.ui = ui;
+}

@@ -22,7 +22,7 @@ const auth = {
    * @returns {string|null}
    */
   getToken() {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return localStorage.getItem(this.TOKEN_KEY) || localStorage.getItem('bluenex_token');
   },
 
   /**
@@ -30,7 +30,7 @@ const auth = {
    * @returns {object|null}
    */
   getUser() {
-    const raw = localStorage.getItem(this.USER_KEY);
+    const raw = localStorage.getItem(this.USER_KEY) || localStorage.getItem('bluenex_user');
     if (!raw) return null;
     try {
       return JSON.parse(raw);
