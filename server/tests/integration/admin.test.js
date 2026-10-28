@@ -171,6 +171,7 @@ describe('Admin Management Endpoints (V1)', () => {
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body.data.applications)).toBe(true);
       expect(res.body.data.applications.every(a => a.status === 'under_review')).toBe(true);
+      expect(res.body.data.applications.every(a => Array.isArray(a.documents))).toBe(true);
     });
 
     test('should update application status to interview_stage and record audit_log', async () => {

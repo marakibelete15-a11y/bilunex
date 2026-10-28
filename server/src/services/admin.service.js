@@ -161,8 +161,15 @@ const adminService = {
       mentorRepository.countApplications({ status }),
     ]);
 
+    const applicationsWithDocuments = await Promise.all(
+      applications.map(async application => ({
+        ...application,
+        documents: await documentRepository.findByApplicationId(application.id),
+      }))
+    );
+
     return {
-      applications,
+      applications: applicationsWithDocuments,
       pagination: {
         total,
         page,
