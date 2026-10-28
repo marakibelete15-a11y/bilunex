@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Register a student with Bilunex for academic support, mentoring, or professional counseling."
+    />
+    <meta name="theme-color" content="#102746" />
+    <title>Student (Parent) Form | Bilunex</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header id="site-header" class="site-header"></header>
+    <main id="main-content" class="main-content">
+      <section class="registration-intro">
+        <div class="container registration-card card">
+          <h1>BILUNEX STUDENT(PARENT) FORM</h1>
+          <p>
+            Welcome to Bilunex. We connect Ethiopia’s top university mentors with young learners to
+            provide premium academic support. 🚀
+          </p>
+          <p>
+            Please complete this registration form to help us match your children with the
+            best-suited specialists from our elite mentor team. 🎓
+          </p>
+          <p>
+            Connecting trusted university tutors with students for safe, affordable, and effective
+            learning.
+          </p>
+          <p lang="am" class="amharic-copy">
+            [Amharic introduction from the supplied Google Form screenshot]
+          </p>
+          <aside class="next-steps" aria-labelledby="next-steps-title">
+            <h2 id="next-steps-title">Next Steps: <span>[To be confirmed by Bilunex]</span></h2>
+            <ol>
+              <li>Once submitted , our team will review your requirements.</li>
+              <li>
+                We will contact you within 24 hours to finalize the registration fee and schedule a
+                Trial Session.
+              </li>
+            </ol>
+          </aside>
+          <p class="form-required-note">
+            <span aria-hidden="true">*</span> Indicates required question
+          </p>
+        </div>
+      </section>
+
+      <section class="section-block form-section" aria-label="Student registration form">
+        <div class="container">
+          <div class="form-card card">
+            <div class="form-progress" aria-label="Form progress">
+              <ol>
+                <li class="is-current" data-progress-step="0">
+                  <span>1</span><span>Parent/Guardian</span>
+                </li>
+                <li data-progress-step="1"><span>2</span><span>Student Support</span></li>
+              </ol>
+              <div class="progress-track"><span id="form-progress-bar"></span></div>
+            </div>
+            <div
+              id="form-feedback"
+              class="form-feedback"
+              role="status"
+              aria-live="polite"
+              tabindex="-1"
+            ></div>
+            <form id="parent-registration-form" novalidate>
+              <section
+                class="form-step is-current"
+                data-form-step="0"
+                aria-labelledby="parent-step-title"
+              >
+                <h2 id="parent-step-title" tabindex="-1">Parent/Guardian Details</h2>
+                <div class="form-group">
+                  <label for="parent_name" class="form-label"
+                    >Parent/Guardian Full Name <span class="required">*</span></label
+                  >
+                  <input
+                    id="parent_name"
+                    name="parent_name"
+                    class="form-control"
+                    autocomplete="name"
+                    required
+                    minlength="2"
+                  />
+                  <p class="form-error" id="parent_name-error"></p>
+                </div>
+                <fieldset class="form-group">
+                  <legend class="form-label">Preferred Title</legend>
+                  <div class="option-list option-list-inline">
+                    <label><input type="checkbox" name="title-choice" value="Mr." /> Mr.</label>
+                    <label><input type="checkbox" name="title-choice" value="Mrs." /> Mrs.</label>
+                    <label><input type="checkbox" name="title-choice" value="Ms" /> Ms</label>
+                    <label><input type="checkbox" name="title-choice" value="Dr." /> Dr.</label>
+                    <label
+                      ><input
+                        type="checkbox"
+                        id="title-other-check"
+                        name="title-choice"
+                        value="Other"
+                      />
+                      Other</label
+                    >
+                  </div>
+                  <label class="sr-only" for="preferred_title_other">Other preferred title</label>
+                  <input
+                    id="preferred_title_other"
+                    class="form-control other-title-input"
+                    maxlength="50"
+                    placeholder="Enter preferred title"
+                    disabled
+                  />
+                  <p class="form-error" id="preferred-title-error"></p>
+                </fieldset>
+                <div class="form-group">
+                  <label for="email" class="form-label"
+                    >Email Address <span class="required">*</span></label
+                  >
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    class="form-control"
+                    autocomplete="email"
+                    required
+                  />
+                  <p class="field-hint">
+                    The registration service requires an email address for contact.
+                  </p>
+                  <p class="form-error" id="email-error"></p>
+                </div>
+                <div class="form-group">
+                  <label for="phone" class="form-label"
+                    >Phone Number <span class="required">*</span></label
+                  >
+                  <p class="field-hint">
+                    Example: +2519XXXXXXXX (active telegram phone number is preferred)
+                  </p>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    class="form-control"
+                    autocomplete="tel"
+                    placeholder="+2519XXXXXXXX or 09XXXXXXXX"
+                    required
+                  />
+                  <p class="form-error" id="phone-error"></p>
+                </div>
+                <div class="form-group">
+                  <label for="secondary_phone" class="form-label"
+                    >Secondary phone Number (optional)</label
+                  >
+                  <input
+                    id="secondary_phone"
+                    name="secondary_phone"
+                    type="tel"
+                    class="form-control"
+                    placeholder="+2519XXXXXXXX or 09XXXXXXXX"
+                  />
+                  <p class="form-error" id="secondary_phone-error"></p>
+                </div>
+                <fieldset class="form-group">
+                  <legend class="form-label">
+                    Preferred Communication Method <span class="required">*</span>
+                  </legend>
+                  <div class="option-list">
+                    <label
+                      ><input
+                        type="checkbox"
+                        name="preferred_communication_method"
+                        value="phone_call"
+                      />
+                      Phone call</label
+                    >
+                    <label
+                      ><input
+                        type="checkbox"
+                        name="preferred_communication_method"
+                        value="telegram"
+                      />
+                      Telegram</label
+                    >
+                    <label
+                      ><input
+                        type="checkbox"
+                        name="preferred_communication_method"
+                        value="whatsapp"
+                      />
+                      WhatsApp</label
+                    >
+                  </div>
+                  <p class="form-error" id="communication-error"></p>
+                </fieldset>
+                <div class="form-group">
+                  <label for="telegram_handle" class="form-label">Telegram handle (optional)</label>
+                  <input
+                    id="telegram_handle"
+                    name="telegram_handle"
+                    class="form-control"
+                    placeholder="@username"
+                  />
+                  <p class="form-error" id="telegram_handle-error"></p>
+                </div>
+                <div class="form-actions form-actions-between">
+                  <span></span
+                  ><button class="btn btn-primary" type="button" data-next-step>Next</button>
+                </div>
+              </section>
+
+              <section
+                class="form-step"
+                data-form-step="1"
+                aria-labelledby="student-step-title"
+                hidden
+              >
+                <h2 id="student-step-title" tabindex="-1">Student and Support Details</h2>
+                <div class="form-group">
+                  <label for="child_name" class="form-label"
+                    >Child/Student Full Name <span class="required">*</span></label
+                  >
+                  <input
+                    id="child_name"
+                    name="child_name"
+                    class="form-control"
+                    required
+                    minlength="2"
+                  />
+                  <p class="form-error" id="child_name-error"></p>
+                </div>
+                <div class="form-group">
+                  <label for="grade_level" class="form-label"
+                    >Grade Level <span class="required">*</span></label
+                  >
+                  <input id="grade_level" name="grade_level" class="form-control" required />
+                  <p class="field-hint">Enter the student’s current grade or level.</p>
+                  <p class="form-error" id="grade_level-error"></p>
+                </div>
+                <div class="form-group">
+                  <label for="subjects" class="form-label"
+                    >Subjects <span class="required">*</span></label
+                  >
+                  <input
+                    id="subjects"
+                    name="subjects"
+                    class="form-control"
+                    required
+                    placeholder="Separate subjects with commas"
+                  />
+                  <p class="form-error" id="subjects-error"></p>
+                </div>
+                <fieldset class="form-group">
+                  <legend class="form-label">
+                    Support Category <span class="required">*</span>
+                  </legend>
+                  <div class="option-list">
+                    <label
+                      ><input type="radio" name="support_category" value="tutoring" required />
+                      Tutoring / Academic Support</label
+                    >
+                    <label
+                      ><input type="radio" name="support_category" value="mentoring" />
+                      Mentoring</label
+                    >
+                    <label
+                      ><input type="radio" name="support_category" value="counseling" />
+                      Professional Counseling</label
+                    >
+                    <label
+                      ><input type="radio" name="support_category" value="combined" /> Combined
+                      support</label
+                    >
+                  </div>
+                  <p class="form-error" id="support_category-error"></p>
+                </fieldset>
+                <div class="form-group">
+                  <label for="notes" class="form-label">Additional Notes (optional)</label>
+                  <textarea id="notes" name="notes" class="form-control" rows="4"></textarea>
+                  <p class="form-error" id="notes-error"></p>
+                </div>
+                <div class="form-actions form-actions-between">
+                  <button class="btn btn-outline" type="button" data-previous-step>Back</button>
+                  <button class="btn btn-accent" id="submit-registration" type="submit">
+                    Submit Registration
+                  </button>
+                </div>
+              </section>
+            </form>
+          </div>
+          <section
+            id="registration-success"
+            class="card success-card"
+            role="status"
+            aria-live="polite"
+            tabindex="-1"
+            hidden
+          >
+            <p class="eyebrow">Registration received</p>
+            <h2>Thank you for contacting Bilunex.</h2>
+            <p>Your reference number is <strong id="registration-reference"></strong>.</p>
+          </section>
+        </div>
+      </section>
+    </main>
+    <footer id="site-footer" class="site-footer"></footer>
+    <script type="module" src="../js/pages/parent-registration.js"></script>
+  </body>
+</html>

@@ -65,4 +65,20 @@
 - New `[To be confirmed by Bilunex]` items: founding story, mission, vision, values, trusted-relationship practices, specific student commitments and safeguarding/privacy details; review process and response timeline; family consultation and next-step details; subjects, grade levels, curriculum scope, scheduling, mentor selection and safeguarding practices; counseling scope, availability, fees, and appointment request process. Existing footer email/location placeholders remain.
 - Lint passes; full backend suite passes (62 tests).
 
-**Next:** STAGE 3 — parent registration form, mentor application form, and contact inquiry form.
+**Next:** STAGE 3 complete; move to STAGE 4.
+
+### STAGE 3 — Forms
+
+**Status:** done
+
+- Added `parent-registration.html` as a separate two-step form. The wording visible in the supplied Google Form screenshots is preserved in English, including the intro and Next Steps box; the 24-hour/fee/trial promise is explicitly marked `[To be confirmed by Bilunex]`.
+- Parent field map: Parent/Guardian Full Name → `parent_name`; preferred title (Mr./Mrs./Ms/Dr./Other) → `preferred_title`; Phone Number → `phone`; Secondary phone Number → `secondary_phone`; Preferred Communication Method → `preferred_communication_method` values `phone_call`, `telegram`, `whatsapp`. The Other title text is sent as a custom `preferred_title` string.
+- Added API fields not visible in the provided screenshot: required `email` (required by API schema), optional `telegram_handle`, and student/support fields `child_name`, `grade_level`, `subjects`, `support_category`, `notes`.
+- Every Google Form field visible in the screenshots has an API mapping; no Google Form field requires a backend schema change. The screenshot’s Amharic introduction is represented by a confirmation placeholder because the raster text could not be transcribed confidently; exact Amharic copy is still needed to fully match that line.
+- Parent validation mirrors server requirements for name, email, Ethiopian phone format, title, communication preferences, student name, grade, subjects, and exact support category values. Success requires HTTP 201 and a returned reference ID; double-submit guard, inline errors, focus handling, 429/5xx/network messages are in place.
+- Mentor application now includes all API fields, multi-step progress, commitment agreement, transcript PDF and ID photo JPG/PNG checks (5 MB), file-name previews, and multipart submission. Backend remains responsible for magic-byte validation.
+- Contact inquiry form now maps `name`, `email`, optional `phone`, `inquiry_type`, and `message` to the inquiry API; contact/social/Telegram information is placeholder text.
+- API client preserves browser `FormData` content boundaries and can enforce expected HTTP 201 responses.
+- Lint passes; full backend suite passes (62 tests). Browser inspection confirmed empty parent required-field validation and progression to student fields.
+
+**Next:** STAGE 4 — admin portal.

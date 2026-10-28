@@ -2,160 +2,136 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Contact Bilunex for general, parent support, mentor application, or counseling inquiries."
+    />
+    <meta name="theme-color" content="#102746" />
     <title>Contact Us | Bilunex</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
-    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
   </head>
   <body>
-    <!-- Header -->
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <header id="site-header" class="site-header"></header>
-
-    <main class="main-content">
-      <div class="container">
-        <div class="page-header">
-          <h1>Get in Touch</h1>
-          <p>
-            Have questions about our programs, partnerships, or enrollment? We would love to hear
-            from you.
-          </p>
+    <main id="main-content" class="main-content">
+      <section class="page-hero" aria-labelledby="page-title">
+        <div class="container">
+          <p class="eyebrow">Contact Bilunex</p>
+          <h1 id="page-title">How can we help?</h1>
+          <p>Choose the kind of inquiry you have and send a message to Bilunex.</p>
         </div>
-
-        <div class="card form-card">
-          <div id="form-feedback"></div>
-
-          <form id="contact-form" novalidate>
-            <div class="form-group">
-              <label for="name" class="form-label">Your Name <span class="required">*</span></label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                class="form-control"
-                placeholder="Jane Doe"
-                required
-              />
-              <div class="form-error"></div>
-            </div>
-
-            <div class="form-group">
-              <label for="email" class="form-label"
-                >Email Address <span class="required">*</span></label
-              >
-              <input
-                type="email"
-                id="email"
-                name="email"
-                class="form-control"
-                placeholder="jane@example.com"
-                required
-              />
-              <div class="form-error"></div>
-            </div>
-
-            <div class="form-group">
-              <label for="subject" class="form-label"
-                >Subject <span class="required">*</span></label
-              >
-              <input
-                type="text"
-                id="subject"
-                name="subject"
-                class="form-control"
-                placeholder="Partnership inquiry"
-                required
-              />
-              <div class="form-error"></div>
-            </div>
-
-            <div class="form-group">
-              <label for="message" class="form-label"
-                >Message <span class="required">*</span></label
-              >
-              <textarea
-                id="message"
-                name="message"
-                class="form-control"
-                placeholder="How can we help you?"
-                required
-              ></textarea>
-              <div class="form-error"></div>
-            </div>
-
-            <button type="submit" id="submit-btn" class="btn btn-primary btn-block">
-              Send Message
-            </button>
-          </form>
+      </section>
+      <section class="section-block">
+        <div class="container contact-layout">
+          <div class="contact-details">
+            <article class="card">
+              <h2>General Inquiries</h2>
+              <p>Email: [To be confirmed by Bilunex]</p>
+              <p>Phone: [To be confirmed by Bilunex]</p>
+            </article>
+            <article class="card">
+              <h2>Parent Support</h2>
+              <p>[To be confirmed by Bilunex: parent support contact details and hours.]</p>
+            </article>
+            <article class="card">
+              <h2>Counseling Inquiries</h2>
+              <p>
+                Professional counseling is provided by a qualified psychologist. Contact details and
+                availability: [To be confirmed by Bilunex].
+              </p>
+            </article>
+            <article class="card">
+              <h2>Social and Telegram</h2>
+              <p>Telegram: [To be confirmed by Bilunex]</p>
+              <p>Social links: [To be confirmed by Bilunex]</p>
+            </article>
+          </div>
+          <div class="card contact-form-card" id="contact-form-section">
+            <h2>Send an inquiry</h2>
+            <div
+              id="contact-feedback"
+              class="form-feedback"
+              role="status"
+              aria-live="polite"
+              tabindex="-1"
+            ></div>
+            <form id="contact-form" novalidate>
+              <div class="form-group">
+                <label class="form-label" for="name"
+                  >Your Name <span class="required">*</span></label
+                ><input class="form-control" id="name" name="name" autocomplete="name" required />
+                <p class="form-error"></p>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="email"
+                  >Email Address <span class="required">*</span></label
+                ><input
+                  class="form-control"
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  required
+                />
+                <p class="form-error"></p>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="phone">Phone (optional)</label
+                ><input
+                  class="form-control"
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autocomplete="tel"
+                />
+                <p class="form-error"></p>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="inquiry_type"
+                  >Inquiry Type <span class="required">*</span></label
+                ><select class="form-control" id="inquiry_type" name="inquiry_type" required>
+                  <option value="">Choose a type</option>
+                  <option value="general">General Inquiries</option>
+                  <option value="parent_support">Parent Support</option>
+                  <option value="mentor_application">Mentor Application</option>
+                  <option value="counseling">Counseling Inquiries</option>
+                </select>
+                <p class="form-error"></p>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="message"
+                  >Message <span class="required">*</span></label
+                ><textarea
+                  class="form-control"
+                  id="message"
+                  name="message"
+                  rows="5"
+                  minlength="5"
+                  required
+                ></textarea>
+                <p class="form-error"></p>
+              </div>
+              <button class="btn btn-accent btn-block" id="send-inquiry" type="submit">
+                Send Inquiry
+              </button>
+            </form>
+            <p
+              id="inquiry-reference"
+              class="inquiry-reference"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></p>
+          </div>
         </div>
-      </div>
+      </section>
     </main>
-
     <footer id="site-footer" class="site-footer"></footer>
-
-    <script src="../js/api.js"></script>
-    <script src="../js/validation.js"></script>
-    <script src="../js/ui.js"></script>
-    <script>
-      const form = document.getElementById('contact-form');
-      const submitBtn = document.getElementById('submit-btn');
-
-      form.addEventListener('submit', async e => {
-        e.preventDefault();
-        formValidator.clearAllErrors(form);
-
-        const name = document.getElementById('name');
-        const email = document.getElementById('email');
-        const subject = document.getElementById('subject');
-        const message = document.getElementById('message');
-
-        let isValid = true;
-        if (!formValidator.isRequired(name.value)) {
-          formValidator.showError(name, 'Name is required');
-          isValid = false;
-        }
-        if (!formValidator.isValidEmail(email.value)) {
-          formValidator.showError(email, 'Valid email is required');
-          isValid = false;
-        }
-        if (!formValidator.isRequired(subject.value)) {
-          formValidator.showError(subject, 'Subject is required');
-          isValid = false;
-        }
-        if (!formValidator.isRequired(message.value)) {
-          formValidator.showError(message, 'Message is required');
-          isValid = false;
-        }
-
-        if (!isValid) return;
-
-        try {
-          ui.setLoading(submitBtn, true, 'Sending...');
-          const response = await apiClient.post('/public/contact', {
-            name: name.value.trim(),
-            email: email.value.trim(),
-            subject: subject.value.trim(),
-            message: message.value.trim(),
-          });
-          ui.showAlert(
-            '#form-feedback',
-            'success',
-            response.message || 'Thank you! Your message has been received.'
-          );
-          form.reset();
-        } catch (err) {
-          ui.showAlert(
-            '#form-feedback',
-            'error',
-            err.message || 'Failed to send message. Please try again.'
-          );
-        } finally {
-          ui.setLoading(submitBtn, false);
-        }
-      });
-    </script>
-    <script type="module" src="../js/pages/public-layout.js"></script>
+    <script type="module" src="../js/pages/contact.js"></script>
   </body>
 </html>

@@ -31,10 +31,9 @@ export const api = {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
+    const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+    const headers = { ...options.headers };
+    if (!isFormData && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
 
     // Attach Bearer token from localStorage if user session exists
     const token = localStorage.getItem('bilunex_token');
@@ -48,7 +47,7 @@ export const api = {
       signal: controller.signal,
     };
 
-    if (config.body && typeof config.body === 'object') {
+    if (config.body && typeof config.body === 'object' && !isFormData) {
       config.body = JSON.stringify(config.body);
     }
 
@@ -57,6 +56,15 @@ export const api = {
       clearTimeout(timeoutId);
 
       const data = await response.json().catch(() => ({}));
+
+      if (options.expectedStatus && response.status !== options.expectedStatus) {
+        throw new ApiError({
+          status: response.status,
+          message:
+            data.message || `Expected HTTP ${options.expectedStatus}, received ${response.status}.`,
+          errors: Array.isArray(data.errors) ? data.errors : null,
+        });
+      }
 
       if (!response.ok) {
         let fallbackMessage = `Request failed with status ${response.status}`;

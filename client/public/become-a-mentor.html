@@ -2,209 +2,404 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Become a Mentor | Bilunex Application</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Learn about mentoring with Bilunex and submit a mentor application."
+    />
+    <meta name="theme-color" content="#102746" />
+    <title>Become a Mentor | Bilunex</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
-    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
   </head>
   <body>
-    <!-- Header -->
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <header id="site-header" class="site-header"></header>
-
-    <main class="main-content">
-      <div class="container">
-        <div class="page-header">
-          <h1>Join Our Mentorship Network</h1>
+    <main id="main-content" class="main-content">
+      <section class="page-hero" aria-labelledby="page-title">
+        <div class="container">
+          <p class="eyebrow">Become a Mentor</p>
+          <h1 id="page-title">Share your knowledge and guidance.</h1>
+          <p>Read the information below before sending an application.</p>
+          <a href="#mentor-application" class="btn btn-accent btn-lg">Start an application</a>
+        </div>
+      </section>
+      <section class="section-block">
+        <div class="container grid grid-cols-1 md:grid-cols-3 content-card-grid">
+          <article class="card">
+            <h2>Why Become a Mentor</h2>
+            <p>[To be confirmed by Bilunex: the program’s purpose and what mentors can expect.]</p>
+          </article>
+          <article class="card">
+            <h2>Eligibility and Responsibilities</h2>
+            <p>
+              [To be confirmed by Bilunex: eligibility criteria, time commitment, responsibilities,
+              and support for mentors.]
+            </p>
+          </article>
+          <article class="card">
+            <h2>Code of Conduct</h2>
+            <p>
+              [To be confirmed by Bilunex: approved code of conduct, boundaries, safeguarding rules,
+              and reporting process.]
+            </p>
+          </article>
+        </div>
+      </section>
+      <section class="section-block bg-alt">
+        <div class="container narrow-copy">
+          <p class="eyebrow">Recruitment process</p>
+          <h2>What happens after applying?</h2>
           <p>
-            Make a lasting impact on young minds through academic coaching and positive role
-            modeling.
+            [To be confirmed by Bilunex: application review, interviews or screening steps, expected
+            timeframes, and onboarding process.]
           </p>
         </div>
+      </section>
 
-        <div class="card form-card">
-          <div id="form-feedback"></div>
-
-          <form id="mentor-application-form" novalidate>
-            <div class="form-group">
-              <label for="full_name" class="form-label"
-                >Full Name <span class="required">*</span></label
-              >
-              <input
-                type="text"
-                id="full_name"
-                name="full_name"
-                class="form-control"
-                placeholder="Dr. Sarah Johnson"
-                required
-              />
-              <div class="form-error"></div>
+      <section class="section-block" id="mentor-application" aria-labelledby="application-title">
+        <div class="container">
+          <div class="form-card card">
+            <p class="eyebrow">Application</p>
+            <h2 id="application-title">Mentor Application</h2>
+            <div class="form-progress mentor-progress" aria-label="Application progress">
+              <ol>
+                <li class="is-current" data-progress-step="0">
+                  <span>1</span><span>About you</span>
+                </li>
+                <li data-progress-step="1"><span>2</span><span>Education</span></li>
+                <li data-progress-step="2"><span>3</span><span>Availability</span></li>
+                <li data-progress-step="3"><span>4</span><span>Motivation</span></li>
+              </ol>
+              <div class="progress-track">
+                <span id="mentor-progress-bar" data-current-step="1"></span>
+              </div>
             </div>
-
-            <div class="form-group">
-              <label for="email" class="form-label"
-                >Email Address <span class="required">*</span></label
+            <div
+              id="mentor-feedback"
+              class="form-feedback"
+              role="status"
+              aria-live="polite"
+              tabindex="-1"
+            ></div>
+            <form id="mentor-application-form" novalidate enctype="multipart/form-data">
+              <section
+                class="form-step is-current"
+                data-form-step="0"
+                aria-labelledby="mentor-step-1-title"
               >
-              <input
-                type="email"
-                id="email"
-                name="email"
-                class="form-control"
-                placeholder="mentor@example.com"
-                required
-              />
-              <div class="form-error"></div>
-            </div>
+                <h3 id="mentor-step-1-title" tabindex="-1">Contact information</h3>
+                <div class="form-group">
+                  <label class="form-label" for="full_name"
+                    >Full Name <span class="required">*</span></label
+                  ><input
+                    class="form-control"
+                    id="full_name"
+                    name="full_name"
+                    autocomplete="name"
+                    required
+                  />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="mentor_email"
+                    >Email Address <span class="required">*</span></label
+                  ><input
+                    class="form-control"
+                    id="mentor_email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                  />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="mentor_phone"
+                    >Phone Number <span class="required">*</span></label
+                  ><input
+                    class="form-control"
+                    id="mentor_phone"
+                    name="phone"
+                    type="tel"
+                    placeholder="+2519XXXXXXXX or 09XXXXXXXX"
+                    required
+                  />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="telegram_handle">Telegram handle (optional)</label
+                  ><input
+                    class="form-control"
+                    id="telegram_handle"
+                    name="telegram_handle"
+                    placeholder="@username"
+                  />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-actions form-actions-between">
+                  <span></span
+                  ><button class="btn btn-primary" type="button" data-next-step>Next</button>
+                </div>
+              </section>
 
-            <div class="form-group">
-              <label for="phone" class="form-label"
-                >Phone Number <span class="required">*</span></label
+              <section
+                class="form-step"
+                data-form-step="1"
+                aria-labelledby="mentor-step-2-title"
+                hidden
               >
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                class="form-control"
-                placeholder="+1 (555) 123-4567"
-                required
-              />
-              <div class="form-error"></div>
-            </div>
+                <h3 id="mentor-step-2-title" tabindex="-1">Academic background and experience</h3>
+                <div class="form-group">
+                  <label class="form-label" for="university"
+                    >University or College <span class="required">*</span></label
+                  ><input class="form-control" id="university" name="university" required />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="campus">Campus (optional)</label
+                  ><input class="form-control" id="campus" name="campus" />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="field_of_study"
+                    >Field of Study <span class="required">*</span></label
+                  ><input class="form-control" id="field_of_study" name="field_of_study" required />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="academic_year"
+                    >Academic Year <span class="required">*</span></label
+                  ><input class="form-control" id="academic_year" name="academic_year" required />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="subjects"
+                    >Subjects of Expertise <span class="required">*</span></label
+                  ><input
+                    class="form-control"
+                    id="mentor_subjects"
+                    name="subjects"
+                    required
+                    placeholder="Separate subjects with commas"
+                  />
+                  <p class="form-error"></p>
+                </div>
+                <fieldset class="form-group">
+                  <legend class="form-label">Have you taught or mentored before?</legend>
+                  <div class="option-list option-list-inline">
+                    <label
+                      ><input type="radio" name="has_teaching_experience" value="true" /> Yes</label
+                    ><label
+                      ><input type="radio" name="has_teaching_experience" value="false" checked />
+                      No</label
+                    >
+                  </div>
+                </fieldset>
+                <div class="form-group">
+                  <label class="form-label" for="teaching_experience_duration"
+                    >Experience duration (optional)</label
+                  ><input
+                    class="form-control"
+                    id="teaching_experience_duration"
+                    name="teaching_experience_duration"
+                  />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="experience_details"
+                    >Experience details (optional)</label
+                  ><textarea
+                    class="form-control"
+                    id="experience_details"
+                    name="experience_details"
+                    rows="3"
+                  ></textarea>
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="gpa">GPA (optional, 0.00–4.00)</label
+                  ><input
+                    class="form-control"
+                    id="gpa"
+                    name="gpa"
+                    type="number"
+                    min="0"
+                    max="4"
+                    step="0.01"
+                  />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="entrance_exam_result"
+                    >Entrance Exam Result (optional, 0–700)</label
+                  ><input
+                    class="form-control"
+                    id="entrance_exam_result"
+                    name="entrance_exam_result"
+                    type="number"
+                    min="0"
+                    max="700"
+                    step="0.1"
+                  />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-actions form-actions-between">
+                  <button class="btn btn-outline" type="button" data-previous-step>Back</button
+                  ><button class="btn btn-primary" type="button" data-next-step>Next</button>
+                </div>
+              </section>
 
-            <div class="form-group">
-              <label for="expertise" class="form-label"
-                >Subjects / Areas of Expertise <span class="required">*</span></label
+              <section
+                class="form-step"
+                data-form-step="2"
+                aria-labelledby="mentor-step-3-title"
+                hidden
               >
-              <input
-                type="text"
-                id="expertise"
-                name="expertise"
-                class="form-control"
-                placeholder="e.g. Mathematics, Physics, Life Mentoring"
-                required
-              />
-              <div class="form-error"></div>
-            </div>
+                <h3 id="mentor-step-3-title" tabindex="-1">Availability and documents</h3>
+                <fieldset class="form-group">
+                  <legend class="form-label">Available Days</legend>
+                  <div class="option-list day-grid">
+                    <label
+                      ><input type="checkbox" name="available_days" value="Monday" /> Monday</label
+                    ><label
+                      ><input type="checkbox" name="available_days" value="Tuesday" />
+                      Tuesday</label
+                    ><label
+                      ><input type="checkbox" name="available_days" value="Wednesday" />
+                      Wednesday</label
+                    ><label
+                      ><input type="checkbox" name="available_days" value="Thursday" />
+                      Thursday</label
+                    ><label
+                      ><input type="checkbox" name="available_days" value="Friday" /> Friday</label
+                    ><label
+                      ><input type="checkbox" name="available_days" value="Saturday" />
+                      Saturday</label
+                    ><label
+                      ><input type="checkbox" name="available_days" value="Sunday" /> Sunday</label
+                    >
+                  </div>
+                </fieldset>
+                <div class="form-group">
+                  <label class="form-label" for="available_hours">Available Hours (optional)</label
+                  ><input
+                    class="form-control"
+                    id="available_hours"
+                    name="available_hours"
+                    placeholder="For example, mornings or 4–7 PM"
+                  />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="availability"
+                    >Availability Summary <span class="required">*</span></label
+                  ><input class="form-control" id="availability" name="availability" required />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="transcript"
+                    >Academic Transcript (PDF, up to 5 MB)</label
+                  ><input
+                    class="form-control"
+                    id="transcript"
+                    name="transcript"
+                    type="file"
+                    accept="application/pdf,.pdf"
+                  />
+                  <p class="file-preview" data-file-preview="transcript">No file selected</p>
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="id_photo"
+                    >ID Photo (JPG, JPEG, or PNG, up to 5 MB)</label
+                  ><input
+                    class="form-control"
+                    id="id_photo"
+                    name="id_photo"
+                    type="file"
+                    accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+                  />
+                  <p class="file-preview" data-file-preview="id_photo">No file selected</p>
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-actions form-actions-between">
+                  <button class="btn btn-outline" type="button" data-previous-step>Back</button
+                  ><button class="btn btn-primary" type="button" data-next-step>Next</button>
+                </div>
+              </section>
 
-            <div class="form-group">
-              <label for="years_experience" class="form-label"
-                >Years of Experience <span class="required">*</span></label
+              <section
+                class="form-step"
+                data-form-step="3"
+                aria-labelledby="mentor-step-4-title"
+                hidden
               >
-              <input
-                type="number"
-                id="years_experience"
-                name="years_experience"
-                min="0"
-                max="50"
-                class="form-control"
-                placeholder="3"
-                required
-              />
-              <div class="form-error"></div>
-            </div>
-
-            <div class="form-group">
-              <label for="bio" class="form-label"
-                >Professional Background & Motivation <span class="required">*</span></label
-              >
-              <textarea
-                id="bio"
-                name="bio"
-                class="form-control"
-                placeholder="Tell us about your educational background and why you want to mentor students..."
-                required
-              ></textarea>
-              <div class="form-error"></div>
-            </div>
-
-            <button type="submit" id="submit-btn" class="btn btn-secondary btn-block">
-              Submit Mentor Application
-            </button>
-          </form>
+                <h3 id="mentor-step-4-title" tabindex="-1">Motivation and agreement</h3>
+                <div class="form-group">
+                  <label class="form-label" for="motivation"
+                    >Why would you like to mentor? <span class="required">*</span></label
+                  ><textarea
+                    class="form-control"
+                    id="motivation"
+                    name="motivation"
+                    rows="5"
+                    minlength="10"
+                    required
+                  ></textarea>
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="referral_source"
+                    >How did you hear about Bilunex? (optional)</label
+                  ><input class="form-control" id="referral_source" name="referral_source" />
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group commitment-group">
+                  <label
+                    ><input
+                      id="commitment_agreement"
+                      name="commitment_agreement"
+                      type="checkbox"
+                      value="true"
+                      required
+                    />
+                    I agree to the commitment and responsibilities described by Bilunex.
+                    <span class="required">*</span></label
+                  >
+                  <p class="commitment-detail">
+                    [To be confirmed by Bilunex: the commitment terms to be accepted by applicants.]
+                  </p>
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-actions form-actions-between">
+                  <button class="btn btn-outline" type="button" data-previous-step>Back</button
+                  ><button class="btn btn-accent" id="submit-mentor-application" type="submit">
+                    Submit Application
+                  </button>
+                </div>
+              </section>
+            </form>
+            <section
+              id="mentor-success"
+              class="success-card"
+              role="status"
+              aria-live="polite"
+              tabindex="-1"
+              hidden
+            >
+              <p class="eyebrow">Application received</p>
+              <h2>Thank you for applying.</h2>
+              <p>Your application reference is <strong id="mentor-reference"></strong>.</p>
+            </section>
+          </div>
         </div>
-      </div>
+      </section>
     </main>
-
     <footer id="site-footer" class="site-footer"></footer>
-
-    <script src="../js/api.js"></script>
-    <script src="../js/validation.js"></script>
-    <script src="../js/ui.js"></script>
-    <script>
-      const form = document.getElementById('mentor-application-form');
-      const submitBtn = document.getElementById('submit-btn');
-
-      form.addEventListener('submit', async e => {
-        e.preventDefault();
-        formValidator.clearAllErrors(form);
-
-        const fullName = document.getElementById('full_name');
-        const email = document.getElementById('email');
-        const phone = document.getElementById('phone');
-        const expertise = document.getElementById('expertise');
-        const yearsExp = document.getElementById('years_experience');
-        const bio = document.getElementById('bio');
-
-        let isValid = true;
-        if (!formValidator.isRequired(fullName.value)) {
-          formValidator.showError(fullName, 'Full name is required');
-          isValid = false;
-        }
-        if (!formValidator.isValidEmail(email.value)) {
-          formValidator.showError(email, 'Please provide a valid email');
-          isValid = false;
-        }
-        if (!formValidator.isRequired(phone.value)) {
-          formValidator.showError(phone, 'Phone number is required');
-          isValid = false;
-        }
-        if (!formValidator.isRequired(expertise.value)) {
-          formValidator.showError(expertise, 'Expertise areas are required');
-          isValid = false;
-        }
-        if (!formValidator.isRequired(yearsExp.value)) {
-          formValidator.showError(yearsExp, 'Years of experience is required');
-          isValid = false;
-        }
-        if (!formValidator.hasMinLength(bio.value, 20)) {
-          formValidator.showError(bio, 'Please write at least 20 characters about your background');
-          isValid = false;
-        }
-
-        if (!isValid) return;
-
-        const payload = {
-          full_name: fullName.value.trim(),
-          email: email.value.trim(),
-          phone: phone.value.trim(),
-          expertise: expertise.value.trim(),
-          years_experience: parseInt(yearsExp.value, 10),
-          bio: bio.value.trim(),
-        };
-
-        try {
-          ui.setLoading(submitBtn, true, 'Submitting Application...');
-          const response = await apiClient.post('/public/mentors/apply', payload);
-          ui.showAlert(
-            '#form-feedback',
-            'success',
-            response.message ||
-              'Application submitted! Our admissions team will review your application.'
-          );
-          form.reset();
-        } catch (err) {
-          ui.showAlert(
-            '#form-feedback',
-            'error',
-            err.message || 'Application failed to submit. Please try again.'
-          );
-        } finally {
-          ui.setLoading(submitBtn, false);
-        }
-      });
-    </script>
-    <script type="module" src="../js/pages/public-layout.js"></script>
+    <script type="module" src="../js/pages/become-a-mentor.js"></script>
   </body>
 </html>
