@@ -4,6 +4,7 @@
  * reports summarization, and immutable audit logging.
  */
 
+const fs = require('fs');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const env = require('../config/env');
@@ -13,6 +14,7 @@ const mentorRepository = require('../repositories/mentor.repository');
 const inquiryRepository = require('../repositories/inquiry.repository');
 const reportRepository = require('../repositories/report.repository');
 const auditLogRepository = require('../repositories/audit_log.repository');
+const documentRepository = require('../repositories/document.repository');
 const logger = require('../utils/logger');
 
 const adminService = {
@@ -289,6 +291,47 @@ const adminService = {
         totalPages: Math.ceil(total / limit) || 1,
       },
     };
+  },
+
+  /**
+   * Retrieve confidential mentor document for secure admin streaming with mandatory audit logging
+   */
+  async getMentorDocumentForDownload(documentId, adminUser, ip = null) {
+    const document = await documentRepository.findById(documentId);
+    if (!document) {
+      const err = new Error('Document not found or has been removed');
+      err.status = 404;
+      throw err;
+    }
+
+    if (!fs.existsSync(document.file_path)) {
+      const err = new Error('Document file is missing from secure storage');
+      err.status = 404;
+      throw err;
+    }
+
+    // Write audit log entry for downloading sensitive document
+    try {
+      await auditLogRepository.create({
+        actor_type: 'admin',
+        actor_id: adminUser ? parseInt(adminUser.id, 10) : null,
+        actor_email: adminUser ? adminUser.email : null,
+        action: 'view',
+        target_table: 'mentor_documents',
+        target_id: document.id,
+        metadata: {
+          document_type: document.document_type,
+          original_filename: document.original_filename,
+          stored_filename: document.stored_filename,
+          file_size_bytes: document.file_size_bytes,
+          ip,
+        },
+      });
+    } catch (auditErr) {
+      logger.error('Failed to record document download audit log:', auditErr.message);
+    }
+
+    return document;
   },
 };
 

@@ -8,6 +8,7 @@
  * 5. Safe email dispatch: Email transport failure never blocks HTTP 201 response
  */
 
+const { Buffer } = require('buffer');
 const request = require('supertest');
 const app = require('../../src/app');
 const db = require('../../src/config/db');
@@ -323,6 +324,65 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
       expect(res.body.errors.some(e => e.field === 'motivation')).toBe(true);
+    });
+
+    test('should accept multipart/form-data mentor application with valid PDF transcript and PNG ID photo', async () => {
+      const pdfBuffer = Buffer.from('%PDF-1.4 Mock PDF content for test transcript');
+      const pngBuffer = Buffer.from([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+      ]);
+
+      const res = await request(app)
+        .post('/api/v1/public/mentor-applications')
+        .field('full_name', 'Multipart Applicant')
+        .field('email', `multipart_${Date.now()}@example.com`)
+        .field('phone', '+251911335577')
+        .field('university', 'Addis Ababa University')
+        .field('field_of_study', 'Electrical Engineering')
+        .field('academic_year', '5th Year')
+        .field('subjects', JSON.stringify(['Circuits', 'Physics']))
+        .field('availability', 'Weekends')
+        .field('motivation', 'Passionate about engineering mentorship and helping high schoolers.')
+        .field('commitment_agreement', 'true')
+        .attach('transcript', pdfBuffer, 'transcript.pdf')
+        .attach('id_photo', pngBuffer, 'id_photo.png');
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.id).toBeDefined();
+
+      // Verify documents were recorded in mentor_documents table
+      const docRes = await db.query(
+        'SELECT * FROM mentor_documents WHERE mentor_application_id = $1 ORDER BY document_type',
+        [res.body.data.id]
+      );
+      expect(docRes.rows.length).toBe(2);
+      expect(docRes.rows[0].document_type).toBe('id_photo');
+      expect(docRes.rows[0].mime_type).toBe('image/png');
+      expect(docRes.rows[1].document_type).toBe('transcript');
+      expect(docRes.rows[1].mime_type).toBe('application/pdf');
+    });
+
+    test('should reject upload with fake PDF (invalid magic bytes) with 400 Bad Request', async () => {
+      const fakePdfBuffer = Buffer.from('NOT A REAL PDF FILE CONTENT');
+
+      const res = await request(app)
+        .post('/api/v1/public/mentor-applications')
+        .field('full_name', 'Fake File Applicant')
+        .field('email', `fakefile_${Date.now()}@example.com`)
+        .field('phone', '+251911335577')
+        .field('university', 'AAU')
+        .field('field_of_study', 'CS')
+        .field('academic_year', '4th')
+        .field('subjects', JSON.stringify(['Math']))
+        .field('availability', 'Weekends')
+        .field('motivation', 'Valid motivation length for test')
+        .field('commitment_agreement', 'true')
+        .attach('transcript', fakePdfBuffer, 'fake.pdf');
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toContain('Invalid file type for transcript');
     });
   });
 

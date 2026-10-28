@@ -321,4 +321,70 @@ describe('Admin Management Endpoints (V1)', () => {
       expect(auditRes.rows.length).toBe(1);
     });
   });
+
+  describe('GET /api/v1/admin/documents/:id/download (Secure & Audited)', () => {
+    let testDocId = null;
+    let testFilePath = null;
+
+    beforeAll(async () => {
+      // 1. Create a dummy file on disk in secure storage
+      const { ensureStorageDirectory } = require('../../src/utils/fileSecurity');
+      const fs = require('fs');
+      const path = require('path');
+      const dir = ensureStorageDirectory();
+      testFilePath = path.join(dir, `test_download_${Date.now()}.pdf`);
+      await fs.promises.writeFile(testFilePath, '%PDF-1.4 Mock document for admin download test');
+
+      // 2. Insert document record in mentor_documents
+      const docRes = await db.query(
+        `INSERT INTO mentor_documents (
+           mentor_application_id, document_type, original_filename,
+           stored_filename, file_path, mime_type, file_size_bytes
+         )
+         VALUES (1, 'transcript', 'test_transcript.pdf', $1, $2, 'application/pdf', 45)
+         RETURNING id;`,
+        [path.basename(testFilePath), testFilePath]
+      );
+      testDocId = docRes.rows[0].id;
+    });
+
+    afterAll(async () => {
+      const fs = require('fs');
+      if (testFilePath && fs.existsSync(testFilePath)) {
+        await fs.promises.unlink(testFilePath).catch(() => {});
+      }
+    });
+
+    test('should allow authenticated admin to download document and record audit_log', async () => {
+      const res = await request(app)
+        .get(`/api/v1/admin/documents/${testDocId}/download`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toContain('application/pdf');
+      expect(res.headers['content-disposition']).toContain('test_transcript.pdf');
+      expect(res.text).toContain('%PDF-1.4');
+
+      // Verify audit_log entry was created
+      const auditRes = await db.query(
+        `SELECT * FROM audit_log WHERE target_table = 'mentor_documents' AND target_id = $1 ORDER BY created_at DESC LIMIT 1;`,
+        [testDocId]
+      );
+      expect(auditRes.rows.length).toBe(1);
+      expect(auditRes.rows[0].action).toBe('view');
+      expect(auditRes.rows[0].actor_type).toBe('admin');
+    });
+
+    test('should reject unauthenticated request to download document with 401', async () => {
+      const res = await request(app).get(`/api/v1/admin/documents/${testDocId}/download`);
+      expect(res.status).toBe(401);
+    });
+
+    test('should return 404 for non-existent document ID', async () => {
+      const res = await request(app)
+        .get('/api/v1/admin/documents/999999/download')
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(res.status).toBe(404);
+    });
+  });
 });

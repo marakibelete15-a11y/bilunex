@@ -9,6 +9,7 @@ const router = express.Router();
 const publicController = require('../../controllers/public.controller');
 const validate = require('../../middleware/validate.middleware');
 const { strictLimiter } = require('../../middleware/rateLimit.middleware');
+const { handleMentorDocumentUpload } = require('../../middleware/upload.middleware');
 const {
   createParentRegistrationSchema,
   createMentorApplicationSchema,
@@ -35,6 +36,7 @@ router.post(
 router.post(
   '/mentor-applications',
   strictLimiter,
+  handleMentorDocumentUpload,
   validate(createMentorApplicationSchema),
   publicController.applyMentor
 );
@@ -43,6 +45,7 @@ router.post(
 router.post(
   '/mentors/apply',
   strictLimiter,
+  handleMentorDocumentUpload,
   validate(createMentorApplicationSchema),
   publicController.applyMentor
 );

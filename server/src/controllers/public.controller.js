@@ -32,7 +32,7 @@ const publicController = {
    */
   async applyMentor(req, res, next) {
     try {
-      const application = await publicService.applyMentor(req.body);
+      const application = await publicService.applyMentor(req.body, req.files);
       return sendSuccess(
         res,
         application,

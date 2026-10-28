@@ -72,6 +72,13 @@ router.get(
   adminController.getStudentSupportReports
 );
 
+// 10. Secure mentor document download (admin only, audited)
+router.get(
+  '/documents/:id/download',
+  validate({ params: idParamSchema }),
+  adminController.downloadMentorDocument
+);
+
 // Backward-compatible endpoints
 router.get('/overview', adminController.getOverview);
 
