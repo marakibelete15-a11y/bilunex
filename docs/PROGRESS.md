@@ -11,6 +11,13 @@
 - HTTP server reports a clear port-in-use message; uncaught exceptions log and exit with code 1.
 - `npm run lint` passes; full `npm test` suite passes (62 tests).
 
+### Development API notice
+
+**Status:** done
+
+- The notice now checks `${API_BASE}/health` and appears only when the request fails or returns a non-OK response; the dismissal control and port-5000 link remain.
+- `npm run lint` passes; full `npm test` suite passes (62 tests).
+
 ## STAGE 0B — Notification dispatch fix
 
 **Status:** done

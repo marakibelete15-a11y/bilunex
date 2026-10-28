@@ -1,3 +1,5 @@
+import { API_BASE } from './api.js';
+
 /**
  * Bilunex - UI Helpers (ES Module)
  * Accessible alerts, button loading states, and mobile navigation toggling.
@@ -178,19 +180,20 @@ export const ui = {
   },
 
   /**
-   * Detect if site is accessed from non-API development origin (such as VS Code Live Server on port 5500)
-   * and show a clear, visible warning banner guiding the developer to port 5000.
+   * Show the development notice only when the configured API health check fails.
    */
   checkOriginBanner() {
     if (typeof window === 'undefined' || !window.location) return;
+    if (this.originHealthCheck) return this.originHealthCheck;
 
-    const isLiveServer = window.location.port === '5500';
-    const isLocalhostMismatched =
-      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
-      window.location.port !== '5000' &&
-      window.location.port !== '';
+    this.originHealthCheck = (async () => {
+      try {
+        const response = await fetch(`${API_BASE}/health`);
+        if (response.ok) return;
+      } catch (error) {
+        // A failed request is the only network condition that warrants the notice.
+      }
 
-    if (isLiveServer || isLocalhostMismatched) {
       if (document.getElementById('origin-mismatch-banner')) return;
 
       const banner = document.createElement('div');
@@ -202,7 +205,7 @@ export const ui = {
       text.textContent = 'Development Notice: The API is not running on this port. ';
 
       const link = document.createElement('a');
-      link.href = 'http://localhost:5000' + window.location.pathname;
+      link.href = `http://localhost:5000${window.location.pathname}`;
       link.textContent = 'Open this site at http://localhost:5000';
       link.className = 'origin-mismatch-link';
 
@@ -227,7 +230,8 @@ export const ui = {
       } else {
         mount();
       }
-    }
+    })();
+    return this.originHealthCheck;
   },
 };
 
