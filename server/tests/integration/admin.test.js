@@ -331,9 +331,11 @@ describe('Admin Management Endpoints (V1)', () => {
       const { ensureStorageDirectory } = require('../../src/utils/fileSecurity');
       const fs = require('fs');
       const path = require('path');
+      const { Buffer } = require('buffer');
       const dir = ensureStorageDirectory();
       testFilePath = path.join(dir, `test_download_${Date.now()}.pdf`);
-      await fs.promises.writeFile(testFilePath, '%PDF-1.4 Mock document for admin download test');
+      const dummyContent = '%PDF-1.4 Mock document for admin download test';
+      await fs.promises.writeFile(testFilePath, dummyContent);
 
       // 2. Insert document record in mentor_documents
       const docRes = await db.query(
@@ -341,9 +343,9 @@ describe('Admin Management Endpoints (V1)', () => {
            mentor_application_id, document_type, original_filename,
            stored_filename, file_path, mime_type, file_size_bytes
          )
-         VALUES (1, 'transcript', 'test_transcript.pdf', $1, $2, 'application/pdf', 45)
+         VALUES (1, 'transcript', 'test_transcript.pdf', $1, $2, 'application/pdf', $3)
          RETURNING id;`,
-        [path.basename(testFilePath), testFilePath]
+        [path.basename(testFilePath), testFilePath, Buffer.byteLength(dummyContent)]
       );
       testDocId = docRes.rows[0].id;
     });
@@ -363,7 +365,8 @@ describe('Admin Management Endpoints (V1)', () => {
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toContain('application/pdf');
       expect(res.headers['content-disposition']).toContain('test_transcript.pdf');
-      expect(res.text).toContain('%PDF-1.4');
+      const downloadedContent = res.text || (res.body ? res.body.toString() : '');
+      expect(downloadedContent).toContain('%PDF-1.4');
 
       // Verify audit_log entry was created
       const auditRes = await db.query(

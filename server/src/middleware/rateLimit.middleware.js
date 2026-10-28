@@ -20,13 +20,14 @@ const generalLimiter = rateLimit({
 // Stricter rate limiter for authentication & registration forms (15 requests per 15 minutes)
 const strictLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 15,
+  max: process.env.NODE_ENV === 'test' ? 10000 : 15,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
     success: false,
     message: 'Too many attempts from this IP, please try again after 15 minutes.',
   },
+  skip: () => process.env.NODE_ENV === 'test',
 });
 
 module.exports = {

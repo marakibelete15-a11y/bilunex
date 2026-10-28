@@ -5,10 +5,8 @@
  * Controllers NEVER write SQL directly.
  */
 
-const fs = require('fs');
 const adminService = require('../services/admin.service');
 const { sendSuccess } = require('../utils/response');
-const logger = require('../utils/logger');
 
 const adminController = {
   /**
@@ -167,6 +165,15 @@ const adminController = {
    * Backward-compatible overview helper
    * GET /api/v1/admin/overview
    */
+  async getOverview(req, res, next) {
+    try {
+      const summary = await adminService.getReportsSummary();
+      return sendSuccess(res, summary, 'Dashboard overview metrics retrieved', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
   /**
    * Securely stream mentor document (transcript or ID photo) to authenticated administrator
    * GET /api/v1/admin/documents/:id/download
@@ -179,21 +186,7 @@ const adminController = {
         req.ip
       );
 
-      res.setHeader('Content-Type', document.mime_type || 'application/octet-stream');
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename="${encodeURIComponent(document.original_filename)}"`
-      );
-      res.setHeader('Content-Length', document.file_size_bytes);
-
-      const fileStream = fs.createReadStream(document.file_path);
-      fileStream.on('error', streamErr => {
-        logger.error('Stream error while sending document:', streamErr.message);
-        if (!res.headersSent) {
-          res.status(500).json({ success: false, message: 'Failed to read document stream' });
-        }
-      });
-      return fileStream.pipe(res);
+      return res.download(document.file_path, document.original_filename);
     } catch (err) {
       next(err);
     }

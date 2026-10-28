@@ -21,14 +21,19 @@ const envSchema = z.object({
   TEST_DATABASE_URL: z.string().min(1, 'TEST_DATABASE_URL is required for test isolation'),
   JWT_SECRET: z.string().min(16, 'JWT_SECRET must be at least 16 characters for security'),
   JWT_EXPIRES_IN: z.string().default('1d'),
-  EMAIL_HOST: z.string().min(1, 'EMAIL_HOST is required for notification service'),
+  EMAIL_HOST: z.string().optional().default(''),
   EMAIL_PORT: z
+    .union([z.string(), z.number()])
+    .optional()
+    .default('587')
+    .transform(val => parseInt(String(val), 10) || 587),
+  EMAIL_USER: z.string().optional().default(''),
+  EMAIL_PASS: z.string().optional().default(''),
+  EMAIL_FROM: z.string().optional().default('"Bilunex Support" <no-reply@bilunex.org>'),
+  ADMIN_NOTIFICATION_EMAIL: z
     .string()
-    .default('2525')
-    .transform(val => parseInt(val, 10)),
-  EMAIL_USER: z.string().min(1, 'EMAIL_USER is required'),
-  EMAIL_PASS: z.string().min(1, 'EMAIL_PASS is required'),
-  ADMIN_NOTIFICATION_EMAIL: z.string().email('ADMIN_NOTIFICATION_EMAIL must be a valid email'),
+    .min(1, 'ADMIN_NOTIFICATION_EMAIL is required')
+    .default('admin@bilunex.org'),
   CLIENT_URL: z.string().url('CLIENT_URL must be a valid URL'),
 });
 
