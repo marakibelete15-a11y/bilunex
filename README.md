@@ -82,33 +82,51 @@ Before setting up the project locally, ensure you have:
 
 ---
 
-## 5. Local Setup Step-by-Step
+## 5. Local Setup & "Run Everything" Guide
 
-### Step 5.1: Create Local PostgreSQL Databases & Dedicated User
+### Step 5.1: Start PostgreSQL & Create User/Databases
 
-Open your terminal and connect to your local PostgreSQL instance as the `postgres` superuser:
+Ensure your local PostgreSQL service is running:
+
+```bash
+# On Fedora / RHEL / CentOS:
+sudo systemctl start postgresql
+
+# On Ubuntu / Debian:
+sudo systemctl start postgresql
+```
+
+Open a terminal and connect as the `postgres` superuser to create the dedicated `bilunex` database user and databases:
 
 ```bash
 sudo -u postgres psql
 ```
 
-Inside the PostgreSQL prompt (`postgres=#`), run the following SQL commands to create a dedicated user and databases:
+Inside the PostgreSQL prompt (`postgres=#`), execute:
 
 ```sql
--- 1. Create a dedicated database user
-CREATE USER bilunex_user WITH PASSWORD 'bilunex_password';
+-- 1. Create the dedicated user
+CREATE USER bilunex WITH PASSWORD 'bilunex123';
 
--- 2. Create the development database
-CREATE DATABASE bilunex OWNER bilunex_user;
+-- 2. Create the development and test databases
+CREATE DATABASE bilunex OWNER bilunex;
+CREATE DATABASE bilunex_test OWNER bilunex;
 
--- 3. Create the test database for automated test runs
-CREATE DATABASE bilunex_test OWNER bilunex_user;
+-- 3. Grant privileges
+GRANT ALL PRIVILEGES ON DATABASE bilunex TO bilunex;
+GRANT ALL PRIVILEGES ON DATABASE bilunex_test TO bilunex;
 
--- 4. Grant privileges
-GRANT ALL PRIVILEGES ON DATABASE bilunex TO bilunex_user;
-GRANT ALL PRIVILEGES ON DATABASE bilunex_test TO bilunex_user;
+-- 4. Enable pg_trgm extension and grant public schema ownership in both databases
+\c bilunex
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+ALTER SCHEMA public OWNER TO bilunex;
+GRANT ALL ON SCHEMA public TO bilunex;
 
--- Exit psql
+\c bilunex_test
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+ALTER SCHEMA public OWNER TO bilunex;
+GRANT ALL ON SCHEMA public TO bilunex;
+
 \q
 ```
 
@@ -120,27 +138,50 @@ Copy the template `.env.example` into `server/.env`:
 cp .env.example server/.env
 ```
 
-Ensure the database connection strings in `server/.env` match your PostgreSQL credentials:
+Verify the credentials in `server/.env`:
 
 ```ini
-DATABASE_URL=postgresql://bilunex_user:bilunex_password@localhost:5432/bilunex
-TEST_DATABASE_URL=postgresql://bilunex_user:bilunex_password@localhost:5432/bilunex_test
+PORT=5000
+NODE_ENV=development
+DATABASE_URL=postgresql://bilunex:bilunex123@localhost:5432/bilunex
+TEST_DATABASE_URL=postgresql://bilunex:bilunex123@localhost:5432/bilunex_test
+JWT_SECRET=super_secret_jwt_signing_key_replace_in_production
+JWT_EXPIRES_IN=1d
+EMAIL_HOST=
+EMAIL_PORT=587
+EMAIL_USER=
+EMAIL_PASS=
+EMAIL_FROM="Bilunex Support" <no-reply@bilunex.org>
+ADMIN_NOTIFICATION_EMAIL=admin@bilunex.org
+CLIENT_URL=http://localhost:5000
 ```
 
-### Step 5.3: Run Database Migrations & Seeds
+_(Note: Leaving `EMAIL_HOST` and `EMAIL_USER` blank in development automatically enables Ethereal test account generation with preview URLs)._
 
-Populate the database tables and default administrative accounts:
+### Step 5.3: Run Migrations & Seeds
 
 ```bash
 cd server
-npm run migrate    # Creates tables, indexes, and constraints
-npm run seed       # Populates default admin and sample mentor
+npm run migrate    # Applies all 14 migrations sequentially (001 -> 014)
+npm run seed       # Populates initial admin user and realistic demo fixtures
 ```
 
-Default credentials seeded:
+Default seeded credentials:
 
-- **Admin**: `admin@bilunex.org` | Password: `Admin123!`
-- **Mentor**: `mentor@bilunex.org` | Password: `Mentor123!`
+- **Admin**: `admin@bilunex.org` | Password: `'Admin123!'`
+- **Mentor**: `mentor@bilunex.org` | Password: `'Mentor123!'`
+
+### Step 5.4: Start the Server & Open the App
+
+```bash
+npm run dev
+```
+
+Open your browser to:
+
+- **Public Portal**: [http://localhost:5000/public/index.html](http://localhost:5000/public/index.html)
+- **Admin Portal**: [http://localhost:5000/admin/index.html](http://localhost:5000/admin/index.html)
+- **Mentor Portal**: [http://localhost:5000/mentor/login.html](http://localhost:5000/mentor/login.html)
 
 ---
 
@@ -246,3 +287,77 @@ _Example First Commit_:
 
 - **Husky & lint-staged**: Automatically executes `eslint` and `prettier` on staged files before every `git commit`. If lint errors exist, the commit is safely rejected.
 - **GitHub Actions**: Configured under `.github/workflows/ci.yml`. On every `push` and `pull_request` to `main` and `develop`, a clean matrix build runs dependencies installation, linting, formatting checks, and the full test suite.
+
+---
+
+## 11. Detailed Troubleshooting Guide
+
+### 1. Password authentication failed for user "bilunex"
+
+- **Cause**: On Fedora, RHEL, and some Linux distributions, the default `/var/lib/pgsql/data/pg_hba.conf` uses `ident` or `peer` authentication for local socket connections instead of password authentication (`md5` or `scram-sha-256`).
+- **Solution**:
+  1. Open `pg_hba.conf` as root (e.g. `sudo nano /var/lib/pgsql/data/pg_hba.conf` or `/etc/postgresql/<version>/main/pg_hba.conf`).
+  2. Change local lines from `peer`/`ident` to `scram-sha-256` or `md5`:
+     ```text
+     # "local" is for Unix domain socket connections only
+     local   all             all                                     scram-sha-256
+     # IPv4 local connections:
+     host    all             all             127.0.0.1/32            scram-sha-256
+     ```
+  3. Reload PostgreSQL: `sudo systemctl restart postgresql`.
+  4. Alternatively, connect via TCP by specifying host `localhost` or `127.0.0.1` (`DATABASE_URL=postgresql://bilunex:bilunex123@localhost:5432/bilunex`).
+
+### 2. Permission denied for schema public
+
+- **Cause**: In PostgreSQL 15 and later, public schema permissions have been restricted for security. Non-superusers do not have `CREATE` privilege in the `public` schema by default.
+- **Solution**: Connect as the `postgres` superuser and transfer ownership or grant privileges:
+  ```bash
+  sudo -u postgres psql -d bilunex -c "ALTER SCHEMA public OWNER TO bilunex; GRANT ALL ON SCHEMA public TO bilunex;"
+  sudo -u postgres psql -d bilunex_test -c "ALTER SCHEMA public OWNER TO bilunex; GRANT ALL ON SCHEMA public TO bilunex;"
+  ```
+
+### 3. Permission denied to create extension "pg_trgm"
+
+- **Cause**: In PostgreSQL, only superusers have permissions to create database extensions like `pg_trgm`. If running migrations as user `bilunex` fails with:
+  `ERROR: permission denied to create extension "pg_trgm"`
+- **Solution**: Pre-install the extension directly as the `postgres` superuser:
+  ```bash
+  sudo -u postgres psql -d bilunex -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+  sudo -u postgres psql -d bilunex_test -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+  ```
+
+### 4. Bash "!" history event expansion in passwords
+
+- **Cause**: In Bash and Zsh shells, an exclamation mark (`!`) inside double quotes (e.g., `"Admin123!"` or `PASSWORD="bilunex123!"`) triggers interactive history expansion, resulting in:
+  `bash: !": event not found`
+- **Solution**:
+  - Always enclose passwords in **single quotes** (`'bilunex123!'`) in your terminal or scripts.
+  - Or escape the exclamation mark with a backslash (`"Admin123\!"`).
+  - Or disable history expansion temporarily in your current shell: `set +H`.
+
+### 5. Opening site through VS Code Live Server (Port 5500)
+
+- **Cause**: Opening frontend HTML files directly via VS Code Live Server (`http://127.0.0.1:5500/client/...`) causes origin mismatches against the Express backend on port `5000`. Forms may fail or display warning banners.
+- **Symptom**: A prominent yellow warning banner appears at the top of the browser:
+  _"You are viewing this site through a local dev server (port 5500). Please open this site at http://localhost:5000 so parent registration and mentor applications save to your database."_
+- **Solution**: Stop Live Server and access the site through the running Express server at:
+  [http://localhost:5000/public/index.html](http://localhost:5000/public/index.html)
+
+### 6. Configuring Gmail SMTP App Password for real email delivery
+
+- **Cause**: Standard Google account passwords cannot be used directly with SMTP due to Google's 2-Step Verification security policies.
+- **Solution**:
+  1. Enable **2-Step Verification** on your Google Account (`myaccount.google.com/security`).
+  2. Navigate to **Security &rarr; 2-Step Verification &rarr; App passwords**.
+  3. Generate a new App Password (select App: "Mail", Device: "Other (Bilunex Dev)"). Google will provide a 16-character token (e.g. `abcd efgh ijkl mnop`).
+  4. Configure your `server/.env`:
+     ```ini
+     EMAIL_HOST=smtp.gmail.com
+     EMAIL_PORT=587
+     EMAIL_USER=your-email@gmail.com
+     EMAIL_PASS=abcdefghijklmnop
+     EMAIL_FROM="Bilunex Support" <your-email@gmail.com>
+     ADMIN_NOTIFICATION_EMAIL=your-email@gmail.com
+     ```
+  5. Restart the server (`npm run dev`). All transactional emails will now deliver directly to real inboxes.
+  6. _(Default Behavior)_: If `EMAIL_HOST` or `EMAIL_USER` are left empty, Bilunex automatically creates an **Ethereal Email** test account and prints one-click web preview URLs in your console.

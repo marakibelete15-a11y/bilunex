@@ -72,27 +72,33 @@ Registers a student for tutoring, mentoring, or counseling support. Automaticall
 
 - **Method**: `POST`
 - **Route**: `/api/v1/public/parent-registrations` (alias: `/api/v1/public/parents/register`)
-- **Rate Limit**: Stricter Limiter (15 reqs / 15 mins)
+- **Rate Limit**: Stricter Limiter (15 reqs / 15 mins; skipped in test environments)
 - **Request Headers**: `Content-Type: application/json`
 - **Request Body**:
 
-| Field              | Type       | Required | Description                                                                             |
-| ------------------ | ---------- | -------- | --------------------------------------------------------------------------------------- |
-| `parent_name`      | `string`   | Yes      | Parent or guardian full name (min 2 chars)                                              |
-| `email`            | `string`   | Yes      | Valid email address for notifications                                                   |
-| `phone`            | `string`   | Yes      | Primary contact phone number (min 7 chars)                                              |
-| `telegram_handle`  | `string`   | No       | Optional Telegram handle (e.g. `@username`)                                             |
-| `child_name`       | `string`   | Yes      | Child / student full name (min 2 chars)                                                 |
-| `grade_level`      | `string`   | Yes      | Grade level (e.g. "Grade 9", "Middle School")                                           |
-| `subjects`         | `string[]` | Yes      | Non-empty array of subjects (e.g. `["Mathematics", "Physics"]`)                         |
-| `support_category` | `string`   | Yes      | Enum: `'tutoring'`, `'mentoring'`, `'counseling'`, `'combined'` (default: `'combined'`) |
-| `notes`            | `string`   | No       | Optional background details or specific student needs                                   |
+| Field                            | Type       | Required | Description                                                                               |
+| -------------------------------- | ---------- | -------- | ----------------------------------------------------------------------------------------- |
+| `parent_name`                    | `string`   | Yes      | Parent or guardian full name (min 2 chars)                                                |
+| `email`                          | `string`   | Yes      | Valid email address for notifications                                                     |
+| `phone`                          | `string`   | Yes      | Primary Ethiopian phone: `^(\+2519\d{8}\|09\d{8})$`                                       |
+| `secondary_phone`                | `string`   | No       | Optional secondary Ethiopian phone: `^(\+2519\d{8}\|09\d{8})$`                            |
+| `preferred_title`                | `string`   | No       | Preferred title: `'Mr.'`, `'Mrs.'`, `'Ms'`, `'Dr.'`, or custom string (max 50 chars)      |
+| `preferred_communication_method` | `string[]` | No       | Non-empty array of `'phone_call'`, `'telegram'`, `'whatsapp'` (default: `['phone_call']`) |
+| `telegram_handle`                | `string`   | No       | Optional Telegram handle (e.g. `@username`)                                               |
+| `child_name`                     | `string`   | Yes      | Child / student full name (min 2 chars)                                                   |
+| `grade_level`                    | `string`   | Yes      | Grade level (e.g. "Grade 9", "Middle School")                                             |
+| `subjects`                       | `string[]` | Yes      | Non-empty array of subjects (e.g. `["Mathematics", "Physics"]`)                           |
+| `support_category`               | `string`   | Yes      | Enum: `'tutoring'`, `'mentoring'`, `'counseling'`, `'combined'` (default: `'combined'`)   |
+| `notes`                          | `string`   | No       | Optional background details or specific student needs                                     |
 
 ```json
 {
   "parent_name": "Abebe Bikila",
   "email": "abebe@example.com",
   "phone": "+251911223344",
+  "secondary_phone": "0911556677",
+  "preferred_title": "Mr.",
+  "preferred_communication_method": ["phone_call", "telegram"],
   "telegram_handle": "@abebe_b",
   "child_name": "Dawit Abebe",
   "grade_level": "Grade 9",
@@ -113,6 +119,9 @@ Registers a student for tutoring, mentoring, or counseling support. Automaticall
     "parent_name": "Abebe Bikila",
     "email": "abebe@example.com",
     "phone": "+251911223344",
+    "secondary_phone": "0911556677",
+    "preferred_title": "Mr.",
+    "preferred_communication_method": ["phone_call", "telegram"],
     "telegram_handle": "@abebe_b",
     "child_name": "Dawit Abebe",
     "grade_level": "Grade 9",
@@ -128,25 +137,38 @@ Registers a student for tutoring, mentoring, or counseling support. Automaticall
 
 ### 3.2 Candidate Mentor Application
 
-Submits a prospective mentor application into the 6-stage candidate screening pipeline with initial status `'application_received'`. Automatically notifies both the applicant and administration.
+Submits a prospective mentor application into the 6-stage candidate screening pipeline with initial status `'application_received'`. Supports both `application/json` and `multipart/form-data` uploads for verified academic transcripts and photo identification.
 
 - **Method**: `POST`
 - **Route**: `/api/v1/public/mentor-applications` (alias: `/api/v1/public/mentors/apply`)
-- **Rate Limit**: Stricter Limiter
-- **Request Body**:
+- **Rate Limit**: Stricter Limiter (15 reqs / 15 mins)
+- **Request Format**: `application/json` or `multipart/form-data`
+- **Request Fields**:
 
-| Field             | Type       | Required | Description                                      |
-| ----------------- | ---------- | -------- | ------------------------------------------------ |
-| `full_name`       | `string`   | Yes      | Applicant's full name (min 2 chars)              |
-| `email`           | `string`   | Yes      | Contact email address (unique in active records) |
-| `phone`           | `string`   | Yes      | Contact telephone (min 7 chars)                  |
-| `telegram_handle` | `string`   | No       | Optional Telegram username                       |
-| `university`      | `string`   | Yes      | University or college affiliation (min 2 chars)  |
-| `field_of_study`  | `string`   | Yes      | Major or degree program (min 2 chars)            |
-| `academic_year`   | `string`   | Yes      | Year of study (e.g. "3rd Year", "Postgraduate")  |
-| `subjects`        | `string[]` | Yes      | Non-empty array of subjects applicant can teach  |
-| `availability`    | `string`   | Yes      | Weekly schedule (min 2 chars)                    |
-| `motivation`      | `string`   | Yes      | Statement of motivation (min 10 chars)           |
+| Field                          | Type       | Required | Description                                                 |
+| ------------------------------ | ---------- | -------- | ----------------------------------------------------------- |
+| `full_name`                    | `string`   | Yes      | Applicant's full name (min 2 chars)                         |
+| `email`                        | `string`   | Yes      | Contact email address (unique in active records)            |
+| `phone`                        | `string`   | Yes      | Ethiopian phone: `^(\+2519\d{8}\|09\d{8})$`                 |
+| `telegram_handle`              | `string`   | No       | Optional Telegram username                                  |
+| `university`                   | `string`   | Yes      | University or college affiliation (min 2 chars)             |
+| `campus`                       | `string`   | No       | Campus location (e.g. "4 Kilo Campus")                      |
+| `field_of_study`               | `string`   | Yes      | Major or degree program (min 2 chars)                       |
+| `academic_year`                | `string`   | Yes      | Year of study (e.g. "3rd Year", "Postgraduate")             |
+| `subjects`                     | `string[]` | Yes      | Non-empty array of subjects applicant can teach             |
+| `has_teaching_experience`      | `boolean`  | No       | Boolean flag indicating previous teaching experience        |
+| `teaching_experience_duration` | `string`   | No       | Duration of experience (e.g. "2 years")                     |
+| `experience_details`           | `string`   | No       | Context regarding tutoring, TA, or classroom background     |
+| `gpa`                          | `number`   | No       | Cumulative University GPA (0.00 to 4.00)                    |
+| `entrance_exam_result`         | `number`   | No       | Ethiopian University Entrance Exam result (0.0 to 700.0)    |
+| `available_days`               | `string[]` | No       | Days available (e.g. `["Monday", "Wednesday", "Saturday"]`) |
+| `available_hours`              | `string`   | No       | Working hours window (e.g. "4 PM - 7 PM")                   |
+| `availability`                 | `string`   | Yes      | Schedule summary string                                     |
+| `motivation`                   | `string`   | Yes      | Statement of motivation (min 10 chars)                      |
+| `commitment_agreement`         | `boolean`  | Yes      | Must be `true` confirming ethical & scheduling commitments  |
+| `referral_source`              | `string`   | No       | How applicant found Bilunex (e.g. "Telegram Channel")       |
+| `transcript`                   | `file`     | No       | PDF file upload (magic bytes checked, max 5 MB)             |
+| `id_photo`                     | `file`     | No       | Image file upload: JPG/PNG (magic bytes checked, max 5 MB)  |
 
 ```json
 {
@@ -155,11 +177,18 @@ Submits a prospective mentor application into the 6-stage candidate screening pi
   "phone": "+251944556677",
   "telegram_handle": "@solomon_t",
   "university": "Addis Ababa University",
+  "campus": "4 Kilo Campus",
   "field_of_study": "Computer Science",
   "academic_year": "4th Year",
   "subjects": ["Computer Science", "Mathematics"],
+  "gpa": 3.85,
+  "entrance_exam_result": 615.0,
+  "available_days": ["Saturday", "Sunday"],
+  "available_hours": "10:00 AM - 4:00 PM",
   "availability": "Weekends 10am - 4pm",
-  "motivation": "I want to mentor high school students in programming and STEM careers."
+  "motivation": "I want to mentor high school students in programming and STEM careers.",
+  "commitment_agreement": true,
+  "referral_source": "University Notice Board"
 }
 ```
 
@@ -175,12 +204,27 @@ Submits a prospective mentor application into the 6-stage candidate screening pi
     "email": "solomon@example.com",
     "phone": "+251944556677",
     "university": "Addis Ababa University",
+    "campus": "4 Kilo Campus",
     "field_of_study": "Computer Science",
     "academic_year": "4th Year",
     "subjects": ["Computer Science", "Mathematics"],
+    "gpa": "3.85",
+    "entrance_exam_result": "615.0",
+    "available_days": ["Saturday", "Sunday"],
+    "available_hours": "10:00 AM - 4:00 PM",
     "availability": "Weekends 10am - 4pm",
     "motivation": "I want to mentor high school students in programming and STEM careers.",
+    "commitment_agreement": true,
     "status": "application_received",
+    "documents": [
+      {
+        "id": "1",
+        "document_type": "transcript",
+        "original_filename": "transcript.pdf",
+        "mime_type": "application/pdf",
+        "file_size_bytes": 1048576
+      }
+    ],
     "created_at": "2026-10-25T07:20:00.000Z"
   }
 }
@@ -422,7 +466,8 @@ _(Optional: defaults to a secure system-generated credential if omitted)_.
     "inquiries": [
       { "status": "new", "count": 6 },
       { "status": "in_progress", "count": 2 }
-    ]
+    ],
+    "failed_notifications_last_7_days": 0
   }
 }
 ```
@@ -460,6 +505,25 @@ Chronological audit feed for administrators inspecting all session observations 
   }
 }
 ```
+
+### 4.10 Secure Mentor Document Download (Audited Streaming)
+
+Securely streams an uploaded applicant document (transcript or ID photo) directly to an authenticated administrator. Never served statically. Every download access is recorded immutably in `audit_log` (`action: 'view'`, `target_table: 'mentor_documents'`).
+
+- **Method**: `GET`
+- **Route**: `/api/v1/admin/documents/:id/download`
+- **Auth**: Admin JWT (`role: 'admin'` or `'super_admin'`)
+- **URL Parameters**:
+  - `id`: Numeric document ID from `mentor_documents` table
+- **Response `200 OK`**:
+  - **Headers**:
+    - `Content-Type`: `application/pdf` (or `image/jpeg`, `image/png`)
+    - `Content-Disposition`: `attachment; filename="original_filename.ext"`
+  - **Body**: Binary file stream
+- **Error Codes**:
+  - `401 Unauthorized`: Token missing or invalid
+  - `403 Forbidden`: Non-admin user attempted download
+  - `404 Not Found`: Document ID does not exist or file is missing from secure disk storage
 
 ---
 

@@ -25,11 +25,21 @@ erDiagram
         varchar phone
         varchar telegram_handle
         varchar university
+        varchar campus
         varchar field_of_study
         varchar academic_year
         text_array subjects
+        boolean has_teaching_experience
+        varchar teaching_experience_duration
+        text experience_details
+        numeric gpa
+        numeric entrance_exam_result
+        text_array available_days
+        varchar available_hours
         text availability
         text motivation
+        boolean commitment_agreement
+        varchar referral_source
         mentor_application_status status
         timestamptz created_at
         timestamptz updated_at
@@ -52,11 +62,27 @@ erDiagram
         timestamptz updated_at
     }
 
+    MENTOR_DOCUMENTS {
+        bigint id PK
+        bigint mentor_application_id FK
+        varchar document_type
+        varchar original_filename
+        varchar stored_filename UK
+        varchar file_path
+        varchar mime_type
+        bigint file_size_bytes
+        timestamptz created_at
+        timestamptz deleted_at
+    }
+
     PARENT_REGISTRATIONS {
         bigint id PK
         varchar parent_name
         varchar email
         varchar phone
+        varchar secondary_phone
+        varchar preferred_title
+        text_array preferred_communication_method
         varchar telegram_handle
         varchar child_name
         varchar grade_level
@@ -98,6 +124,7 @@ erDiagram
         bigint id PK
         varchar notification_type
         varchar recipient
+        varchar recipient_role
         varchar related_entity_type
         bigint related_entity_id
         notification_status status
@@ -118,6 +145,7 @@ erDiagram
     }
 
     MENTOR_APPLICATIONS ||--o| MENTOR_PROFILES : "activates into (1:1)"
+    MENTOR_APPLICATIONS ||--o{ MENTOR_DOCUMENTS : "submits verification files (1:N)"
     MENTOR_PROFILES ||--o{ STUDENT_SUPPORT_REPORTS : "files"
 ```
 
@@ -567,7 +595,43 @@ All migration commands are executed through the Node.js runner scripts inside `s
 
 | Operation                      | Command                | Action                                                                                       |
 | ------------------------------ | ---------------------- | -------------------------------------------------------------------------------------------- |
-| **Run Migrations (UP)**        | `npm run migrate`      | Executes all `*.up.sql` files sequentially in ascending order (`001` &rarr; `010`).          |
-| **Rollback Migrations (DOWN)** | `npm run migrate:down` | Executes all `*.down.sql` files sequentially in descending order (`010` &rarr; `001`).       |
+| **Run Migrations (UP)**        | `npm run migrate`      | Executes all `*.up.sql` files sequentially in ascending order (`001` &rarr; `014`).          |
+| **Rollback Migrations (DOWN)** | `npm run migrate:down` | Executes all `*.down.sql` files sequentially in descending order (`014` &rarr; `001`).       |
 | **Seed Development Data**      | `npm run seed`         | Populates default admin, sample mentors, parents, reports, and logs. Blocked in production.  |
 | **Reset Database**             | `npm run db:reset`     | Reverts all migrations (`DOWN`), re-applies all migrations (`UP`), and seeds fresh fixtures. |
+
+### Complete Migrations Sequence
+
+1. `001_extensions_and_helpers.up.sql`: Loads `pg_trgm` extension for fuzzy text search.
+2. `002_enums.up.sql`: Declares PostgreSQL enum types (`admin_role`, `mentor_application_status`, `mentor_account_status`, `parent_registration_status`, `inquiry_type`, `inquiry_status`, `notification_status`).
+3. `003_admin_users.up.sql`: Creates `admin_users` table with bcrypt password storage.
+4. `004_mentor_applications.up.sql`: Creates initial candidate mentor application pipeline.
+5. `005_mentor_profiles.up.sql`: Creates verified mentor profile records linked 1:1 to applications.
+6. `006_parent_registrations.up.sql`: Creates student intake table with contact and academic need fields.
+7. `007_student_support_reports.up.sql`: Creates mentor session observation reports.
+8. `008_inquiries.up.sql`: Creates public contact and counseling inquiries table.
+9. `009_logs.up.sql`: Creates immutable `audit_log` and non-blocking `notification_log`.
+10. `010_indexes.up.sql`: Creates search, filtering, and foreign key indexes.
+11. `011_parent_registration_fields.up.sql`: Adds `preferred_title`, `secondary_phone`, and `preferred_communication_method` array to `parent_registrations`.
+12. `012_mentor_application_fields.up.sql`: Adds `campus`, teaching experience details, GPA, EHEEE score, availability schedule, and commitment agreement to `mentor_applications`.
+13. `013_mentor_documents.up.sql`: Creates `mentor_documents` table for secure file upload tracking.
+14. `014_notification_log_fields.up.sql`: Adds `recipient_role` and failure query index to `notification_log`.
+
+---
+
+## 7. Data Protection, Document Security & Retention Policy
+
+### 7.1 Confidential Document Security
+
+Candidate academic transcripts and identification photos are treated as restricted personal data:
+
+- **Binary Signature Verification**: Uploads are inspected for magic byte headers (`%PDF-`, JPEG `0xFF, 0xD8, 0xFF`, PNG `0x89, 0x50, 0x4E, 0x47`) to prevent malicious executable injection and MIME spoofing.
+- **Private Storage**: Documents are persisted outside the public web root in `server/storage/private/documents/` (directory permission `0700`, file permission `0600`) under randomly generated UUID filenames (`crypto.randomUUID()`).
+- **Zero Static Serving**: The storage directory is never exposed via static web middleware.
+- **Audited Streaming**: Documents can only be retrieved by authenticated administrators via `GET /api/v1/admin/documents/:id/download`. Every download access is immutably recorded in `audit_log` (`action: 'view'`, `target_table: 'mentor_documents'`).
+
+### 7.2 Document Retention Policy
+
+- **Active Candidates**: Transcripts and identification photos are retained during the screening, interview, and active onboarding stages.
+- **Rejected Applications**: Candidate transcripts and photos are retained for a maximum of **30 days** following application rejection or withdrawal to facilitate administrative audit, after which file binaries are permanently purged from secure disk storage and marked soft-deleted (`deleted_at = CURRENT_TIMESTAMP`).
+- **Enrolled Mentors**: Following successful screening and account activation, candidate verification records remain securely archived in compliance with educational accreditation standards.
