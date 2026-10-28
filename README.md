@@ -183,6 +183,16 @@ Open your browser to:
 - **Admin Portal**: [http://localhost:5000/admin/index.html](http://localhost:5000/admin/index.html)
 - **Mentor Portal**: [http://localhost:5000/mentor/login.html](http://localhost:5000/mentor/login.html)
 
+### Development only: reset an admin password
+
+From the repository root, pass the admin email and a new password of at least 12 characters as command-line arguments:
+
+```bash
+npm run admin:reset-password -- admin@example.com 'your-new-password'
+```
+
+The utility is disabled when `NODE_ENV=production`. It hashes the password with bcrypt cost 12, updates the matching admin account, and prints only a success or failure message. Do not commit passwords or place them in scripts.
+
 ---
 
 ## 6. Running the Application

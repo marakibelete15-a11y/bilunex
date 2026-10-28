@@ -15,6 +15,7 @@
     "migrate": "npm --prefix server run migrate",
     "migrate:down": "npm --prefix server run migrate:down",
     "seed": "npm --prefix server run seed",
+    "admin:reset-password": "npm --prefix server run admin:reset-password --",
     "db:reset": "npm --prefix server run db:reset",
     "prepare": "husky"
   },

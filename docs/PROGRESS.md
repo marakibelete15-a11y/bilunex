@@ -11,6 +11,14 @@
 - HTTP server reports a clear port-in-use message; uncaught exceptions log and exit with code 1.
 - `npm run lint` passes; full `npm test` suite passes (62 tests).
 
+### Development admin password reset
+
+**Status:** done
+
+- Added `admin:reset-password` at the repository root and in `server/`; the utility accepts email and password arguments, requires 12 characters, hashes with bcrypt cost 12, updates `admin_users`, and is disabled in production.
+- README documents the development-only command. Output is limited to success or failure.
+- `npm run lint` passes; full `npm test` suite passes (62 tests). An invocation with missing arguments prints only `Admin password reset failed.` and exits nonzero.
+
 ### Public registration CTA duplication
 
 **Status:** done

@@ -15,6 +15,7 @@
     "migrate": "node database/migrate.js up",
     "migrate:down": "node database/migrate.js down",
     "seed": "node database/seed.js",
+    "admin:reset-password": "node scripts/reset-admin-password.js",
     "db:reset": "node database/reset.js"
   },
   "keywords": [
