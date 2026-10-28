@@ -14,20 +14,27 @@
 - The earlier curl stall was caused by notification dispatch being awaited in the registration path while SMTP/Ethereal operations waited on network timeouts. The path was guarded against thrown transport errors, but the response was still withheld. No evidence identified an unhandled rejection as the original cause; global handlers now log either unhandled rejection or uncaught exception.
 - Migration `015_notification_delivery_statuses.up.sql` adds `timeout` and `logged_not_sent` statuses. It was applied manually to local `bilunex` and `bilunex_test` databases for verification.
 
-**Next:** STAGE 0 — verify a real development POST and notification rows, complete the full HTML/JS page map, then move to STAGE 1.
+**Verification:** a real POST to `http://localhost:5000/api/v1/public/parent-registrations` returned `201` in 424 ms (record ID 11). The saved row has `Grade 9`, `Mathematics`, and allowed `tutoring` category. The `bilunex` database contains `parent_registration_admin_alert` for `admin@bilunex.org` with role `admin` and `parent_registration_ack` for the submitted email with role `parent`; both are `logged_not_sent` after SMTP timed out in this offline environment.
+
+**Next:** STAGE 0 complete; move to STAGE 1.
 
 ## STAGE 0 — Backend verification and frontend audit
 
-**Status:** in progress
+**Status:** done
 
 - Prior audit found these canonical public pages: `index.html`, `about.html`, `services.html`, `for-parents.html`, `parent-registration.html` (missing), `become-a-mentor.html`, `stories.html`, `contact.html`.
 - Existing public pages: `index.html`, `about.html`, `services.html`, `for-parents.html`, `become-a-mentor.html`, `stories.html`, `contact.html`.
 - Existing admin pages: `index.html`, `login.html`, `applications.html`, `mentors.html`.
 - Existing mentor pages: `login.html`, `profile.html`, `report.html`.
-- Next: capture every client HTML/JS file, check links and duplicate/dead pages, then POST valid fields and query its saved row plus parent/admin notification logs.
+- HTML inventory: `client/admin/{applications,index,login,mentors}.html`; `client/mentor/{login,profile,report}.html`; `client/public/{about,become-a-mentor,contact,for-parents,index,services,stories}.html`.
+- JavaScript inventory: `client/js/api.js`, `auth.js`, `ui.js`, `validation.js`, `components/layout.js`, and `pages/for-parents.js`.
+- No duplicate HTML pages, alternate page-name copies, or unreferenced JS modules were found. Shared CSS files are `base.css`, `components.css`, `layout.css`, and `pages.css`.
+- Existing public navigation links resolve among current pages. Registration CTAs currently point to the For Parents information page; update them to `parent-registration.html` when that page is built in STAGE 3. The canonical page is the only missing public page.
+- Backend response, persisted record, and both notification attempts verified above. Lint passes; full backend suite passes (62 tests).
+- Known issue for later stages: current public pages still have per-page headers/footers and the parent information page currently contains a form; redesign and move of the form are planned in STAGES 1–3.
 
 ## STAGES 1–6
 
 **Status:** not started
 
-**Next:** Begin STAGE 1 after STAGE 0 is complete.
+**Next:** Begin STAGE 1 — design tokens, original SVG logo, and shared layout.
