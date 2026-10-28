@@ -11,6 +11,15 @@
 - HTTP server reports a clear port-in-use message; uncaught exceptions log and exit with code 1.
 - `npm run lint` passes; full `npm test` suite passes (62 tests).
 
+### Public registration CTA duplication
+
+**Status:** done
+
+- Removed the extra home hero registration CTA; shared layout remains the single desktop header CTA and provides the mobile drawer CTA. The drawer CTA is hidden by CSS at 960px and wider.
+- Reviewed all pages in `client/public/`; remaining registration CTAs are page-content actions, not duplicate header controls.
+- Verified the 1920px desktop header shows one header CTA. At 375px, the drawer shows one CTA after opening; the drawer CTA is hidden at desktop width. Reviewed all eight public pages; remaining occurrences are content CTAs, with no duplicate hard-coded header copies.
+- `npm run lint` passes; full `npm test` suite passes (62 tests).
+
 ### Development API notice
 
 **Status:** done
