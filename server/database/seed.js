@@ -44,10 +44,16 @@ async function seedDatabase() {
     const appRes = await client.query(
       `
       INSERT INTO mentor_applications (
-        full_name, email, phone, telegram_handle, university,
-        field_of_study, academic_year, subjects, availability, motivation, status
+        full_name, email, phone, telegram_handle, university, campus,
+        field_of_study, academic_year, subjects, has_teaching_experience,
+        teaching_experience_duration, experience_details, gpa, entrance_exam_result,
+        available_days, available_hours, availability, motivation,
+        commitment_agreement, referral_source, status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'accepted')
+      VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, 'accepted'
+      )
       ON CONFLICT (LOWER(email)) WHERE deleted_at IS NULL DO UPDATE
       SET status = 'accepted'
       RETURNING id, full_name, email;
@@ -58,11 +64,21 @@ async function seedDatabase() {
         '+251911002233',
         '@sarah_j',
         'Addis Ababa University',
+        '4 Kilo Campus',
         'Physics & Science Education',
         'Postgraduate / PhD',
         ['Mathematics', 'Physics', 'STEM Coaching'],
+        true,
+        '5+ years',
+        '5 years university TA and high school science tutor',
+        3.95,
+        642.0,
+        ['Monday', 'Wednesday', 'Saturday'],
+        '4 PM - 7 PM',
         'Weekdays after 4 PM, Saturdays 10 AM - 2 PM',
         'Passionate about empowering high schoolers to overcome STEM anxiety through patient coaching.',
+        true,
+        'University Department Notice Board',
       ]
     );
     const acceptedApp = appRes.rows[0];
@@ -72,10 +88,16 @@ async function seedDatabase() {
     await client.query(
       `
       INSERT INTO mentor_applications (
-        full_name, email, phone, telegram_handle, university,
-        field_of_study, academic_year, subjects, availability, motivation, status
+        full_name, email, phone, telegram_handle, university, campus,
+        field_of_study, academic_year, subjects, has_teaching_experience,
+        teaching_experience_duration, experience_details, gpa, entrance_exam_result,
+        available_days, available_hours, availability, motivation,
+        commitment_agreement, referral_source, status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'under_review')
+      VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, 'under_review'
+      )
       ON CONFLICT (LOWER(email)) WHERE deleted_at IS NULL DO NOTHING;
     `,
       [
@@ -84,11 +106,21 @@ async function seedDatabase() {
         '+251922334455',
         '@maya_r',
         'Kotebe University of Education',
+        'Main Campus',
         'English Literature & Counseling',
         '3rd Year',
         ['English Literature', 'Creative Writing', 'Youth Counseling'],
+        true,
+        '2 years',
+        'Peer mentoring and creative writing workshop leader',
+        3.72,
+        588.0,
+        ['Saturday', 'Sunday'],
+        'All day weekends',
         'Saturdays and Sundays all day',
         'Committed to providing compassionate emotional and academic support for young students.',
+        true,
+        'Telegram Channel',
       ]
     );
     logger.info('  ✅ Mentor application (Under Review): Maya Rodriguez');

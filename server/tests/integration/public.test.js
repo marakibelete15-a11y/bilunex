@@ -215,6 +215,7 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         subjects: ['Computer Science', 'Mathematics'],
         availability: 'Weekends 10am-4pm',
         motivation: 'I want to mentor high school students in programming and STEM careers.',
+        commitment_agreement: true,
       };
 
       const res = await request(app).post('/api/v1/public/mentor-applications').send(payload);
@@ -224,6 +225,83 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
       expect(res.body.data.id).toBeDefined();
       expect(res.body.data.status).toBe('application_received');
       expect(res.body.data.full_name).toBe(payload.full_name);
+    });
+
+    test('should accept full mentor application with GPA, entrance exam, campus, and availability', async () => {
+      const payload = {
+        full_name: 'Tigist Hailu',
+        email: `tigist_${Date.now()}@example.com`,
+        phone: '0912345678',
+        telegram_username: '@tigist_h',
+        university_name: 'Addis Ababa University',
+        campus: 'Arat Kilo',
+        department: 'Software Engineering',
+        year_of_study: '3rd Year',
+        subjects: ['Algorithms', 'Python'],
+        has_teaching_experience: true,
+        teaching_experience_duration: '2 years',
+        experience_details: 'Private coding tutor for preparatory students',
+        gpa: 3.85,
+        entrance_exam_result: 615.5,
+        available_days: ['Monday', 'Thursday', 'Saturday'],
+        available_hours: '5 PM - 8 PM',
+        motivation: 'Passionate about guiding the next generation of engineers in Ethiopia.',
+        commitment_agreement: true,
+        referral_source: 'University Club',
+      };
+
+      const res = await request(app).post('/api/v1/public/mentor-applications').send(payload);
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.campus).toBe('Arat Kilo');
+      expect(Number(res.body.data.gpa)).toBe(3.85);
+      expect(Number(res.body.data.entrance_exam_result)).toBe(615.5);
+      expect(res.body.data.commitment_agreement).toBe(true);
+      expect(res.body.data.referral_source).toBe('University Club');
+    });
+
+    test('should reject application without commitment agreement', async () => {
+      const payload = {
+        full_name: 'No Agreement Applicant',
+        email: `noagree_${Date.now()}@example.com`,
+        phone: '+251911223344',
+        university: 'AAU',
+        field_of_study: 'Math',
+        academic_year: '2nd Year',
+        subjects: ['Algebra'],
+        availability: 'Weekends',
+        motivation: 'I love teaching young students very much.',
+        commitment_agreement: false, // Rejected!
+      };
+
+      const res = await request(app).post('/api/v1/public/mentor-applications').send(payload);
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.errors.some(e => e.field === 'commitment_agreement')).toBe(true);
+    });
+
+    test('should reject invalid GPA (> 4.0)', async () => {
+      const payload = {
+        full_name: 'Invalid GPA Applicant',
+        email: `badgpa_${Date.now()}@example.com`,
+        phone: '+251911223344',
+        university: 'AAU',
+        field_of_study: 'Math',
+        academic_year: '2nd Year',
+        subjects: ['Algebra'],
+        availability: 'Weekends',
+        motivation: 'I love teaching young students very much.',
+        commitment_agreement: true,
+        gpa: 4.5, // Invalid GPA
+      };
+
+      const res = await request(app).post('/api/v1/public/mentor-applications').send(payload);
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.errors.some(e => e.field === 'gpa')).toBe(true);
     });
 
     test('should reject application with motivation shorter than 10 characters', async () => {
@@ -237,6 +315,7 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         subjects: ['Physics'],
         availability: 'Evenings',
         motivation: 'Short', // Less than 10 chars
+        commitment_agreement: true,
       };
 
       const res = await request(app).post('/api/v1/public/mentor-applications').send(payload);

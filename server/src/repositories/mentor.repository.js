@@ -15,42 +15,85 @@ const mentorRepository = {
     email,
     phone,
     telegram_handle = null,
+    telegram_username = null,
     university,
+    university_name,
+    campus = null,
     field_of_study,
+    department,
     academic_year,
+    year_of_study,
     subjects = [],
-    availability,
+    has_teaching_experience = false,
+    teaching_experience = null,
+    teaching_experience_duration = null,
+    experience_details = null,
+    gpa = null,
+    entrance_exam_result = null,
+    available_days = [],
+    available_hours = null,
+    availability = null,
     motivation,
+    commitment_agreement = true,
+    referral_source = null,
     expertise, // Fallback
     bio, // Fallback
   }) {
+    const finalUniversity = university || university_name || 'Not specified';
+    const finalFieldOfStudy = field_of_study || department || 'Not specified';
+    const finalAcademicYear = academic_year || year_of_study || 'Not specified';
+    const finalTelegram = telegram_handle || telegram_username || null;
+    const finalAvailability = availability || available_hours || 'Flexible';
+    const finalExperienceDuration = teaching_experience_duration || teaching_experience || null;
+
     const subjectsArray = Array.isArray(subjects)
       ? subjects
       : typeof expertise === 'string'
         ? expertise.split(',').map(s => s.trim())
         : ['General Mentorship'];
 
+    const availableDaysArray = Array.isArray(available_days) ? available_days : [];
     const motivationText = motivation || bio || 'Passionate about mentorship';
 
     const text = `
       INSERT INTO mentor_applications (
-        full_name, email, phone, telegram_handle, university,
-        field_of_study, academic_year, subjects, availability, motivation, status
+        full_name, email, phone, telegram_handle, university, campus,
+        field_of_study, academic_year, subjects, has_teaching_experience,
+        teaching_experience_duration, experience_details, gpa, entrance_exam_result,
+        available_days, available_hours, availability, motivation,
+        commitment_agreement, referral_source, status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'application_received')
+      VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, 'application_received'
+      )
       RETURNING *;
     `;
     const res = await db.query(text, [
       full_name,
       email,
       phone,
-      telegram_handle,
-      university || 'Not specified',
-      field_of_study || 'Not specified',
-      academic_year || 'Not specified',
+      finalTelegram,
+      finalUniversity,
+      campus || null,
+      finalFieldOfStudy,
+      finalAcademicYear,
       subjectsArray,
-      availability || 'Flexible',
+      Boolean(has_teaching_experience),
+      finalExperienceDuration,
+      experience_details || null,
+      gpa !== null && gpa !== undefined && gpa !== '' ? Number(gpa) : null,
+      entrance_exam_result !== null &&
+      entrance_exam_result !== undefined &&
+      entrance_exam_result !== ''
+        ? Number(entrance_exam_result)
+        : null,
+      availableDaysArray,
+      available_hours || null,
+      finalAvailability,
       motivationText,
+      commitment_agreement === true || commitment_agreement === 'true',
+      referral_source || null,
     ]);
     return res.rows[0];
   },
