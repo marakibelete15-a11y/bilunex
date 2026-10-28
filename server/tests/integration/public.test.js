@@ -123,6 +123,50 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
       expect(Array.isArray(res.body.errors)).toBe(true);
     });
 
+    test('should reject non-Ethiopian phone number with 400 Bad Request', async () => {
+      const payload = {
+        parent_name: 'Invalid Phone Parent',
+        email: `invalid_phone_${Date.now()}@example.com`,
+        phone: '+15551234567', // Not Ethiopian format
+        child_name: 'Test Child',
+        grade_level: 'Grade 8',
+        subjects: ['English'],
+        support_category: 'tutoring',
+      };
+
+      const res = await request(app).post('/api/v1/public/parent-registrations').send(payload);
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.errors.some(e => e.field === 'phone')).toBe(true);
+    });
+
+    test('should accept 09XXXXXXXX format, preferred title, secondary phone, and communication methods', async () => {
+      const payload = {
+        preferred_title: 'Dr.',
+        parent_name: 'Dr. Almaz Bekele',
+        email: `almaz_${Date.now()}@example.com`,
+        phone: '0911223344', // 09 format
+        secondary_phone: '+251988776655', // +2519 format
+        preferred_communication_method: ['Telegram', 'Phone call'],
+        telegram_handle: '@dralmaz',
+        child_name: 'Kalkidan Bekele',
+        grade_level: 'Grade 12',
+        subjects: ['Biology', 'Chemistry'],
+        support_category: 'combined',
+        notes: 'Preparing for national university entrance exam.',
+      };
+
+      const res = await request(app).post('/api/v1/public/parent-registrations').send(payload);
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.preferred_title).toBe('Dr.');
+      expect(res.body.data.phone).toBe('0911223344');
+      expect(res.body.data.secondary_phone).toBe('+251988776655');
+      expect(res.body.data.preferred_communication_method).toEqual(['telegram', 'phone_call']);
+    });
+
     test('should still store registration (HTTP 201) even if email dispatch fails (Safe Dispatch)', async () => {
       // Simulate SMTP network failure
       nodemailer.createTransport.mockReturnValue({

@@ -129,16 +129,20 @@ async function seedDatabase() {
     const parent1Res = await client.query(
       `
       INSERT INTO parent_registrations (
-        parent_name, email, phone, telegram_handle, child_name,
+        parent_name, email, phone, secondary_phone, preferred_title,
+        preferred_communication_method, telegram_handle, child_name,
         grade_level, subjects, support_category, notes, status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'new')
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'new')
       RETURNING id, child_name;
     `,
       [
         'David Miller',
         'david.miller@example.com',
         '+251911234567',
+        '+251922334455',
+        'Mr.',
+        ['telegram', 'phone_call'],
         '@david_m',
         'Leo Miller',
         'High School (9-12)',
@@ -152,15 +156,19 @@ async function seedDatabase() {
     await client.query(
       `
       INSERT INTO parent_registrations (
-        parent_name, email, phone, telegram_handle, child_name,
+        parent_name, email, phone, secondary_phone, preferred_title,
+        preferred_communication_method, telegram_handle, child_name,
         grade_level, subjects, support_category, notes, status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'contacted');
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'contacted');
     `,
       [
         'Amina Yusuf',
         'amina.yusuf@example.com',
         '+251922345678',
+        null,
+        'Mrs.',
+        ['phone_call', 'whatsapp'],
         '@amina_y',
         'Nadia Yusuf',
         'Middle School (6-8)',

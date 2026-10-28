@@ -14,6 +14,9 @@ const parentRepository = {
     parent_name,
     email,
     phone,
+    secondary_phone = null,
+    preferred_title = null,
+    preferred_communication_method = ['phone_call'],
     telegram_handle = null,
     child_name,
     student_name, // Fallback
@@ -28,19 +31,27 @@ const parentRepository = {
     const finalGradeLevel = grade_level || student_grade;
     const finalSupportCategory = support_category || support_type || 'combined';
     const subjectsArray = Array.isArray(subjects) ? subjects : [];
+    const commMethods =
+      Array.isArray(preferred_communication_method) && preferred_communication_method.length > 0
+        ? preferred_communication_method
+        : ['phone_call'];
 
     const text = `
       INSERT INTO parent_registrations (
-        parent_name, email, phone, telegram_handle, child_name,
+        parent_name, email, phone, secondary_phone, preferred_title,
+        preferred_communication_method, telegram_handle, child_name,
         grade_level, subjects, support_category, notes, status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'new')
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'new')
       RETURNING *;
     `;
     const res = await db.query(text, [
       parent_name,
       email,
       phone,
+      secondary_phone || null,
+      preferred_title || null,
+      commMethods,
       telegram_handle,
       finalChildName,
       finalGradeLevel,
@@ -80,7 +91,8 @@ const parentRepository = {
   } = {}) {
     const text = `
       SELECT
-        id, parent_name, email, phone, telegram_handle, child_name,
+        id, parent_name, email, phone, secondary_phone, preferred_title,
+        preferred_communication_method, telegram_handle, child_name,
         grade_level, subjects, support_category, notes, status, created_at, updated_at
       FROM parent_registrations
       WHERE deleted_at IS NULL

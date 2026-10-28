@@ -5,11 +5,49 @@
 
 const { z } = require('zod');
 
+const ETHIOPIAN_PHONE_REGEX = /^(\+2519\d{8}|09\d{8})$/;
+
 const createParentRegistrationSchema = z
   .object({
+    preferred_title: z
+      .string()
+      .trim()
+      .max(50, 'Preferred title must be at most 50 characters')
+      .optional()
+      .nullable()
+      .transform(val => (val && val.length > 0 ? val : null)),
     parent_name: z.string().trim().min(2, 'Parent name must be at least 2 characters'),
     email: z.string().trim().email('Please provide a valid email address'),
-    phone: z.string().trim().min(7, 'Please provide a valid phone number'),
+    phone: z
+      .string()
+      .trim()
+      .regex(
+        ETHIOPIAN_PHONE_REGEX,
+        'Phone number must follow Ethiopian format (+2519XXXXXXXX or 09XXXXXXXX)'
+      ),
+    secondary_phone: z
+      .string()
+      .trim()
+      .regex(
+        ETHIOPIAN_PHONE_REGEX,
+        'Secondary phone must follow Ethiopian format (+2519XXXXXXXX or 09XXXXXXXX)'
+      )
+      .optional()
+      .nullable()
+      .or(z.literal(''))
+      .transform(val => (val && val.length > 0 ? val : null)),
+    preferred_communication_method: z
+      .array(z.string().trim())
+      .min(1, 'Please select at least one preferred communication method')
+      .refine(
+        methods =>
+          methods.every(m =>
+            ['phone_call', 'telegram', 'whatsapp', 'Phone call', 'Telegram', 'WhatsApp'].includes(m)
+          ),
+        { message: 'Communication method must be Phone call, Telegram, or WhatsApp' }
+      )
+      .transform(methods => methods.map(m => m.toLowerCase().replace(/\s+/g, '_')))
+      .default(['phone_call']),
     telegram_handle: z
       .string()
       .trim()

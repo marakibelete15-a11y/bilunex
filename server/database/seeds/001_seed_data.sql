@@ -32,13 +32,20 @@ WHERE email = 'mentor@bilunex.org'
 ON CONFLICT (user_id) DO NOTHING;
 
 -- 4. Sample Parent Registration
-INSERT INTO parent_registrations (parent_name, email, phone, student_name, student_grade, support_type, notes, status)
+INSERT INTO parent_registrations (
+  parent_name, email, phone, secondary_phone, preferred_title,
+  preferred_communication_method, child_name, grade_level, subjects, support_category, notes, status
+)
 VALUES (
   'David Miller',
   'david.miller@example.com',
-  '+1 (555) 345-6789',
+  '+251911234567',
+  '+251922334455',
+  'Mr.',
+  '{"telegram", "phone_call"}',
   'Leo Miller',
   'High School (9-12)',
+  '{"Mathematics", "Algebra"}',
   'combined',
   'Looking for algebra tutoring and weekly mentoring to improve study habits.',
   'new'
