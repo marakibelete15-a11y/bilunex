@@ -37,7 +37,7 @@ export const api = {
     };
 
     // Attach Bearer token from localStorage if user session exists
-    const token = localStorage.getItem('bilunex_token') || localStorage.getItem('bluenex_token');
+    const token = localStorage.getItem('bilunex_token');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
