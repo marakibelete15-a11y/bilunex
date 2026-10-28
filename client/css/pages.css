@@ -717,6 +717,7 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--space-3);
   list-style: none;
+  padding-left: 0;
 }
 .form-progress li {
   display: flex;

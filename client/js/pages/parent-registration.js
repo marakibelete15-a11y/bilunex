@@ -79,7 +79,11 @@ const validateStep = index => {
       ]);
     const selectedTitles = [...form.querySelectorAll('[name="title-choice"]:checked')];
     if (selectedTitles.length > 1)
-      errors.push([selectedTitles[0], 'preferred-title-error', 'Choose one preferred title.']);
+      errors.push([
+        selectedTitles[1],
+        'preferred-title-error',
+        'The API accepts one preferred title. Choose only one option.',
+      ]);
     if (selectedTitles[0]?.value === 'Other' && !titleOther.value.trim())
       errors.push([titleOther, 'preferred-title-error', 'Enter your preferred title.']);
     const communication = [

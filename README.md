@@ -162,7 +162,7 @@ When `EMAIL_HOST` is blank, development tries Ethereal lazily after the API resp
 
 ```bash
 cd server
-npm run migrate    # Applies all 14 migrations sequentially (001 -> 014)
+npm run migrate    # Applies migrations sequentially (001 -> 015)
 npm run seed       # Populates initial admin user and realistic demo fixtures
 ```
 
@@ -213,7 +213,13 @@ npm start
 
 ---
 
-## 7. Environment Variables Reference
+## 7. Frontend pages and verification
+
+Canonical public pages are `client/public/index.html`, `about.html`, `services.html`, `for-parents.html`, `parent-registration.html`, `become-a-mentor.html`, `stories.html`, and `contact.html`. The admin portal is under `client/admin/`; the mentor portal is under `client/mentor/`. Open each through `http://localhost:5000`, not a static file server.
+
+Use [the page-by-page manual verification checklist](docs/MANUAL-CHECKLIST.md) for responsive widths, public forms, file uploads, portal roles, database checks, and seed logins. From `server/`, run `npm run lint` and `npm test`. The checked-in test suite currently contains 62 tests.
+
+## 8. Environment Variables Reference
 
 | Variable                   | Description                                  | Example / Default                                            |
 | -------------------------- | -------------------------------------------- | ------------------------------------------------------------ |
@@ -232,7 +238,7 @@ npm start
 
 ---
 
-## 8. Available npm Scripts
+## 9. Available npm Scripts
 
 Run from either repo root or inside `server/`:
 
@@ -253,7 +259,7 @@ Run from either repo root or inside `server/`:
 
 ---
 
-## 9. Git Branching Strategy & Conventions
+## 10. Git Branching Strategy & Conventions
 
 ### Branching Model
 
@@ -283,14 +289,14 @@ _Example First Commit_:
 
 ---
 
-## 10. Automated Pre-Commit Hooks & CI/CD
+## 11. Automated Pre-Commit Hooks & CI/CD
 
 - **Husky & lint-staged**: Automatically executes `eslint` and `prettier` on staged files before every `git commit`. If lint errors exist, the commit is safely rejected.
 - **GitHub Actions**: Configured under `.github/workflows/ci.yml`. On every `push` and `pull_request` to `main` and `develop`, a clean matrix build runs dependencies installation, linting, formatting checks, and the full test suite.
 
 ---
 
-## 11. Detailed Troubleshooting Guide
+## 12. Detailed Troubleshooting Guide
 
 ### 1. Password authentication failed for user "bilunex"
 

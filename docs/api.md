@@ -91,6 +91,8 @@ Registers a student for tutoring, mentoring, or counseling support. Automaticall
 | `support_category`               | `string`   | Yes      | Enum: `'tutoring'`, `'mentoring'`, `'counseling'`, `'combined'` (default: `'combined'`)   |
 | `notes`                          | `string`   | No       | Optional background details or specific student needs                                     |
 
+The current parent-registration page maps the Google Form preferred-title checkbox group to this scalar field and requires at most one selected title. To preserve multi-select from Google Forms, change this field to a string array and store the values in a PostgreSQL `text[]` column.
+
 ```json
 {
   "parent_name": "Abebe Bikila",
@@ -362,7 +364,7 @@ Retrieves active parent registrations with multi-parameter filtering, case-insen
   - `status`: One of the 6 pipeline stages
   - `page`: Page number
   - `limit`: Items per page
-- **Response `200 OK`**: Returns array of applications with pagination metadata.
+- **Response `200 OK`**: Returns application rows with a `documents` array on each row and pagination metadata. Each document item exposes the `id`, type, original filename, MIME type, file size, and creation date needed by an administrator to invoke the secure download route. Internal storage paths are not returned.
 
 ### 4.5 Update Mentor Application Status
 
@@ -524,6 +526,12 @@ Securely streams an uploaded applicant document (transcript or ID photo) directl
   - `401 Unauthorized`: Token missing or invalid
   - `403 Forbidden`: Non-admin user attempted download
   - `404 Not Found`: Document ID does not exist or file is missing from secure disk storage
+
+### 4.11 Admin UI API limitations
+
+- There is no dedicated endpoint to list mentor profiles; the current Active Mentors page uses mentor applications in `onboarding` status as a proxy.
+- Parent registration and inquiry status update services are not exposed as routes.
+- Mentor application, inquiry, and student support report list routes do not accept a search parameter. Search over those lists must therefore stay scoped to the currently loaded page. Parent registration search is server-side.
 
 ---
 

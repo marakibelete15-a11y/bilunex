@@ -35,7 +35,7 @@
 
 ## STAGES 1–6
 
-**Status:** in progress
+**Status:** done
 
 ### STAGE 1 — Design system, logo, shared layout
 
@@ -48,9 +48,9 @@
 - Added a mobile navigation focus loop, Escape handling, outside-click close, sticky header, 44px controls, and gold CTA/outline/ghost/small/disabled/loading button styles.
 - Previewed the mobile drawer in the local browser; navigation and gold registration CTA render in the drawer.
 - No existing `client/assets/images/logo.png` was present, so the SVG brand mark is used directly.
-- Known issue: registration CTA targets `parent-registration.html`, which will be created in STAGE 3. Existing home content still links its main registration CTA to `for-parents.html` pending that stage.
+- Registration CTAs were connected to `parent-registration.html` in STAGE 3.
 
-**Next:** STAGE 2 complete; move to STAGE 3.
+**Next:** STAGE 2.
 
 ### STAGE 2 — Public content pages
 
@@ -65,23 +65,23 @@
 - New `[To be confirmed by Bilunex]` items: founding story, mission, vision, values, trusted-relationship practices, specific student commitments and safeguarding/privacy details; review process and response timeline; family consultation and next-step details; subjects, grade levels, curriculum scope, scheduling, mentor selection and safeguarding practices; counseling scope, availability, fees, and appointment request process. Existing footer email/location placeholders remain.
 - Lint passes; full backend suite passes (62 tests).
 
-**Next:** STAGE 3 complete; move to STAGE 4.
+**Next:** STAGE 3.
 
 ### STAGE 3 — Forms
 
 **Status:** done
 
-- Added `parent-registration.html` as a separate two-step form. The wording visible in the supplied Google Form screenshots is preserved in English, including the intro and Next Steps box; the 24-hour/fee/trial promise is explicitly marked `[To be confirmed by Bilunex]`.
-- Parent field map: Parent/Guardian Full Name → `parent_name`; preferred title (Mr./Mrs./Ms/Dr./Other) → `preferred_title`; Phone Number → `phone`; Secondary phone Number → `secondary_phone`; Preferred Communication Method → `preferred_communication_method` values `phone_call`, `telegram`, `whatsapp`. The Other title text is sent as a custom `preferred_title` string.
+- Added `parent-registration.html` as a separate two-step form. The wording visible in the supplied Google Form screenshots is preserved in English, including the intro and Next Steps box; the 24-hour/fee/trial promise remains in its original Next Steps box wording, with an explicit confirmation note placed just outside the box.
+- Parent field map: Parent/Guardian Full Name → `parent_name`; preferred title (Mr./Mrs./Ms/Dr./Other) → `preferred_title`; Phone Number → `phone`; Secondary phone Number → `secondary_phone`; Preferred Communication Method → `preferred_communication_method` values `phone_call`, `telegram`, `whatsapp`. The Other title text is sent as a custom `preferred_title` string. The screenshot uses checkboxes, while the API accepts one title string; the page labels this constraint and rejects multiple selections instead of silently dropping them. To preserve multi-select, the smallest backend expansion is to accept/store `preferred_title` as an array (for example a PostgreSQL `text[]` column) and update validation/serialization.
 - Added API fields not visible in the provided screenshot: required `email` (required by API schema), optional `telegram_handle`, and student/support fields `child_name`, `grade_level`, `subjects`, `support_category`, `notes`.
-- Every Google Form field visible in the screenshots has an API mapping; no Google Form field requires a backend schema change. The screenshot’s Amharic introduction is represented by a confirmation placeholder because the raster text could not be transcribed confidently; exact Amharic copy is still needed to fully match that line.
+- Every visible Google Form field has an API mapping. The preferred-title checkbox group can select multiple values in Google Forms, while the API field is scalar; the page tells the visitor to select one and blocks multiple selections so no value is discarded. If multi-select behavior must be retained, the smallest backend extension is an array field stored in a PostgreSQL `text[]` column with matching validation and serialization. The screenshot’s Amharic introduction is represented by a confirmation placeholder because the raster text could not be transcribed confidently; exact Amharic copy is still needed to fully match that line.
 - Parent validation mirrors server requirements for name, email, Ethiopian phone format, title, communication preferences, student name, grade, subjects, and exact support category values. Success requires HTTP 201 and a returned reference ID; double-submit guard, inline errors, focus handling, 429/5xx/network messages are in place.
 - Mentor application now includes all API fields, multi-step progress, commitment agreement, transcript PDF and ID photo JPG/PNG checks (5 MB), file-name previews, and multipart submission. Backend remains responsible for magic-byte validation.
 - Contact inquiry form now maps `name`, `email`, optional `phone`, `inquiry_type`, and `message` to the inquiry API; contact/social/Telegram information is placeholder text.
 - API client preserves browser `FormData` content boundaries and can enforce expected HTTP 201 responses.
 - Lint passes; full backend suite passes (62 tests). Browser inspection confirmed empty parent required-field validation and progression to student fields.
 
-**Next:** STAGE 4 — admin portal (in progress).
+**Next:** STAGE 4.
 
 ### STAGE 4 — Admin portal
 
@@ -96,7 +96,7 @@
 - API gaps: there is no dedicated active mentor profile listing endpoint, so the Active Mentors page currently uses `onboarding` applications as a labeled proxy. Parent registrations and inquiries have no status update endpoints. Mentor applications, inquiries and support reports lack server-side search; their UI search is limited to the currently loaded page. The public response-shape change above was the only backend change needed for this stage.
 - `npm run lint` passes; full `npm test` suite passes (62 tests).
 
-**Next:** STAGE 5 complete; move to STAGE 6.
+**Next:** STAGE 5.
 
 ### STAGE 5 — Mentor portal
 
@@ -108,4 +108,19 @@
 - Reports page submits only the API-supported fields (`student_name`, `support_need_observed`, `observations`, `recommended_action`) and lists only the authenticated mentor’s reports. Profile also lists that mentor’s own reports.
 - No additional backend changes were needed for Stage 5. Lint and full test-suite status is recorded after the final run below.
 
-**Next:** STAGE 6 — polish and verification.
+**Next:** STAGE 6.
+
+### STAGE 6 — Polish and verification
+
+**Status:** done
+
+- Audited all 18 HTML pages: each has one H1, a Bilunex page title, a non-empty meta description, and valid local files/fragments. Removed the now-unused `pages/portal-layout.js` module.
+- Confirmed no inline style blocks/attributes, no inline scripts, and no user-content HTML injection API use in client code. All page scripts are external ES modules.
+- Checked public pages, both long forms, contact, all admin pages, and all mentor pages at widths 320, 375, 768, 1024, and 1440 px. Fixed the parent registration step indicator overflow at 320 px. The tested pages have no horizontal overflow.
+- Browser console showed no errors or warnings during page checks; the module assets loaded through the Express-served app. Static checks confirmed all local file paths and page fragments resolve.
+- Added `docs/MANUAL-CHECKLIST.md` with page-by-page form, upload, role, database, responsive, and failure-case checks. Updated README for canonical pages, migration 015, lint/test commands, and the checklist. Updated `docs/api.md` with the application document metadata and admin API limitations.
+- Known unresolved items: the Amharic introduction line in the user-supplied screenshot is too small/blurred to transcribe reliably and remains a clearly marked placeholder; the owner needs to provide exact Amharic text. Preferred title is a checkbox field in the Google Form but scalar in the API; the UI prevents multi-select, and supporting it requires the small schema/validator update described in Stage 3.
+- Known API limits remain as listed in the Stage 4 section: no dedicated active mentor profiles list; no parent/inquiry status update routes; and server-side search is not available for mentor applications, inquiries, or support reports.
+- `npm run lint` passes; full `npm test` passes (62 tests). Client ES modules pass Node syntax checks.
+
+**Next:** all requested stages complete. Review the known copy/API gaps above before production use.
