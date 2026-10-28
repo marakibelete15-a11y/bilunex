@@ -8,6 +8,14 @@ const db = require('./config/db');
 const logger = require('./utils/logger');
 const app = require('./app');
 
+process.on('unhandledRejection', reason => {
+  logger.error('Unhandled promise rejection:', reason instanceof Error ? reason.stack : reason);
+});
+process.on('uncaughtException', error => {
+  logger.error('Uncaught exception:', error.stack || error.message);
+  process.exitCode = 1;
+});
+
 const startServer = async () => {
   try {
     logger.info('🚀 Starting Bilunex Backend Service...');

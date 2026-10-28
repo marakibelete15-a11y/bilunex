@@ -14,6 +14,18 @@ const logger = require('../utils/logger');
 const notificationLogRepository = require('../repositories/notification_log.repository');
 
 let transporter = null;
+let etherealProvision = null;
+const MAIL_TIMEOUT_MS = 10000;
+const withTimeout = (promise, label) =>
+  new Promise((resolve, reject) => {
+    const timeout = setTimeout(
+      () => reject(new Error(`${label} timed out after ${MAIL_TIMEOUT_MS}ms`)),
+      MAIL_TIMEOUT_MS
+    );
+    Promise.resolve(promise)
+      .then(resolve, reject)
+      .finally(() => clearTimeout(timeout));
+  });
 
 const getTransporter = async () => {
   if (transporter) {
@@ -27,6 +39,9 @@ const getTransporter = async () => {
       host: env.EMAIL_HOST,
       port: env.EMAIL_PORT,
       secure: env.EMAIL_PORT === 465,
+      connectionTimeout: MAIL_TIMEOUT_MS,
+      greetingTimeout: MAIL_TIMEOUT_MS,
+      socketTimeout: MAIL_TIMEOUT_MS,
       auth: {
         user: env.EMAIL_USER,
         pass: env.EMAIL_PASS,
@@ -39,28 +54,29 @@ const getTransporter = async () => {
       auth: { user: 'test', pass: 'test' },
     });
   } else {
-    try {
-      const testAccount = await nodemailer.createTestAccount();
-      transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-          user: testAccount.user,
-          pass: testAccount.pass,
-        },
-      });
-      logger.info(`✨ Ethereal email test account auto-provisioned: ${testAccount.user}`);
-    } catch (err) {
-      logger.warn(
-        `Could not provision Ethereal test account (${err.message}). Using local fallback transport.`
-      );
-      transporter = nodemailer.createTransport({
-        host: 'localhost',
-        port: 587,
-        secure: false,
-      });
+    if (!etherealProvision) {
+      etherealProvision = withTimeout(nodemailer.createTestAccount(), 'Ethereal provisioning')
+        .then(testAccount => {
+          transporter = nodemailer.createTransport({
+            host: 'smtp.ethereal.email',
+            port: 587,
+            secure: false,
+            connectionTimeout: MAIL_TIMEOUT_MS,
+            greetingTimeout: MAIL_TIMEOUT_MS,
+            socketTimeout: MAIL_TIMEOUT_MS,
+            auth: { user: testAccount.user, pass: testAccount.pass },
+          });
+          logger.info(`Ethereal email test account provisioned: ${testAccount.user}`);
+          return transporter;
+        })
+        .catch(error => {
+          logger.warn(
+            `Ethereal unavailable; development email will be logged offline: ${error.message}`
+          );
+          return null;
+        });
     }
+    return etherealProvision;
   }
 
   return transporter;
@@ -68,6 +84,7 @@ const getTransporter = async () => {
 
 const _resetTransporter = () => {
   transporter = null;
+  etherealProvision = null;
 };
 
 /**
@@ -86,6 +103,21 @@ const safeSendNotification = async ({
 }) => {
   try {
     const activeTransporter = await getTransporter();
+    if (!activeTransporter) {
+      logger.info(`OFFLINE EMAIL (not sent)\nTo: ${to}\nSubject: ${subject}\n\n${text || ''}`);
+      await notificationLogRepository
+        .create({
+          notification_type,
+          recipient: to,
+          recipient_role,
+          related_entity_type,
+          related_entity_id,
+          status: 'logged_not_sent',
+          error_message: 'Ethereal unavailable; development offline mode',
+        })
+        .catch(logErr => logger.error('Failed to record offline notification:', logErr.message));
+      return { success: false, loggedNotSent: true };
+    }
     const mailOptions = {
       from: env.EMAIL_FROM || `"Bilunex Platform" <${env.EMAIL_USER || 'no-reply@bilunex.org'}>`,
       to,
@@ -94,7 +126,7 @@ const safeSendNotification = async ({
       html: html || text || '',
     };
 
-    const info = await activeTransporter.sendMail(mailOptions);
+    const info = await withTimeout(activeTransporter.sendMail(mailOptions), 'SMTP send');
     const previewUrl = nodemailer.getTestMessageUrl ? nodemailer.getTestMessageUrl(info) : null;
 
     if (previewUrl) {
@@ -122,6 +154,22 @@ const safeSendNotification = async ({
 
     return { success: true, messageId: info?.messageId, previewUrl };
   } catch (error) {
+    const offlineDevelopment = env.NODE_ENV === 'development' && !env.EMAIL_HOST;
+    if (offlineDevelopment) {
+      logger.info(`OFFLINE EMAIL (not sent)\nTo: ${to}\nSubject: ${subject}\n\n${text || ''}`);
+      await notificationLogRepository
+        .create({
+          notification_type,
+          recipient: to,
+          recipient_role,
+          related_entity_type,
+          related_entity_id,
+          status: 'logged_not_sent',
+          error_message: error.message,
+        })
+        .catch(logErr => logger.error('Failed to record offline notification:', logErr.message));
+      return { success: false, loggedNotSent: true, error: error.message };
+    }
     // CRITICAL: Log failure, persist to notification_log, and NEVER throw to caller
     logger.error(`❌ Notification email to ${to} failed: ${error.message}`, {
       recipient: to,
@@ -135,7 +183,7 @@ const safeSendNotification = async ({
         recipient_role,
         related_entity_type,
         related_entity_id,
-        status: 'failure',
+        status: /timed out/i.test(error.message) ? 'timeout' : 'failure',
         error_message: error.message,
       })
       .catch(logErr => {
@@ -371,11 +419,28 @@ const notifySupportReportFiled = async (report, mentorName) => {
   });
 };
 
+const notifyInquiry = async inquiry => {
+  const adminUrl = `${env.CLIENT_URL || 'http://localhost:5000'}/admin/index.html`;
+  const subject = `[Bilunex Alert] New Inquiry #${inquiry.id}`;
+  const text = `A new ${inquiry.inquiry_type} inquiry was submitted.\nReference ID: #${inquiry.id}\nReview: ${adminUrl}`;
+  return dispatchToRecipients({
+    to: env.ADMIN_NOTIFICATION_EMAIL,
+    recipient_role: 'admin',
+    subject,
+    text,
+    html: `<p>${text.replace(/\n/g, '<br>')}</p>`,
+    notification_type: 'inquiry_admin_alert',
+    related_entity_type: 'inquiries',
+    related_entity_id: inquiry.id,
+  });
+};
+
 module.exports = {
   safeSendNotification,
   notifyParentRegistration,
   notifyMentorApplication,
   notifySupportReportFiled,
+  notifyInquiry,
   getTransporter,
   _resetTransporter,
 };

@@ -17,6 +17,19 @@ const { _resetTransporter } = require('../../src/services/notification.service')
 
 jest.mock('nodemailer');
 
+const waitForNotification = async (relatedType, relatedId, role, timeoutMs = 12000) => {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    const result = await db.query(
+      'SELECT * FROM notification_log WHERE related_entity_type=$1 AND related_entity_id=$2 AND recipient_role=$3 ORDER BY id DESC LIMIT 1',
+      [relatedType, relatedId, role]
+    );
+    if (result.rows[0]) return result.rows[0];
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  throw new Error(`Notification log missing for ${relatedType} ${relatedId} (${role})`);
+};
+
 describe('Public Endpoints (Intake & Safe Notifications)', () => {
   beforeEach(() => {
     _resetTransporter();
@@ -193,17 +206,91 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
       expect(res.body.data.id).toBeDefined();
 
       // Verify the failure was logged to notification_log table
-      const logRes = await db.query(
-        `SELECT * FROM notification_log WHERE recipient = $1 ORDER BY created_at DESC LIMIT 1;`,
-        [uniqueEmail]
+      const log = await waitForNotification('parent_registrations', res.body.data.id, 'parent');
+      expect(log.status).toBe('failure');
+      expect(log.error_message).toContain('SMTP Connection Refused');
+    });
+
+    test('returns immediately while a transport hangs and eventually logs its timeout', async () => {
+      nodemailer.createTransport.mockReturnValue({
+        sendMail: jest.fn(() => new Promise(() => {})),
+      });
+      const start = Date.now();
+      const res = await request(app)
+        .post('/api/v1/public/parent-registrations')
+        .send({
+          parent_name: 'Timeout Verification',
+          email: `timeout_${Date.now()}@example.com`,
+          phone: '+251933445566',
+          child_name: 'Timeout Student',
+          grade_level: 'Grade 11',
+          subjects: ['Mathematics'],
+          support_category: 'tutoring',
+        });
+      expect(res.status).toBe(201);
+      expect(Date.now() - start).toBeLessThan(2000);
+      const log = await waitForNotification('parent_registrations', res.body.data.id, 'admin');
+      expect(log.status).toBe('timeout');
+      expect(log.error_message).toMatch(/timed out/i);
+    }, 15000);
+
+    test('logs both parent and admin notification attempts after successful registration', async () => {
+      nodemailer.createTransport.mockReturnValue({
+        sendMail: jest.fn().mockResolvedValue({ messageId: 'ok' }),
+      });
+      const res = await request(app)
+        .post('/api/v1/public/parent-registrations')
+        .send({
+          parent_name: 'Success Verification',
+          email: `success_${Date.now()}@example.com`,
+          phone: '+251933445566',
+          child_name: 'Success Student',
+          grade_level: 'Grade 10',
+          subjects: ['Physics'],
+          support_category: 'mentoring',
+        });
+      expect(res.status).toBe(201);
+      const adminLog = await waitForNotification('parent_registrations', res.body.data.id, 'admin');
+      const parentLog = await waitForNotification(
+        'parent_registrations',
+        res.body.data.id,
+        'parent'
       );
-      expect(logRes.rows.length).toBe(1);
-      expect(logRes.rows[0].status).toBe('failure');
-      expect(logRes.rows[0].error_message).toContain('SMTP Connection Refused');
+      expect(adminLog.status).toBe('success');
+      expect(parentLog.status).toBe('success');
     });
   });
 
   describe('POST /api/v1/public/mentor-applications', () => {
+    test('logs admin and mentor notification attempts after successful application', async () => {
+      nodemailer.createTransport.mockReturnValue({
+        sendMail: jest.fn().mockResolvedValue({ messageId: 'ok' }),
+      });
+      const res = await request(app)
+        .post('/api/v1/public/mentor-applications')
+        .send({
+          full_name: 'Mentor Notification Check',
+          email: `mentor_${Date.now()}@example.com`,
+          phone: '+251944556677',
+          university_name: 'Test University',
+          department: 'Math',
+          year_of_study: '3rd Year',
+          subjects: ['Mathematics'],
+          available_days: ['Saturday'],
+          available_hours: 'Morning',
+          motivation: 'I enjoy supporting young learners.',
+          commitment_agreement: true,
+        });
+      expect(res.status).toBe(201);
+      const adminLog = await waitForNotification('mentor_applications', res.body.data.id, 'admin');
+      const mentorLog = await waitForNotification(
+        'mentor_applications',
+        res.body.data.id,
+        'mentor'
+      );
+      expect(adminLog.status).toBe('success');
+      expect(mentorLog.status).toBe('success');
+    });
     test('should submit mentor application with status application_received', async () => {
       const payload = {
         full_name: 'Solomon Tadesse',

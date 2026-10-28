@@ -156,7 +156,7 @@ ADMIN_NOTIFICATION_EMAIL=admin@bilunex.org
 CLIENT_URL=http://localhost:5000
 ```
 
-_(Note: Leaving `EMAIL_HOST` and `EMAIL_USER` blank in development automatically enables Ethereal test account generation with preview URLs)._
+When `EMAIL_HOST` is blank, development tries Ethereal lazily after the API response is sent. If Ethereal provisioning or SMTP delivery cannot complete within 10 seconds, Bilunex uses offline mode: no email is sent, the full message is logged to the server console, and the attempt is recorded as `logged_not_sent`. Notification failures and timeouts are recorded without delaying intake responses.
 
 ### Step 5.3: Run Migrations & Seeds
 
@@ -360,4 +360,5 @@ _Example First Commit_:
      ADMIN_NOTIFICATION_EMAIL=your-email@gmail.com
      ```
   5. Restart the server (`npm run dev`). All transactional emails will now deliver directly to real inboxes.
-  6. _(Default Behavior)_: If `EMAIL_HOST` or `EMAIL_USER` are left empty, Bilunex automatically creates an **Ethereal Email** test account and prints one-click web preview URLs in your console.
+  6. Set `EMAIL_HOST=smtp.gmail.com`, `EMAIL_PORT=587`, `EMAIL_USER` to the Gmail address, and `EMAIL_PASS` to the 16-character app password. Restart the server and submit a test registration. A successful attempt appears in `notification_log` with status `success`; a failed or timed-out attempt is logged without blocking the `201` response.
+  7. In development with `EMAIL_HOST` unset, Ethereal is provisioned lazily after the response. When internet access is unavailable, the app switches to offline mode, logs each complete message (recipient, subject, plain text body) in the server console, and writes a `logged_not_sent` row. Offline mode sends no mail. With Ethereal available, preview URLs appear in the console.

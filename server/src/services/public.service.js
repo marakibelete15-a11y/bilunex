@@ -23,13 +23,6 @@ const publicService = {
     // 1. Store registration in database first
     const registration = await parentRepository.create(registrationData);
 
-    // 2. Safe notification dispatch: guarantees never throwing or blocking the stored record
-    try {
-      await notificationService.notifyParentRegistration(registration);
-    } catch (err) {
-      logger.error('Unexpected error in parent registration notification dispatch:', err);
-    }
-
     return registration;
   },
 
@@ -78,13 +71,6 @@ const publicService = {
 
     application.documents = attachedDocuments;
 
-    // 3. Safe notification dispatch
-    try {
-      await notificationService.notifyMentorApplication(application);
-    } catch (err) {
-      logger.error('Unexpected error in mentor application notification dispatch:', err);
-    }
-
     return application;
   },
 
@@ -94,6 +80,22 @@ const publicService = {
   async submitInquiry(inquiryData) {
     const inquiry = await inquiryRepository.create(inquiryData);
     return inquiry;
+  },
+
+  dispatchParentNotifications(registration) {
+    notificationService
+      .notifyParentRegistration(registration)
+      .catch(err => logger.error('Unexpected parent notification error:', err));
+  },
+  dispatchMentorNotifications(application) {
+    notificationService
+      .notifyMentorApplication(application)
+      .catch(err => logger.error('Unexpected mentor notification error:', err));
+  },
+  dispatchInquiryNotification(inquiry) {
+    notificationService
+      .notifyInquiry(inquiry)
+      .catch(err => logger.error('Unexpected inquiry notification error:', err));
   },
 };
 

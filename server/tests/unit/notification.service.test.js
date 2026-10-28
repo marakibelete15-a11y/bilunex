@@ -83,9 +83,40 @@ describe('Notification Service (Safe Dispatch)', () => {
       expect.objectContaining({
         recipient: 'student@example.com',
         recipient_role: 'student',
-        status: 'failure',
+        status: 'timeout',
       })
     );
+  });
+
+  test('falls back to logged_not_sent when development Ethereal delivery is unavailable', async () => {
+    const original = {
+      node: env.NODE_ENV,
+      host: env.EMAIL_HOST,
+      user: env.EMAIL_USER,
+      pass: env.EMAIL_PASS,
+    };
+    env.NODE_ENV = 'development';
+    env.EMAIL_HOST = '';
+    env.EMAIL_USER = '';
+    env.EMAIL_PASS = '';
+    nodemailer.createTestAccount.mockResolvedValue({ user: 'offline-user', pass: 'offline-pass' });
+    sendMailMock.mockRejectedValue(new Error('SMTP timed out'));
+    const result = await safeSendNotification({
+      to: 'parent@example.com',
+      recipient_role: 'parent',
+      subject: 'Offline check',
+      text: 'Body text',
+    });
+    expect(result.loggedNotSent).toBe(true);
+    expect(notificationLogRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'logged_not_sent', recipient_role: 'parent' })
+    );
+    Object.assign(env, {
+      NODE_ENV: original.node,
+      EMAIL_HOST: original.host,
+      EMAIL_USER: original.user,
+      EMAIL_PASS: original.pass,
+    });
   });
 
   test('notifyParentRegistration should send parent confirmation and admin alert without personal data', async () => {
