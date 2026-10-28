@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 76" role="img" aria-labelledby="title desc">
+  <title id="title">Bilunex</title>
+  <desc id="desc">Bilunex — Education, Growth, Opportunity</desc>
+  <rect x="2" y="7" width="60" height="60" rx="16" fill="#102746"/>
+  <path d="M18 51V23h15c8 0 12 8 5 13 9 4 5 15-4 15H18Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
+  <path d="m23 44 8-8 5 3 9-12" fill="none" stroke="#c59a43" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M40 27h5v5" fill="none" stroke="#c59a43" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="78" y="40" fill="#102746" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="30" font-weight="750" letter-spacing="-.5">Bilunex</text>
+  <text x="79" y="58" fill="#40536b" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="10.5" font-weight="650" letter-spacing="1.15">EDUCATION · GROWTH · OPPORTUNITY</text>
+</svg>
