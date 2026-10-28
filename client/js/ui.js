@@ -123,8 +123,12 @@ export const ui = {
       navToggle.setAttribute('aria-expanded', String(shouldOpen));
       if (shouldOpen) {
         primaryNav.classList.add('is-open');
+        navToggle.setAttribute('aria-label', 'Close navigation menu');
+        const firstLink = primaryNav.querySelector('a');
+        if (firstLink && window.matchMedia('(max-width: 959px)').matches) firstLink.focus();
       } else {
         primaryNav.classList.remove('is-open');
+        navToggle.setAttribute('aria-label', 'Open navigation menu');
       }
     };
 
@@ -139,6 +143,22 @@ export const ui = {
         toggleNav(false);
         navToggle.focus();
       }
+      if (e.key === 'Tab' && navToggle.getAttribute('aria-expanded') === 'true') {
+        const focusable = [...primaryNav.querySelectorAll('a[href]')];
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        } else if (!primaryNav.contains(document.activeElement)) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     });
 
     // Close menu on click outside
@@ -150,6 +170,10 @@ export const ui = {
       ) {
         toggleNav(false);
       }
+    });
+
+    primaryNav.addEventListener('click', event => {
+      if (event.target.closest('a')) toggleNav(false);
     });
   },
 

@@ -12,38 +12,11 @@
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
   </head>
   <body>
     <!-- Header & Navigation -->
-    <header class="site-header">
-      <div class="container header-inner">
-        <a href="index.html" class="brand-logo">
-          Bilunex <span class="brand-tag">Support Hub</span>
-        </a>
-
-        <!-- Mobile Navigation Hamburger -->
-        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-
-        <!-- Public Navigation (Admin is intentionally excluded) -->
-        <nav class="site-nav" aria-label="Main Navigation">
-          <ul class="nav-links">
-            <li><a href="index.html" class="nav-link active">Home</a></li>
-            <li><a href="about.html" class="nav-link">About</a></li>
-            <li><a href="services.html" class="nav-link">Services</a></li>
-            <li><a href="stories.html" class="nav-link">Stories</a></li>
-            <li><a href="contact.html" class="nav-link">Contact</a></li>
-          </ul>
-          <div class="nav-cta">
-            <a href="for-parents.html" class="btn btn-primary btn-sm">For Parents</a>
-            <a href="become-a-mentor.html" class="btn btn-secondary btn-sm">Become a Mentor</a>
-          </div>
-        </nav>
-      </div>
-    </header>
+    <header id="site-header" class="site-header"></header>
 
     <!-- Hero Section -->
     <main class="main-content">
@@ -111,45 +84,9 @@
     </main>
 
     <!-- Global Footer -->
-    <footer class="site-footer">
-      <div class="container">
-        <div class="footer-grid">
-          <div class="footer-col">
-            <h4>Bilunex</h4>
-            <p>
-              Empowering student potential through integrated mentoring, tutoring, and counseling.
-            </p>
-          </div>
-          <div class="footer-col">
-            <h4>Quick Links</h4>
-            <ul>
-              <li><a href="about.html">About Us</a></li>
-              <li><a href="services.html">Our Services</a></li>
-              <li><a href="stories.html">Success Stories</a></li>
-              <li><a href="contact.html">Contact Us</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>Get Involved</h4>
-            <ul>
-              <li><a href="for-parents.html">Parent Registration</a></li>
-              <li><a href="become-a-mentor.html">Mentor Applications</a></li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h4>Portals</h4>
-            <ul>
-              <!-- Mentor portal link (Admin is intentionally kept hidden from public navigation) -->
-              <li><a href="../mentor/login.html">Mentor Portal Login</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="footer-bottom">
-          <p>&copy; 2026 Bilunex Platform. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
+    <footer id="site-footer" class="site-footer"></footer>
 
     <script src="../js/ui.js"></script>
+    <script type="module" src="../js/pages/public-layout.js"></script>
   </body>
 </html>

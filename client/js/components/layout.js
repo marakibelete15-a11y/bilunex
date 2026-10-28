@@ -1,9 +1,4 @@
-/**
- * Bilunex - Shared Layout Component (ES Module)
- * Reusable accessible Header (with exactly 7 public navigation items) and Footer.
- * Avoids template duplication across public HTML pages.
- * The Admin area is strictly omitted from the public navigation.
- */
+/** Shared public site chrome. DOM text is always inserted as text, never parsed as HTML. */
 
 import { ui } from '../ui.js';
 
@@ -17,226 +12,171 @@ export const NAV_ITEMS = [
   { key: 'contact', label: 'Contact Us', href: 'contact.html' },
 ];
 
-/**
- * Render the shared accessible header and navigation
- * @param {string} activeKey - Identifier of the active page (e.g. 'for-parents')
- */
+const makeLogo = className => {
+  const link = document.createElement('a');
+  link.href = 'index.html';
+  link.className = className;
+  link.setAttribute('aria-label', 'Bilunex home');
+  const image = document.createElement('img');
+  image.src = '../assets/images/logo.svg';
+  image.alt = 'Bilunex — Education · Growth · Opportunity';
+  image.width = 190;
+  image.height = 48;
+  link.appendChild(image);
+  return link;
+};
+
 export function renderHeader(activeKey = '') {
-  const headerContainer = document.getElementById('site-header');
-  if (!headerContainer) return;
+  const host = document.getElementById('site-header');
+  if (!host) return;
+  const header = document.createElement('div');
+  header.className = 'container header-inner';
+  header.appendChild(makeLogo('brand-logo'));
 
-  // Clear container
-  while (headerContainer.firstChild) {
-    headerContainer.removeChild(headerContainer.firstChild);
-  }
-
-  headerContainer.className = 'site-header';
-
-  const inner = document.createElement('div');
-  inner.className = 'container header-inner';
-
-  // 1. Brand Logo
-  const logo = document.createElement('a');
-  logo.href = 'index.html';
-  logo.className = 'brand-logo';
-  logo.setAttribute('aria-label', 'Bilunex Support Hub Homepage');
-
-  const logoText = document.createTextNode('Bilunex ');
-  const tag = document.createElement('span');
-  tag.className = 'brand-tag';
-  tag.textContent = 'Support Hub';
-
-  logo.appendChild(logoText);
-  logo.appendChild(tag);
-  inner.appendChild(logo);
-
-  // 2. Mobile Navigation Toggle Button
-  const toggleBtn = document.createElement('button');
-  toggleBtn.className = 'nav-toggle';
-  toggleBtn.setAttribute('type', 'button');
-  toggleBtn.setAttribute('aria-expanded', 'false');
-  toggleBtn.setAttribute('aria-controls', 'primary-nav');
-  toggleBtn.setAttribute('aria-label', 'Toggle navigation menu');
-
-  const toggleIcon = document.createElement('span');
-  toggleIcon.className = 'nav-toggle-icon';
-  toggleIcon.setAttribute('aria-hidden', 'true');
-
-  for (let i = 0; i < 3; i++) {
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'nav-toggle';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-controls', 'primary-nav');
+  toggle.setAttribute('aria-label', 'Open navigation menu');
+  toggle.appendChild(document.createElement('span'));
+  toggle.firstChild.className = 'nav-toggle-icon';
+  toggle.firstChild.setAttribute('aria-hidden', 'true');
+  for (let index = 0; index < 3; index += 1) {
     const bar = document.createElement('span');
     bar.className = 'nav-toggle-bar';
-    toggleIcon.appendChild(bar);
+    toggle.firstChild.appendChild(bar);
   }
 
-  toggleBtn.appendChild(toggleIcon);
-  inner.appendChild(toggleBtn);
-
-  // 3. Primary Navigation Menu (Exactly 7 public items)
   const nav = document.createElement('nav');
   nav.id = 'primary-nav';
   nav.className = 'primary-nav';
   nav.setAttribute('aria-label', 'Primary navigation');
-
   const list = document.createElement('ul');
   list.className = 'nav-list';
-
   NAV_ITEMS.forEach(item => {
-    const li = document.createElement('li');
-    li.className = 'nav-item';
-
-    const a = document.createElement('a');
-    a.href = item.href;
-    a.className = 'nav-link';
-    a.textContent = item.label;
-
+    const entry = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = item.href;
+    link.className = 'nav-link';
+    link.textContent = item.label;
     if (item.key === activeKey) {
-      a.classList.add('active');
-      a.setAttribute('aria-current', 'page');
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'page');
     }
-
-    li.appendChild(a);
-    list.appendChild(li);
+    entry.appendChild(link);
+    list.appendChild(entry);
   });
-
   nav.appendChild(list);
-  inner.appendChild(nav);
 
-  headerContainer.appendChild(inner);
+  const drawerCta = document.createElement('a');
+  drawerCta.href = 'parent-registration.html';
+  drawerCta.className = 'btn btn-accent nav-register-mobile';
+  drawerCta.textContent = 'Register Your Student';
+  nav.appendChild(drawerCta);
 
-  // Wire mobile navigation toggle behavior
+  const desktopCta = document.createElement('a');
+  desktopCta.href = 'parent-registration.html';
+  desktopCta.className = 'btn btn-accent nav-register-desktop';
+  desktopCta.textContent = 'Register Your Student';
+
+  header.appendChild(toggle);
+  header.appendChild(nav);
+  header.appendChild(desktopCta);
+  host.replaceChildren(header);
   ui.initMobileNav();
 }
 
-/**
- * Render the shared accessible footer
- */
 export function renderFooter() {
-  const footerContainer = document.getElementById('site-footer');
-  if (!footerContainer) return;
-
-  while (footerContainer.firstChild) {
-    footerContainer.removeChild(footerContainer.firstChild);
-  }
-
-  footerContainer.className = 'site-footer';
-
+  const host = document.getElementById('site-footer');
+  if (!host) return;
   const container = document.createElement('div');
   container.className = 'container';
-
   const grid = document.createElement('div');
   grid.className = 'footer-grid';
 
-  // Column 1: About & Mission
-  const col1 = document.createElement('div');
-  col1.className = 'footer-col';
-  const c1Title = document.createElement('h3');
-  c1Title.textContent = 'Bilunex Support Hub';
-  const c1Desc = document.createElement('p');
-  c1Desc.textContent =
-    'Connecting students with compassionate academic tutoring, structured 1-on-1 mentorship, and professional counseling care under a safe community framework.';
-  const c1Privacy = document.createElement('p');
-  c1Privacy.textContent = 'Student safety and confidentiality are prioritized across all programs.';
-  col1.appendChild(c1Title);
-  col1.appendChild(c1Desc);
-  col1.appendChild(c1Privacy);
-  grid.appendChild(col1);
+  const brand = document.createElement('div');
+  brand.className = 'footer-col footer-brand';
+  brand.appendChild(makeLogo('footer-logo'));
+  const tagline = document.createElement('p');
+  tagline.textContent = 'Education · Growth · Opportunity';
+  brand.appendChild(tagline);
+  grid.appendChild(brand);
 
-  // Column 2: Navigation Links (All 7 public items)
-  const col2 = document.createElement('div');
-  col2.className = 'footer-col';
-  const c2Title = document.createElement('h4');
-  c2Title.textContent = 'Navigation';
-  const c2List = document.createElement('ul');
-  c2List.className = 'footer-nav-list';
+  const links = document.createElement('div');
+  links.className = 'footer-col';
+  const linksTitle = document.createElement('h2');
+  linksTitle.textContent = 'Quick links';
+  const linkList = document.createElement('ul');
+  linkList.className = 'footer-nav-list';
   NAV_ITEMS.forEach(item => {
-    const li = document.createElement('li');
-    const a = document.createElement('a');
-    a.href = item.href;
-    a.textContent = item.label;
-    li.appendChild(a);
-    c2List.appendChild(li);
+    const entry = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = item.href;
+    link.textContent = item.label;
+    entry.appendChild(link);
+    linkList.appendChild(entry);
   });
-  col2.appendChild(c2Title);
-  col2.appendChild(c2List);
-  grid.appendChild(col2);
+  links.append(linksTitle, linkList);
+  grid.appendChild(links);
 
-  // Column 3: Services Summary
-  const col3 = document.createElement('div');
-  col3.className = 'footer-col';
-  const c3Title = document.createElement('h4');
-  c3Title.textContent = 'Support Programs';
-  const c3List = document.createElement('ul');
-  c3List.className = 'footer-nav-list';
-  [
-    'Academic Tutoring (K-12 & Prep)',
-    '1-on-1 Youth Mentorship',
-    'Student Counseling & Wellbeing',
-    'Holistic Combined Support',
-  ].forEach(serviceText => {
-    const li = document.createElement('li');
-    li.textContent = serviceText;
-    c3List.appendChild(li);
-  });
-  col3.appendChild(c3Title);
-  col3.appendChild(c3List);
-  grid.appendChild(col3);
+  const contact = document.createElement('div');
+  contact.className = 'footer-col';
+  const contactTitle = document.createElement('h2');
+  contactTitle.textContent = 'Contact';
+  const contactInfo = document.createElement('p');
+  contactInfo.textContent = 'Email: [To be confirmed by Bilunex]';
+  const location = document.createElement('p');
+  location.textContent = 'Location: [To be confirmed by Bilunex]';
+  const mentorLogin = document.createElement('a');
+  mentorLogin.href = '../mentor/login.html';
+  mentorLogin.textContent = 'Mentor portal login';
+  contact.append(contactTitle, contactInfo, location, mentorLogin);
+  grid.appendChild(contact);
 
-  // Column 4: Contact & Location (Truthful placeholders)
-  const col4 = document.createElement('div');
-  col4.className = 'footer-col';
-  const c4Title = document.createElement('h4');
-  c4Title.textContent = 'Contact & Support';
-  const c4Desc = document.createElement('p');
-  c4Desc.textContent =
-    'Have questions before registering? Reach out through our contact form or official channels:';
-  const c4List = document.createElement('ul');
-  c4List.className = 'footer-nav-list';
-
-  const liContact = document.createElement('li');
-  const aContact = document.createElement('a');
-  aContact.href = 'contact.html';
-  aContact.textContent = 'Send a Message via Contact Page';
-  liContact.appendChild(aContact);
-
-  const liOffice = document.createElement('li');
-  liOffice.textContent = 'Location: [To be confirmed by Bilunex]';
-
-  const liHours = document.createElement('li');
-  liHours.textContent = 'Hours: [To be confirmed by Bilunex]';
-
-  c4List.appendChild(liContact);
-  c4List.appendChild(liOffice);
-  c4List.appendChild(liHours);
-
-  col4.appendChild(c4Title);
-  col4.appendChild(c4Desc);
-  col4.appendChild(c4List);
-  grid.appendChild(col4);
-
-  container.appendChild(grid);
-
-  // Bottom Copyright Bar
   const bottom = document.createElement('div');
   bottom.className = 'footer-bottom';
-
-  const copy = document.createElement('p');
-  copy.textContent = `© ${new Date().getFullYear()} Bilunex Platform. All rights reserved.`;
-
-  const safeTag = document.createElement('p');
-  safeTag.textContent = 'Committed to safe, accessible, and supportive education.';
-
-  bottom.appendChild(copy);
-  bottom.appendChild(safeTag);
-  container.appendChild(bottom);
-
-  footerContainer.appendChild(container);
+  const copyright = document.createElement('p');
+  copyright.textContent = `© ${new Date().getFullYear()} Bilunex`;
+  bottom.appendChild(copyright);
+  container.append(grid, bottom);
+  host.replaceChildren(container);
 }
 
-/**
- * Initialize shared layout for a page
- * @param {string} activeKey - Identifier of the active page (e.g. 'for-parents')
- */
 export function initLayout(activeKey = '') {
   renderHeader(activeKey);
   renderFooter();
+}
+
+export function initPortalLayout() {
+  const host = document.getElementById('portal-header');
+  if (!host) return;
+  const role = window.location.pathname.includes('/admin/') ? 'Admin' : 'Mentor';
+  const identityId = role === 'Admin' ? 'admin-user-display' : 'mentor-display';
+  const identityText = role === 'Admin' ? 'Admin' : 'Mentor';
+  const header = document.createElement('div');
+  header.className = 'container header-inner portal-header-inner';
+  const logo = makeLogo('brand-logo');
+  logo.href = '../public/index.html';
+  header.appendChild(logo);
+  const controls = document.createElement('div');
+  controls.className = 'portal-header-controls';
+  const badge = document.createElement('span');
+  badge.className = 'brand-tag portal-role-tag';
+  badge.textContent = `${role} Portal`;
+  controls.appendChild(badge);
+  if (!window.location.pathname.endsWith('/login.html')) {
+    const identity = document.createElement('span');
+    identity.id = identityId;
+    identity.textContent = identityText;
+    controls.appendChild(identity);
+    const logout = document.createElement('button');
+    logout.type = 'button';
+    logout.id = 'logout-btn';
+    logout.className = 'btn btn-outline btn-sm';
+    logout.textContent = role === 'Admin' ? 'Logout' : 'Sign Out';
+    controls.appendChild(logout);
+  }
+  header.appendChild(controls);
+  host.replaceChildren(header);
 }

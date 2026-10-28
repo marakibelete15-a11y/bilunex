@@ -37,4 +37,17 @@
 
 **Status:** not started
 
-**Next:** Begin STAGE 1 — design tokens, original SVG logo, and shared layout.
+### STAGE 1 — Design system, logo, shared layout
+
+**Status:** done
+
+- Updated the central CSS tokens to a navy/white/light-gray palette with restrained gold accent and retained accessible neutral/feedback colors.
+- Added SVG `logo.svg`, `logo-mark.svg`, and `favicon.svg`.
+- Public headers and footers are now rendered from the shared layout module. The module provides exactly seven public navigation items, active-page marking, register CTAs, a mentor portal link, and placeholder contact details.
+- Admin and mentor pages now load the shared portal header renderer instead of copied page headers. The public navigation never links to admin.
+- Added a mobile navigation focus loop, Escape handling, outside-click close, sticky header, 44px controls, and gold CTA/outline/ghost/small/disabled/loading button styles.
+- Previewed the mobile drawer in the local browser; navigation and gold registration CTA render in the drawer.
+- No existing `client/assets/images/logo.png` was present, so the SVG brand mark is used directly.
+- Known issue: registration CTA targets `parent-registration.html`, which will be created in STAGE 3. Existing home content still links its main registration CTA to `for-parents.html` pending that stage.
+
+**Next:** STAGE 2 — public content pages.

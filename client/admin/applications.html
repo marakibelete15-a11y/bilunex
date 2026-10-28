@@ -8,30 +8,10 @@
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
   </head>
   <body>
-    <header class="site-header" style="background-color: #0f172a; border-bottom: 1px solid #1e293b">
-      <div class="container header-inner">
-        <span class="brand-logo" style="color: #ffffff">
-          Bilunex
-          <span class="brand-tag" style="background-color: #ef4444; color: #ffffff"
-            >Admin Console</span
-          >
-        </span>
-        <div style="display: flex; align-items: center; gap: var(--space-4)">
-          <span id="admin-user-display" style="color: #94a3b8; font-size: var(--font-size-sm)"
-            >Admin</span
-          >
-          <button
-            id="logout-btn"
-            class="btn btn-outline btn-sm"
-            style="color: #ffffff; border-color: #334155"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-    </header>
+    <header id="portal-header" class="site-header"></header>
 
     <main class="main-content">
       <div class="container portal-layout">
@@ -135,5 +115,6 @@
 
       loadApplications();
     </script>
+    <script type="module" src="../js/pages/portal-layout.js"></script>
   </body>
 </html>

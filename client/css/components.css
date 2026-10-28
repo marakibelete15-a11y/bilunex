@@ -61,6 +61,21 @@
   color: var(--color-text-inverse);
 }
 
+.btn-accent {
+  color: #102746;
+  background-color: #c59a43;
+  border-color: #c59a43;
+  font-weight: var(--font-weight-bold);
+}
+
+.btn-accent:hover,
+.btn-accent:focus-visible {
+  color: #102746;
+  background-color: #d2aa5a;
+  border-color: #d2aa5a;
+  text-decoration: none;
+}
+
 .btn-secondary:hover:not(:disabled) {
   background-color: var(--color-secondary-hover);
 }
@@ -74,6 +89,24 @@
 .btn-outline:hover:not(:disabled) {
   background-color: var(--color-primary-light);
   color: var(--color-primary-hover);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-primary);
+}
+
+.btn-ghost:hover:not(:disabled),
+.btn-ghost:focus-visible {
+  background: var(--color-primary-light);
+  color: var(--color-primary-hover);
+}
+
+.btn-sm {
+  min-height: 2.75rem;
+  padding: 0.5rem 0.9rem;
+  font-size: var(--font-size-sm);
 }
 
 .btn-block {

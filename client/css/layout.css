@@ -31,6 +31,19 @@
   box-shadow: var(--shadow-sm);
 }
 
+.portal-header-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.portal-role-tag {
+  background: var(--color-accent-light);
+  color: var(--color-primary);
+}
+
 .header-inner {
   display: flex;
   align-items: center;
@@ -54,6 +67,12 @@
 .brand-logo:focus-visible {
   color: var(--color-primary-hover);
   text-decoration: none;
+}
+
+.brand-logo img {
+  display: block;
+  width: clamp(148px, 18vw, 190px);
+  height: auto;
 }
 
 .brand-tag {
@@ -138,6 +157,18 @@
   gap: var(--space-2);
 }
 
+.site-header .nav-register-desktop {
+  display: none;
+}
+
+.nav-register-mobile {
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+  min-height: 2.75rem;
+  margin-top: var(--space-3);
+}
+
 .primary-nav.is-open {
   display: flex;
 }
@@ -197,19 +228,34 @@
     border-bottom: none;
     box-shadow: none;
     padding: 0;
-    gap: var(--space-1);
+    gap: 0;
   }
 
   .nav-list {
     flex-direction: row;
     align-items: center;
-    gap: var(--space-1);
+    gap: 0;
   }
 
   .nav-link {
-    padding: var(--space-2) var(--space-3);
-    font-size: var(--font-size-sm);
+    min-height: 2.75rem;
+    padding: var(--space-2) 0.35rem;
+    font-size: 0.75rem;
     white-space: nowrap;
+  }
+
+  .site-header .nav-register-desktop {
+    display: inline-flex;
+    flex: 0 0 auto;
+    min-height: 2.75rem;
+    padding-inline: 0.7rem;
+    margin-left: var(--space-2);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .nav-register-mobile {
+    display: none;
   }
 
   .nav-link.active,
@@ -257,16 +303,39 @@
 }
 
 .footer-col h3,
-.footer-col h4 {
+.footer-col h4,
+.footer-col h2 {
   color: var(--color-text-inverse);
   font-size: var(--font-size-md);
   margin-bottom: var(--space-3);
+}
+
+.footer-logo img {
+  width: 190px;
+  height: auto;
+  display: block;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+}
+
+.footer-brand p {
+  margin-top: var(--space-3);
+  color: #e2e8f0;
 }
 
 .footer-col p {
   color: #94a3b8;
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
+}
+
+.footer-col a {
+  color: #e2e8f0;
+}
+
+.footer-col a:hover,
+.footer-col a:focus-visible {
+  color: #f0d08e;
 }
 
 .footer-nav-list {
