@@ -1,6 +1,7 @@
 /** Shared public site chrome. DOM text is always inserted as text, never parsed as HTML. */
 
 import { ui } from '../ui.js';
+import { auth } from '../auth.js';
 
 export const NAV_ITEMS = [
   { key: 'home', label: 'Home', href: 'index.html' },
@@ -159,6 +160,76 @@ export function initPortalLayout() {
   const logo = makeLogo('brand-logo');
   logo.href = '../public/index.html';
   header.appendChild(logo);
+  const layout = document.querySelector('.portal-layout');
+  const navItems =
+    role === 'Admin'
+      ? [
+          ['index.html', 'Dashboard'],
+          ['registrations.html', 'Parent Registrations'],
+          ['applications.html', 'Mentor Applications'],
+          ['mentors.html', 'Active Mentors'],
+          ['inquiries.html', 'Inquiries'],
+          ['reports.html', 'Support Reports'],
+        ]
+      : [
+          ['profile.html', 'My Profile'],
+          ['report.html', 'Support Reports'],
+        ];
+  if (layout) {
+    const currentPage = window.location.pathname.split('/').pop();
+    const aside = document.createElement('aside');
+    aside.className = 'portal-sidebar';
+    aside.id = 'portal-navigation';
+    const nav = document.createElement('nav');
+    nav.setAttribute('aria-label', `${role} navigation`);
+    const list = document.createElement('ul');
+    list.className = 'portal-nav';
+    navItems.forEach(([href, label]) => {
+      const item = document.createElement('li');
+      const link = document.createElement('a');
+      link.href = href;
+      link.textContent = label;
+      if (href === currentPage) {
+        link.classList.add('active');
+        link.setAttribute('aria-current', 'page');
+      }
+      item.appendChild(link);
+      list.appendChild(item);
+    });
+    nav.appendChild(list);
+    aside.appendChild(nav);
+    layout.querySelector('.portal-sidebar')?.remove();
+    layout.insertBefore(aside, layout.querySelector('.portal-main'));
+    const menu = document.createElement('button');
+    menu.type = 'button';
+    menu.className = 'portal-menu-toggle';
+    menu.setAttribute('aria-expanded', 'false');
+    menu.setAttribute('aria-controls', 'portal-navigation');
+    menu.textContent = 'Menu';
+    menu.addEventListener('click', () => {
+      const open = menu.getAttribute('aria-expanded') !== 'true';
+      menu.setAttribute('aria-expanded', String(open));
+      aside.classList.toggle('is-open', open);
+    });
+    header.appendChild(menu);
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && aside.classList.contains('is-open')) {
+        aside.classList.remove('is-open');
+        menu.setAttribute('aria-expanded', 'false');
+        menu.focus();
+      }
+    });
+    document.addEventListener('click', event => {
+      if (
+        aside.classList.contains('is-open') &&
+        !aside.contains(event.target) &&
+        !menu.contains(event.target)
+      ) {
+        aside.classList.remove('is-open');
+        menu.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
   const controls = document.createElement('div');
   controls.className = 'portal-header-controls';
   const badge = document.createElement('span');
@@ -176,6 +247,7 @@ export function initPortalLayout() {
     logout.className = 'btn btn-outline btn-sm';
     logout.textContent = role === 'Admin' ? 'Logout' : 'Sign Out';
     controls.appendChild(logout);
+    logout.addEventListener('click', () => auth.logout('login.html'));
   }
   header.appendChild(controls);
   host.replaceChildren(header);

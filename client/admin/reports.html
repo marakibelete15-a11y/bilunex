@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Bilunex administrator portal — student support reports." />
+    <title>Student Support Reports | Bilunex</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-heading">Skip to content</a>
+    <header id="portal-header" class="site-header"></header>
+    <main class="main-content">
+      <div class="container portal-layout">
+        <section class="portal-main">
+          <header class="page-header">
+            <h1 id="main-heading">Student support reports</h1>
+            <p>Confidential reports submitted by mentors.</p>
+          </header>
+          <form id="filters" class="admin-filters">
+            <label>Search this page<input name="search" type="search" /></label>
+          </form>
+          <div id="list-state" role="status" aria-live="polite"></div>
+          <div id="reports-table"></div>
+          <nav id="pagination" class="admin-pagination" aria-label="Report pages"></nav>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="../js/pages/admin-reports.js"></script>
+  </body>
+</html>

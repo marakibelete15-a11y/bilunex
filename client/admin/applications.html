@@ -2,119 +2,49 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mentor Applications | Bilunex Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Bilunex administrator portal — mentor applications." />
+    <title>Mentor Applications | Bilunex</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
-    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
   </head>
   <body>
+    <a class="skip-link" href="#main-heading">Skip to content</a>
     <header id="portal-header" class="site-header"></header>
-
     <main class="main-content">
       <div class="container portal-layout">
-        <aside class="portal-sidebar">
-          <ul class="portal-nav">
-            <li><a href="index.html">Dashboard Overview</a></li>
-            <li><a href="applications.html" class="active">Mentor Applications</a></li>
-            <li><a href="mentors.html">Active Mentors</a></li>
-          </ul>
-        </aside>
-
         <section class="portal-main">
-          <div class="page-header" style="text-align: left">
-            <h1>Mentor Applications</h1>
-            <p>Review candidate credentials, experience, and approve or reject submissions.</p>
-          </div>
-
-          <div id="alert-container"></div>
-
-          <div class="card">
-            <div class="table-responsive">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Applicant</th>
-                    <th>Expertise</th>
-                    <th>Experience</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="applications-table-body">
-                  <tr>
-                    <td colspan="5" style="text-align: center; color: var(--color-text-muted)">
-                      Loading applications...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <header class="page-header">
+            <h1 id="main-heading">Mentor applications</h1>
+            <p>
+              Review application details, download submitted documents and manage application
+              status.
+            </p>
+          </header>
+          <form id="filters" class="admin-filters">
+            <label>Search this page<input name="search" type="search" /></label
+            ><label
+              >Status<select name="status">
+                <option value="">All statuses</option>
+                <option value="application_received">Application received</option>
+                <option value="under_review">Under review</option>
+                <option value="interview_stage">Interview stage</option>
+                <option value="accepted">Accepted</option>
+                <option value="rejected">Rejected</option>
+                <option value="onboarding">Onboarding</option>
+              </select></label
+            ><button class="btn btn-primary" type="submit">Apply filter</button
+            ><button class="btn btn-outline" type="button" id="reset-filters">Reset</button>
+          </form>
+          <div id="list-state" role="status" aria-live="polite"></div>
+          <div id="applications-table"></div>
+          <nav id="pagination" class="admin-pagination" aria-label="Application pages"></nav>
         </section>
       </div>
     </main>
-
-    <script src="../js/api.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/ui.js"></script>
-    <script>
-      auth.protectPage('admin', 'login.html');
-
-      document.getElementById('logout-btn').addEventListener('click', () => {
-        auth.logout('login.html');
-      });
-
-      async function loadApplications() {
-        const tbody = document.getElementById('applications-table-body');
-        try {
-          const res = await apiClient.get('/admin/applications');
-          const apps = res.data || [];
-          if (apps.length === 0) {
-            tbody.innerHTML =
-              '<tr><td colspan="5" style="text-align:center;">No pending applications found.</td></tr>';
-            return;
-          }
-
-          tbody.innerHTML = apps
-            .map(
-              app => `
-          <tr>
-            <td>
-              <strong>${app.full_name}</strong><br>
-              <span style="font-size: var(--font-size-xs); color: var(--color-text-muted);">${app.email} &bull; ${app.phone}</span>
-            </td>
-            <td>${app.expertise}</td>
-            <td>${app.years_experience} yrs</td>
-            <td><span class="badge badge-${app.status}">${app.status}</span></td>
-            <td>
-              <button class="btn btn-sm btn-primary" onclick="updateStatus(${app.id}, 'approved')">Approve</button>
-              <button class="btn btn-sm btn-outline" onclick="updateStatus(${app.id}, 'rejected')">Reject</button>
-            </td>
-          </tr>
-        `
-            )
-            .join('');
-        } catch (err) {
-          tbody.innerHTML =
-            '<tr><td colspan="5" style="text-align:center; color: var(--color-text-muted);">No applications registered yet.</td></tr>';
-        }
-      }
-
-      async function updateStatus(id, status) {
-        try {
-          await apiClient.patch(`/admin/applications/${id}`, { status });
-          ui.showAlert('#alert-container', 'success', `Application ${status} successfully.`, 3000);
-          loadApplications();
-        } catch (err) {
-          ui.showAlert('#alert-container', 'error', err.message || 'Status update failed.');
-        }
-      }
-
-      loadApplications();
-    </script>
-    <script type="module" src="../js/pages/portal-layout.js"></script>
+    <script type="module" src="../js/pages/admin-applications.js"></script>
   </body>
 </html>

@@ -35,7 +35,7 @@
 
 ## STAGES 1–6
 
-**Status:** not started
+**Status:** in progress
 
 ### STAGE 1 — Design system, logo, shared layout
 
@@ -81,4 +81,19 @@
 - API client preserves browser `FormData` content boundaries and can enforce expected HTTP 201 responses.
 - Lint passes; full backend suite passes (62 tests). Browser inspection confirmed empty parent required-field validation and progression to student fields.
 
-**Next:** STAGE 4 — admin portal.
+**Next:** STAGE 4 — admin portal (in progress).
+
+### STAGE 4 — Admin portal
+
+**Status:** done
+
+- Rebuilt the admin login and added dashboard, parent registrations, mentor applications, active mentors, inquiries, and student support reports pages. Every protected page checks a sessionStorage token and admin role; both `admin` and seeded `super_admin` roles are accepted. API 401 responses clear the session and redirect to the matching login.
+- Shared responsive portal header, sidebar navigation, mobile menu, current-user identity and logout are in place. Admin pages are not linked from the public site.
+- Lists have loading, error, empty and pagination states, status badges and scrollable table regions. Parent registrations support API search and status/grade/subject filters. Mentor applications support status filtering and current-page search. Inquiries support type/status filters and current-page search. Reports and onboarding applications support current-page search.
+- Mentor applications expose submitted field details and document metadata, with authenticated download through the audited endpoint. Accepted applicants can have their status changed and be activated with a new initial password.
+- Separate backend fix `fe9c402` adds safe document metadata to the admin applications response so the frontend can call the existing authenticated download endpoint.
+- Browser check: seeded admin login reached dashboard; summary counts and failed notifications loaded; parent registration list rendered saved records; mentor application details/status controls and inquiry list rendered.
+- API gaps: there is no dedicated active mentor profile listing endpoint, so the Active Mentors page currently uses `onboarding` applications as a labeled proxy. Parent registrations and inquiries have no status update endpoints. Mentor applications, inquiries and support reports lack server-side search; their UI search is limited to the currently loaded page. The public response-shape change above was the only backend change needed for this stage.
+- `npm run lint` passes; full `npm test` suite passes (62 tests).
+
+**Next:** STAGE 5 — mentor portal.

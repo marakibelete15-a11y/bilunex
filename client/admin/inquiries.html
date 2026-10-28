@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Bilunex administrator portal — inquiries." />
+    <title>Inquiries | Bilunex</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-heading">Skip to content</a>
+    <header id="portal-header" class="site-header"></header>
+    <main class="main-content">
+      <div class="container portal-layout">
+        <section class="portal-main">
+          <header class="page-header">
+            <h1 id="main-heading">Inquiries</h1>
+            <p>Review new messages submitted through the public contact form.</p>
+          </header>
+          <form id="filters" class="admin-filters">
+            <label>Search this page<input name="search" type="search" /></label
+            ><label
+              >Type<select name="inquiry_type">
+                <option value="">All types</option>
+                <option value="general">General</option>
+                <option value="parent_support">Parent support</option>
+                <option value="counseling">Counseling</option>
+              </select></label
+            ><label
+              >Status<select name="status">
+                <option value="">All statuses</option>
+                <option value="new">New</option>
+                <option value="in_progress">In progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="archived">Archived</option>
+              </select></label
+            ><button class="btn btn-primary" type="submit">Apply filters</button
+            ><button class="btn btn-outline" type="button" id="reset-filters">Reset</button>
+          </form>
+          <div id="list-state" role="status" aria-live="polite"></div>
+          <div id="inquiries-table"></div>
+          <nav id="pagination" class="admin-pagination" aria-label="Inquiry pages"></nav>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="../js/pages/admin-inquiries.js"></script>
+  </body>
+</html>

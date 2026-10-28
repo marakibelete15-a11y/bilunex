@@ -2,98 +2,37 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Active Mentors | Bilunex Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Bilunex administrator portal — active mentors." />
+    <title>Active Mentors | Bilunex</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
-    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
   </head>
   <body>
+    <a class="skip-link" href="#main-heading">Skip to content</a>
     <header id="portal-header" class="site-header"></header>
-
     <main class="main-content">
       <div class="container portal-layout">
-        <aside class="portal-sidebar">
-          <ul class="portal-nav">
-            <li><a href="index.html">Dashboard Overview</a></li>
-            <li><a href="applications.html">Mentor Applications</a></li>
-            <li><a href="mentors.html" class="active">Active Mentors</a></li>
-          </ul>
-        </aside>
-
         <section class="portal-main">
-          <div class="page-header" style="text-align: left">
-            <h1>Mentor Directory</h1>
-            <p>Active tutors and mentors approved for student assignment.</p>
-          </div>
-
-          <div class="card">
-            <div class="table-responsive">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Mentor</th>
-                    <th>Subjects</th>
-                    <th>Assigned Students</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="mentors-table-body">
-                  <tr>
-                    <td colspan="4" style="text-align: center; color: var(--color-text-muted)">
-                      Loading active mentors...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <header class="page-header">
+            <h1 id="main-heading">Active mentors</h1>
+            <p>
+              This list uses applications in the onboarding status because the API does not provide
+              a separate mentor profile list.
+            </p>
+          </header>
+          <form id="filters" class="admin-filters">
+            <label>Search this page<input name="search" type="search" /></label>
+          </form>
+          <div id="list-state" role="status" aria-live="polite"></div>
+          <div id="mentors-table"></div>
+          <nav id="pagination" class="admin-pagination" aria-label="Mentor pages"></nav>
         </section>
       </div>
     </main>
-
-    <script src="../js/api.js"></script>
-    <script src="../js/auth.js"></script>
-    <script>
-      auth.protectPage('admin', 'login.html');
-
-      document.getElementById('logout-btn').addEventListener('click', () => {
-        auth.logout('login.html');
-      });
-
-      async function loadMentors() {
-        const tbody = document.getElementById('mentors-table-body');
-        try {
-          const res = await apiClient.get('/admin/mentors');
-          const mentors = res.data || [];
-          if (mentors.length === 0) {
-            tbody.innerHTML =
-              '<tr><td colspan="4" style="text-align:center;">No mentors currently registered.</td></tr>';
-            return;
-          }
-
-          tbody.innerHTML = mentors
-            .map(
-              m => `
-          <tr>
-            <td><strong>${m.full_name}</strong><br><small>${m.email}</small></td>
-            <td>${m.expertise}</td>
-            <td>${m.assigned_students_count || 0}</td>
-            <td><span class="badge badge-approved">Active</span></td>
-          </tr>
-        `
-            )
-            .join('');
-        } catch (err) {
-          tbody.innerHTML =
-            '<tr><td colspan="4" style="text-align:center; color: var(--color-text-muted);">No active mentors loaded.</td></tr>';
-        }
-      }
-
-      loadMentors();
-    </script>
-    <script type="module" src="../js/pages/portal-layout.js"></script>
+    <script type="module" src="../js/pages/admin-mentors.js"></script>
   </body>
 </html>

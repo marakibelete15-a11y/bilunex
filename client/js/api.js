@@ -36,7 +36,7 @@ export const api = {
     if (!isFormData && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
 
     // Attach Bearer token from localStorage if user session exists
-    const token = localStorage.getItem('bilunex_token');
+    const token = sessionStorage.getItem('bilunex_token');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -67,6 +67,19 @@ export const api = {
       }
 
       if (!response.ok) {
+        if (
+          response.status === 401 &&
+          token &&
+          (window.location.pathname.includes('/admin/') ||
+            window.location.pathname.includes('/mentor/'))
+        ) {
+          sessionStorage.removeItem('bilunex_token');
+          sessionStorage.removeItem('bilunex_user');
+          const login = window.location.pathname.includes('/admin/')
+            ? '/admin/login.html'
+            : '/mentor/login.html';
+          window.location.replace(login);
+        }
         let fallbackMessage = `Request failed with status ${response.status}`;
         if (response.status === 429) {
           fallbackMessage = 'Too many requests. Please wait a few moments before trying again.';

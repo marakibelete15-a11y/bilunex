@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Bilunex administrator portal — parent registrations." />
+    <title>Parent Registrations | Bilunex</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-heading">Skip to content</a>
+    <header id="portal-header" class="site-header"></header>
+    <main class="main-content">
+      <div class="container portal-layout">
+        <section class="portal-main">
+          <header class="page-header">
+            <h1 id="main-heading">Parent registrations</h1>
+            <p>Search and filter incoming family requests.</p>
+          </header>
+          <form id="filters" class="admin-filters">
+            <label>Search<input name="search" type="search" /></label
+            ><label
+              >Status<select name="status">
+                <option value="">All statuses</option>
+                <option>new</option>
+                <option>contacted</option>
+                <option>enrolled</option>
+                <option>archived</option>
+              </select></label
+            ><label>Grade<input name="grade_level" /></label
+            ><label>Subject<input name="subject" /></label
+            ><button class="btn btn-primary" type="submit">Apply filters</button
+            ><button class="btn btn-outline" type="button" id="reset-filters">Reset</button>
+          </form>
+          <div id="list-state" role="status" aria-live="polite"></div>
+          <div id="registrations-table"></div>
+          <nav id="pagination" class="admin-pagination" aria-label="Registration pages"></nav>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="../js/pages/admin-registrations.js"></script>
+  </body>
+</html>
