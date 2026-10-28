@@ -173,13 +173,19 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const response = await api.post('/public/parent-registrations', payload);
 
-      // Reset form and show success message
+      // Verify that a real record ID was returned from the database
+      const recordId = response && response.data && response.data.id;
+      if (!recordId) {
+        throw new Error(
+          'Registration could not be confirmed with a database reference ID. Please try again.'
+        );
+      }
+
+      // Reset form and show success message with reference ID
       form.reset();
       validator.clearFormErrors(form);
 
-      const successMsg =
-        response.message ||
-        'Registration submitted successfully! Our intake coordinator will contact you within [To be confirmed by Bilunex] business days to finalize your mentor match.';
+      const successMsg = `Registration submitted successfully! Reference ID: #${recordId}. Our team will review your requirements and contact you within 24 hours to finalize the registration fee and schedule a Trial Session.`;
 
       ui.showAlert(feedbackContainer, 'success', successMsg);
 

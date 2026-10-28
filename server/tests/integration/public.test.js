@@ -52,6 +52,45 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
       expect(res.body.data.status).toBe('new');
     });
 
+    test('should persist registration row to PostgreSQL database and confirm via direct SELECT', async () => {
+      const uniqueEmail = `persist_${Date.now()}@example.com`;
+      const payload = {
+        parent_name: 'Direct DB Verification Parent',
+        email: uniqueEmail,
+        phone: '+251933445566',
+        telegram_handle: '@db_verify',
+        child_name: 'Persisted Child',
+        grade_level: 'Grade 10',
+        subjects: ['Chemistry', 'Biology'],
+        support_category: 'combined',
+        notes: 'Verifying end-to-end database persistence in parent_registrations table.',
+      };
+
+      const res = await request(app).post('/api/v1/public/parent-registrations').send(payload);
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveProperty('id');
+      const createdId = res.body.data.id;
+
+      // Execute direct SELECT query against PostgreSQL to prove row was physically written
+      const queryResult = await db.query(
+        'SELECT id, parent_name, email, child_name, grade_level, subjects, support_category, status FROM parent_registrations WHERE id = $1',
+        [createdId]
+      );
+
+      expect(queryResult.rows.length).toBe(1);
+      const row = queryResult.rows[0];
+      expect(row.id).toBe(createdId);
+      expect(row.parent_name).toBe(payload.parent_name);
+      expect(row.email).toBe(payload.email);
+      expect(row.child_name).toBe(payload.child_name);
+      expect(row.grade_level).toBe(payload.grade_level);
+      expect(row.subjects).toEqual(payload.subjects);
+      expect(row.support_category).toBe(payload.support_category);
+      expect(row.status).toBe('new');
+    });
+
     test('should reject payload with unknown extra fields (strict validation)', async () => {
       const payload = {
         parent_name: 'Sara Tesfaye',

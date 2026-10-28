@@ -152,9 +152,58 @@ export const ui = {
       }
     });
   },
+
+  /**
+   * Detect if site is accessed from non-API development origin (such as VS Code Live Server on port 5500)
+   * and show a clear, visible warning banner guiding the developer to port 5000.
+   */
+  checkOriginBanner() {
+    if (typeof window === 'undefined' || !window.location) return;
+
+    const isLiveServer = window.location.port === '5500';
+    const isLocalhostMismatched =
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+      window.location.port !== '5000' &&
+      window.location.port !== '';
+
+    if (isLiveServer || isLocalhostMismatched) {
+      if (document.getElementById('origin-mismatch-banner')) return;
+
+      const banner = document.createElement('div');
+      banner.id = 'origin-mismatch-banner';
+      banner.setAttribute('role', 'alert');
+      banner.style.cssText =
+        'position: sticky; top: 0; left: 0; right: 0; z-index: 999999; background: #c53030; color: #ffffff; padding: 14px 20px; text-align: center; font-size: 15px; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.25); border-bottom: 2px solid #9b2c2c;';
+
+      const text = document.createElement('span');
+      text.textContent = 'Development Notice: The API is not running on this port. ';
+
+      const link = document.createElement('a');
+      link.href = 'http://localhost:5000' + window.location.pathname;
+      link.textContent = 'Open this site at http://localhost:5000';
+      link.style.cssText =
+        'color: #ffffff; text-decoration: underline; margin-left: 6px; font-weight: 800;';
+
+      banner.appendChild(text);
+      banner.appendChild(link);
+
+      const mount = () => {
+        if (document.body && !document.getElementById('origin-mismatch-banner')) {
+          document.body.prepend(banner);
+        }
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', mount);
+      } else {
+        mount();
+      }
+    }
+  },
 };
 
 // Global fallback for vanilla non-modular scripts
 if (typeof window !== 'undefined') {
   window.ui = ui;
+  ui.checkOriginBanner();
 }
