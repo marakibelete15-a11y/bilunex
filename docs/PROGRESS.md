@@ -96,4 +96,16 @@
 - API gaps: there is no dedicated active mentor profile listing endpoint, so the Active Mentors page currently uses `onboarding` applications as a labeled proxy. Parent registrations and inquiries have no status update endpoints. Mentor applications, inquiries and support reports lack server-side search; their UI search is limited to the currently loaded page. The public response-shape change above was the only backend change needed for this stage.
 - `npm run lint` passes; full `npm test` suite passes (62 tests).
 
-**Next:** STAGE 5 — mentor portal.
+**Next:** STAGE 5 complete; move to STAGE 6.
+
+### STAGE 5 — Mentor portal
+
+**Status:** done
+
+- Rebuilt mentor login, profile, and support report pages with the shared portal chrome and a single ES-module entry per page. Removed inline scripts and styles.
+- Mentor pages require a `mentor` token; admin pages accept only `admin` or `super_admin`. Browser verification confirmed mentor login opens the profile and a mentor token visiting the admin dashboard redirects to admin login.
+- Profile displays the authenticated mentor’s account details and supports editing phone, availability, and subject specializations through `PATCH /mentor/profile`.
+- Reports page submits only the API-supported fields (`student_name`, `support_need_observed`, `observations`, `recommended_action`) and lists only the authenticated mentor’s reports. Profile also lists that mentor’s own reports.
+- No additional backend changes were needed for Stage 5. Lint and full test-suite status is recorded after the final run below.
+
+**Next:** STAGE 6 — polish and verification.

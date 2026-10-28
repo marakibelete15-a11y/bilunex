@@ -2,135 +2,72 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mentor Profile & Students | Bilunex</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Bilunex mentor portal — mentor profile and own support reports."
+    />
+    <title>My Profile | Bilunex</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
-    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
   </head>
   <body>
+    <a class="skip-link" href="#main-heading">Skip to content</a>
     <header id="portal-header" class="site-header"></header>
-
     <main class="main-content">
       <div class="container portal-layout">
-        <!-- Portal Sidebar -->
-        <aside class="portal-sidebar">
-          <ul class="portal-nav">
-            <li><a href="profile.html" class="active">My Profile & Sessions</a></li>
-            <li><a href="report.html">Submit Support Report</a></li>
-          </ul>
-        </aside>
-
         <section class="portal-main">
-          <div class="page-header" style="text-align: left">
-            <h1 id="welcome-heading">Welcome, Mentor</h1>
-            <p>Review your assigned student caseload and history of submitted support reports.</p>
-          </div>
-
-          <!-- Mentor Details Card -->
-          <div class="card" style="margin-bottom: var(--space-6)">
-            <h3 class="card-title">Caseload Overview</h3>
-            <p id="mentor-bio" style="color: var(--color-text-muted)">
-              Loading mentor credentials...
-            </p>
-            <a
-              href="report.html"
-              class="btn btn-secondary btn-sm"
-              style="margin-top: var(--space-2)"
-              >+ Submit Student Support Report</a
-            >
-          </div>
-
-          <!-- History of Reports Card -->
-          <div class="card">
-            <h3 class="card-title">My Filed Support Reports</h3>
-            <p class="card-subtitle">
-              Confidential session summaries submitted to Bilunex administrators
-            </p>
-            <div class="table-responsive">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Student</th>
-                    <th>Session Focus</th>
-                    <th>Progress Rating</th>
-                  </tr>
-                </thead>
-                <tbody id="reports-table-body">
-                  <tr>
-                    <td colspan="4" style="text-align: center; color: var(--color-text-muted)">
-                      Loading your reports...
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <header class="page-header">
+            <h1 id="main-heading">My profile</h1>
+            <p>Review and update your contact details, availability and subject specializations.</p>
+          </header>
+          <section class="card mentor-identity">
+            <h2>Account details</h2>
+            <dl>
+              <div>
+                <dt>Name</dt>
+                <dd id="profile-name">Loading…</dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd id="profile-email">Loading…</dd>
+              </div>
+              <div>
+                <dt>University</dt>
+                <dd id="profile-university">Loading…</dd>
+              </div>
+              <div>
+                <dt>Field of study</dt>
+                <dd id="profile-field">Loading…</dd>
+              </div>
+            </dl>
+          </section>
+          <section class="card mentor-edit-card">
+            <h2>Edit profile</h2>
+            <div id="profile-feedback" role="status" aria-live="polite"></div>
+            <form id="profile-form">
+              <label>Phone<input name="phone" type="tel" minlength="7" /></label
+              ><label
+                >Availability<input name="availability" type="text" minlength="2" required /></label
+              ><label
+                >Subject specializations
+                <span class="help-text">Separate subjects with commas.</span
+                ><input name="subject_specializations" type="text" required /></label
+              ><button class="btn btn-primary" type="submit">Save profile</button>
+            </form>
+          </section>
+          <section class="card mentor-reports-card">
+            <h2>My support reports</h2>
+            <p>Reports submitted from this mentor account.</p>
+            <div id="reports-table" role="status" aria-live="polite"></div>
+            <a class="btn btn-accent" href="report.html">Submit a support report</a>
+          </section>
         </section>
       </div>
     </main>
-
-    <script src="../js/api.js"></script>
-    <script src="../js/auth.js"></script>
-    <script>
-      // Enforce role-based access
-      auth.protectPage('mentor', 'login.html');
-
-      const user = auth.getUser();
-      if (user && user.email) {
-        document.getElementById('mentor-display').textContent = user.name || user.email;
-        document.getElementById('welcome-heading').textContent =
-          `Welcome, ${user.name || 'Mentor'}`;
-      }
-
-      document.getElementById('logout-btn').addEventListener('click', () => {
-        auth.logout('login.html');
-      });
-
-      async function loadMentorData() {
-        try {
-          const res = await apiClient.get('/mentor/profile');
-          if (res.data) {
-            document.getElementById('mentor-bio').textContent =
-              `Expertise: ${res.data.expertise || 'General'} | Assigned Students: ${res.data.studentsCount || 0}`;
-          }
-        } catch (err) {
-          document.getElementById('mentor-bio').textContent = 'Profile active.';
-        }
-
-        try {
-          const reportsRes = await apiClient.get('/mentor/reports');
-          const reports = reportsRes.data || [];
-          const tbody = document.getElementById('reports-table-body');
-          if (reports.length === 0) {
-            tbody.innerHTML =
-              '<tr><td colspan="4" style="text-align:center;">No reports filed yet. Click "Submit Student Support Report" to file your first session summary.</td></tr>';
-            return;
-          }
-
-          tbody.innerHTML = reports
-            .map(
-              r => `
-          <tr>
-            <td>${new Date(r.created_at).toLocaleDateString()}</td>
-            <td><strong>${r.student_name}</strong></td>
-            <td>${r.session_focus}</td>
-            <td><span class="badge badge-approved">${r.progress_rating} / 5</span></td>
-          </tr>
-        `
-            )
-            .join('');
-        } catch (err) {
-          document.getElementById('reports-table-body').innerHTML =
-            '<tr><td colspan="4" style="text-align:center; color: var(--color-text-muted);">No reports recorded yet.</td></tr>';
-        }
-      }
-
-      loadMentorData();
-    </script>
-    <script type="module" src="../js/pages/portal-layout.js"></script>
+    <script type="module" src="../js/pages/mentor-profile.js"></script>
   </body>
 </html>
