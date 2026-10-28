@@ -195,9 +195,8 @@ export const ui = {
 
       const banner = document.createElement('div');
       banner.id = 'origin-mismatch-banner';
+      banner.className = 'origin-mismatch-banner';
       banner.setAttribute('role', 'alert');
-      banner.style.cssText =
-        'position: sticky; top: 0; left: 0; right: 0; z-index: 999999; background: #c53030; color: #ffffff; padding: 14px 20px; text-align: center; font-size: 15px; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.25); border-bottom: 2px solid #9b2c2c;';
 
       const text = document.createElement('span');
       text.textContent = 'Development Notice: The API is not running on this port. ';
@@ -205,11 +204,17 @@ export const ui = {
       const link = document.createElement('a');
       link.href = 'http://localhost:5000' + window.location.pathname;
       link.textContent = 'Open this site at http://localhost:5000';
-      link.style.cssText =
-        'color: #ffffff; text-decoration: underline; margin-left: 6px; font-weight: 800;';
+      link.className = 'origin-mismatch-link';
 
       banner.appendChild(text);
       banner.appendChild(link);
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'origin-mismatch-close';
+      close.setAttribute('aria-label', 'Dismiss development notice');
+      close.textContent = 'Dismiss';
+      close.addEventListener('click', () => banner.remove());
+      banner.appendChild(close);
 
       const mount = () => {
         if (document.body && !document.getElementById('origin-mismatch-banner')) {

@@ -2,56 +2,121 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Explore Bilunex academic support, mentoring and guidance, and professional counseling services."
+    />
+    <meta name="theme-color" content="#102746" />
     <title>Services | Bilunex</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
-    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
   </head>
   <body>
-    <!-- Header -->
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <header id="site-header" class="site-header"></header>
-
-    <main class="main-content">
-      <div class="container">
-        <div class="page-header">
-          <h1>Comprehensive Support Services</h1>
+    <main id="main-content" class="main-content">
+      <section class="page-hero" aria-labelledby="page-title">
+        <div class="container">
+          <p class="eyebrow">Our services</p>
+          <h1 id="page-title">Support for different needs</h1>
           <p>
-            Explore our programs designed for elementary through high school and college-prep
-            students.
+            Learn about each service and choose the path that best matches what you are exploring.
           </p>
         </div>
-
-        <div class="features-grid">
-          <div class="card" id="tutoring">
-            <h3>Academic Tutoring</h3>
+      </section>
+      <nav class="service-jump-nav container" aria-label="Jump to a service">
+        <a href="#academic-support">Academic Support</a
+        ><a href="#mentoring">Mentoring &amp; Guidance</a
+        ><a href="#counseling">Professional Counseling</a>
+      </nav>
+      <section
+        class="service-detail section-block"
+        id="academic-support"
+        aria-labelledby="academic-title"
+      >
+        <div class="container service-detail-grid">
+          <div>
+            <p class="eyebrow">01 · Learning</p>
+            <h2 id="academic-title">Academic Support</h2>
+            <p>Subject-focused support for students’ learning goals.</p>
             <p>
-              Personalized instruction across Mathematics, Sciences, English & Literature, and
-              Coding. Structured assessments track progress step-by-step.
+              [To be confirmed by Bilunex: subjects offered, grade levels, session formats, and
+              scheduling.]
             </p>
           </div>
-          <div class="card" id="mentoring">
-            <h3>Youth Mentoring</h3>
-            <p>
-              Pairing students with dedicated mentors for goal setting, habit building, life skills,
-              and college/career guidance.
-            </p>
-          </div>
-          <div class="card" id="counseling">
-            <h3>Counseling & Wellness</h3>
-            <p>
-              Confidential emotional support and guidance to tackle academic burnout, anxiety, and
-              social challenges.
-            </p>
-          </div>
+          <aside class="service-note">
+            <h3>For families</h3>
+            <p>Share the student’s grade and the subjects you would like support with.</p>
+            <a class="btn btn-accent" href="parent-registration.html">Register Your Student</a>
+          </aside>
         </div>
-      </div>
+      </section>
+      <section
+        class="service-detail section-block bg-alt"
+        id="mentoring"
+        aria-labelledby="mentoring-title"
+      >
+        <div class="container service-detail-grid">
+          <div>
+            <p class="eyebrow">02 · Guidance</p>
+            <h2 id="mentoring-title">Mentoring &amp; Guidance</h2>
+            <p>Mentoring can support a student’s personal development and future readiness.</p>
+            <p>
+              Mentoring is distinct from professional counseling and is not a substitute for
+              psychological care.
+            </p>
+            <p>
+              [To be confirmed by Bilunex: mentoring format, mentor selection, and safeguarding
+              practices.]
+            </p>
+          </div>
+          <aside class="service-note">
+            <h3>For prospective mentors</h3>
+            <p>Read about the application process and responsibilities.</p>
+            <a class="btn btn-outline" href="become-a-mentor.html">Become a Mentor</a>
+          </aside>
+        </div>
+      </section>
+      <section
+        class="service-detail section-block"
+        id="counseling"
+        aria-labelledby="counseling-title"
+      >
+        <div class="container service-detail-grid">
+          <div>
+            <p class="eyebrow">03 · Professional care</p>
+            <h2 id="counseling-title">Professional Counseling</h2>
+            <p>
+              Professional counseling is provided by a qualified psychologist. Counseling is
+              distinct from mentoring and academic support.
+            </p>
+            <p>
+              [To be confirmed by Bilunex: counseling scope, availability, fees, and how families
+              can request an appointment.]
+            </p>
+          </div>
+          <aside class="service-note">
+            <h3>Ask a question</h3>
+            <p>Contact Bilunex with a counseling enquiry.</p>
+            <a class="btn btn-accent" href="contact.html#contact-form">Contact Us</a>
+          </aside>
+        </div>
+      </section>
+      <section class="closing-cta">
+        <div class="container closing-cta-inner">
+          <div>
+            <p class="eyebrow">Choose your next step</p>
+            <h2>We can start with what you need to know.</h2>
+          </div>
+          <a class="btn btn-accent btn-lg" href="contact.html">Contact Bilunex</a>
+        </div>
+      </section>
     </main>
-
     <footer id="site-footer" class="site-footer"></footer>
-    <script src="../js/ui.js"></script>
     <script type="module" src="../js/pages/public-layout.js"></script>
   </body>
 </html>

@@ -50,4 +50,19 @@
 - No existing `client/assets/images/logo.png` was present, so the SVG brand mark is used directly.
 - Known issue: registration CTA targets `parent-registration.html`, which will be created in STAGE 3. Existing home content still links its main registration CTA to `for-parents.html` pending that stage.
 
-**Next:** STAGE 2 — public content pages.
+**Next:** STAGE 2 complete; move to STAGE 3.
+
+### STAGE 2 — Public content pages
+
+**Status:** done
+
+- Rebuilt Home, About, Services, For Parents, and Stories & Resources using the shared layout.
+- Home includes accessible stepper and growth tabs, linked service cards, guidance pathways, honest empty story copy, clear calls to action, and reduced-motion-aware scroll reveals.
+- About includes story, mission, vision, values, approach, student commitment, and the three specified principles.
+- Services explains Academic Support, Mentoring & Guidance, and Professional Counseling. It states that counseling is provided by a qualified psychologist and mentoring is not a substitute for psychological care.
+- For Parents is now information-only with process, subject/grade, selection/safeguarding, FAQ sections, and registration calls to action.
+- Stories & Resources has truthful empty states and educational resources marked as coming later.
+- New `[To be confirmed by Bilunex]` items: founding story, mission, vision, values, trusted-relationship practices, specific student commitments and safeguarding/privacy details; review process and response timeline; family consultation and next-step details; subjects, grade levels, curriculum scope, scheduling, mentor selection and safeguarding practices; counseling scope, availability, fees, and appointment request process. Existing footer email/location placeholders remain.
+- Lint passes; full backend suite passes (62 tests).
+
+**Next:** STAGE 3 — parent registration form, mentor application form, and contact inquiry form.

@@ -2,91 +2,277 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bilunex | Tutoring, Mentoring & Counseling Support</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Empowering students through personalized tutoring, dedicated mentorship, and compassionate counseling."
+      content="Bilunex connects students and families with academic support, mentoring, and professional counseling in Ethiopia."
     />
+    <meta name="theme-color" content="#102746" />
+    <title>Bilunex | Education · Growth · Opportunity</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
-    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
   </head>
   <body>
-    <!-- Header & Navigation -->
+    <a class="skip-link" href="#main-content">Skip to main content</a>
     <header id="site-header" class="site-header"></header>
-
-    <!-- Hero Section -->
-    <main class="main-content">
-      <section class="hero">
-        <div class="container">
-          <h1>Guiding Every Student to Thrive</h1>
-          <p>
-            Bilunex bridges personalized academic tutoring, supportive 1-on-1 mentorship, and
-            professional counseling care under a unified community support network.
+    <main id="main-content" class="main-content home-page">
+      <section class="home-hero" aria-labelledby="hero-title">
+        <div class="container home-hero-inner">
+          <p class="eyebrow">Education · Growth · Opportunity</p>
+          <h1 id="hero-title">Support for every step of a student’s journey.</h1>
+          <p class="hero-copy">
+            Bilunex brings academic support, mentoring, and professional counseling together for
+            students and families in Ethiopia.
           </p>
           <div class="hero-actions">
-            <a href="for-parents.html" class="btn btn-accent">Register Your Student</a>
-            <a
-              href="become-a-mentor.html"
-              class="btn btn-outline"
-              style="color: #ffffff; border-color: rgba(255, 255, 255, 0.4)"
-              >Apply as a Mentor</a
+            <a class="btn btn-accent btn-lg" href="parent-registration.html"
+              >Register Your Student</a
+            >
+            <a class="btn btn-outline btn-lg hero-outline" href="services.html">Explore services</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block intro-section" aria-labelledby="intro-title">
+        <div class="container narrow-copy">
+          <p class="eyebrow">About Bilunex</p>
+          <h2 id="intro-title">A place to find the support that fits.</h2>
+          <p>
+            Every learner has different goals and needs. Bilunex helps families explore academic
+            support, mentoring and guidance, or professional counseling, with each service clearly
+            described.
+          </p>
+          <a class="text-link" href="about.html"
+            >Learn about Bilunex <span aria-hidden="true">→</span></a
+          >
+        </div>
+      </section>
+
+      <section class="section-block bg-alt" aria-labelledby="services-title">
+        <div class="container">
+          <div class="section-header section-header-left">
+            <p class="eyebrow">Our services</p>
+            <h2 id="services-title">Three kinds of support</h2>
+            <p>Explore each service to understand what it covers and how to enquire.</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 service-card-grid">
+            <article class="card service-card">
+              <span class="card-kicker">01</span>
+              <h3>Academic Support</h3>
+              <p>Subject-focused learning support shaped around a student’s current needs.</p>
+              <a class="text-link" href="services.html#academic-support"
+                >Explore academic support <span aria-hidden="true">→</span></a
+              >
+            </article>
+            <article class="card service-card">
+              <span class="card-kicker">02</span>
+              <h3>Mentoring &amp; Guidance</h3>
+              <p>Guidance that can support personal development and future readiness.</p>
+              <a class="text-link" href="services.html#mentoring"
+                >Explore mentoring <span aria-hidden="true">→</span></a
+              >
+            </article>
+            <article class="card service-card">
+              <span class="card-kicker">03</span>
+              <h3>Professional Counseling</h3>
+              <p>
+                Counseling is provided by a qualified psychologist and is distinct from mentoring.
+              </p>
+              <a class="text-link" href="services.html#counseling"
+                >Explore counseling <span aria-hidden="true">→</span></a
+              >
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block" aria-labelledby="steps-title">
+        <div class="container">
+          <div class="section-header section-header-left">
+            <p class="eyebrow">Getting started</p>
+            <h2 id="steps-title">How Bilunex works</h2>
+            <p>
+              Use the steps to learn about the process. Details marked for confirmation will be
+              finalized by Bilunex.
+            </p>
+          </div>
+          <div class="stepper" role="group" aria-label="How Bilunex works steps">
+            <div class="stepper-tabs" role="tablist" aria-label="Process steps">
+              <button
+                class="step-tab is-active"
+                id="step-tab-1"
+                role="tab"
+                aria-selected="true"
+                aria-controls="step-panel"
+                data-step="0"
+              >
+                01 <span>Tell us</span>
+              </button>
+              <button
+                class="step-tab"
+                id="step-tab-2"
+                role="tab"
+                aria-selected="false"
+                aria-controls="step-panel"
+                tabindex="-1"
+                data-step="1"
+              >
+                02 <span>Review</span>
+              </button>
+              <button
+                class="step-tab"
+                id="step-tab-3"
+                role="tab"
+                aria-selected="false"
+                aria-controls="step-panel"
+                tabindex="-1"
+                data-step="2"
+              >
+                03 <span>Discuss</span>
+              </button>
+              <button
+                class="step-tab"
+                id="step-tab-4"
+                role="tab"
+                aria-selected="false"
+                aria-controls="step-panel"
+                tabindex="-1"
+                data-step="3"
+              >
+                04 <span>Next steps</span>
+              </button>
+            </div>
+            <article
+              class="step-panel card"
+              id="step-panel"
+              role="tabpanel"
+              aria-labelledby="step-tab-1"
+              tabindex="0"
+            >
+              <p class="eyebrow" id="step-count">Step 01</p>
+              <h3 id="step-title">Share what support you are looking for</h3>
+              <p id="step-description">
+                A parent or guardian can send an enquiry with the student’s details, subjects, and
+                requested support category.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block bg-alt" aria-labelledby="growth-title">
+        <div class="container">
+          <div class="section-header section-header-left">
+            <p class="eyebrow">A student’s journey</p>
+            <h2 id="growth-title">Growth can take different forms</h2>
+          </div>
+          <div class="growth-layout">
+            <div class="growth-tabs" role="tablist" aria-label="Student growth areas">
+              <button
+                class="growth-tab is-active"
+                role="tab"
+                id="growth-tab-academic"
+                aria-selected="true"
+                aria-controls="growth-panel"
+                data-growth="academic"
+              >
+                Academic Growth
+              </button>
+              <button
+                class="growth-tab"
+                role="tab"
+                id="growth-tab-personal"
+                aria-selected="false"
+                aria-controls="growth-panel"
+                tabindex="-1"
+                data-growth="personal"
+              >
+                Personal Growth
+              </button>
+              <button
+                class="growth-tab"
+                role="tab"
+                id="growth-tab-future"
+                aria-selected="false"
+                aria-controls="growth-panel"
+                tabindex="-1"
+                data-growth="future"
+              >
+                Future Readiness
+              </button>
+            </div>
+            <article
+              class="card growth-panel"
+              id="growth-panel"
+              role="tabpanel"
+              aria-labelledby="growth-tab-academic"
+              tabindex="0"
+            >
+              <h3 id="growth-panel-title">Academic Growth</h3>
+              <p id="growth-panel-copy">
+                Academic support can focus on subjects and learning goals a family identifies for
+                their student.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block" aria-labelledby="pathway-title">
+        <div class="container">
+          <div class="section-header section-header-left">
+            <p class="eyebrow">Find a starting point</p>
+            <h2 id="pathway-title">Which kind of support are you exploring?</h2>
+            <p>Choose a path to read more or contact Bilunex with a question.</p>
+          </div>
+          <div class="pathway-grid">
+            <a class="pathway-card" href="services.html#academic-support"
+              ><span>01</span><strong>Academic Support</strong
+              ><span>Subject and learning support →</span></a
+            >
+            <a class="pathway-card" href="services.html#mentoring"
+              ><span>02</span><strong>Mentoring &amp; Guidance</strong
+              ><span>Personal and future development →</span></a
+            >
+            <a class="pathway-card" href="services.html#counseling"
+              ><span>03</span><strong>Professional Counseling</strong
+              ><span>Care from a qualified psychologist →</span></a
             >
           </div>
         </div>
       </section>
 
-      <!-- Services Overview -->
-      <section class="container" style="padding-top: var(--space-12)">
-        <div class="page-header">
-          <h2>Three Pillars of Support</h2>
-          <p>
-            A holistic model designed to nurture student confidence, academic growth, and emotional
-            well-being.
-          </p>
-        </div>
-
-        <div class="features-grid">
-          <div class="card">
-            <h3 class="card-title">Personalized Tutoring</h3>
-            <p class="card-subtitle">Targeted Academic Support</p>
+      <section class="section-block stories-preview bg-alt" aria-labelledby="stories-title">
+        <div class="container stories-empty">
+          <div>
+            <p class="eyebrow">Stories &amp; Resources</p>
+            <h2 id="stories-title">Stories belong to the people who lived them.</h2>
             <p>
-              Subject-specific mastery in STEM, literacy, and study skills adapted to every
-              learner's pace.
+              Bilunex does not have student stories or testimonials to share yet. We will only
+              publish stories with permission.
             </p>
-            <a href="services.html#tutoring" class="btn btn-outline btn-sm">Learn More &rarr;</a>
           </div>
-
-          <div class="card">
-            <h3 class="card-title">1-on-1 Mentorship</h3>
-            <p class="card-subtitle">Guidance & Role Models</p>
-            <p>
-              Passionate mentors helping students build resilience, career aspirations, and life
-              readiness.
-            </p>
-            <a href="services.html#mentoring" class="btn btn-outline btn-sm">Learn More &rarr;</a>
-          </div>
-
-          <div class="card">
-            <h3 class="card-title">Counseling Care</h3>
-            <p class="card-subtitle">Emotional Well-Being</p>
-            <p>
-              Safe, confidential counseling guidance helping students navigate stress and personal
-              challenges.
-            </p>
-            <a href="services.html#counseling" class="btn btn-outline btn-sm">Learn More &rarr;</a>
+          <div class="hero-actions">
+            <a class="btn btn-outline" href="stories.html">Visit Stories &amp; Resources</a>
+            <a class="btn btn-primary" href="contact.html">Share a story</a>
           </div>
         </div>
       </section>
+
+      <section class="closing-cta" aria-labelledby="closing-title">
+        <div class="container closing-cta-inner">
+          <div>
+            <p class="eyebrow">Start a conversation</p>
+            <h2 id="closing-title">Tell us what your student is working toward.</h2>
+          </div>
+          <a class="btn btn-accent btn-lg" href="parent-registration.html">Register Your Student</a>
+        </div>
+      </section>
     </main>
-
-    <!-- Global Footer -->
     <footer id="site-footer" class="site-footer"></footer>
-
-    <script src="../js/ui.js"></script>
-    <script type="module" src="../js/pages/public-layout.js"></script>
+    <script type="module" src="../js/pages/home.js"></script>
   </body>
 </html>
