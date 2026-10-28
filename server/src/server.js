@@ -12,8 +12,8 @@ process.on('unhandledRejection', reason => {
   logger.error('Unhandled promise rejection:', reason instanceof Error ? reason.stack : reason);
 });
 process.on('uncaughtException', error => {
-  logger.error('Uncaught exception:', error.stack || error.message);
-  process.exitCode = 1;
+  logger.error('Uncaught exception:', error);
+  process.exit(1);
 });
 
 const startServer = async () => {
@@ -36,6 +36,16 @@ const startServer = async () => {
       if (env.NODE_ENV !== 'production') {
         logger.info(`🌐 Client website served at: http://localhost:${env.PORT}`);
       }
+    });
+
+    server.on('error', error => {
+      if (error.code === 'EADDRINUSE') {
+        logger.error(
+          `Port ${env.PORT} is already in use. Stop the other process or choose another port.`
+        );
+        return;
+      }
+      logger.error('HTTP server error:', error);
     });
 
     // Graceful shutdown handling

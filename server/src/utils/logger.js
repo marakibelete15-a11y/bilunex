@@ -4,6 +4,7 @@
  */
 
 const winston = require('winston');
+const util = require('node:util');
 const env = require('../config/env');
 
 const logFormat = winston.format.combine(
@@ -31,6 +32,16 @@ const logger = winston.createLogger({
       silent: env.NODE_ENV === 'test', // Mute regular logs during automated test runs
     }),
   ],
+});
+
+['info', 'warn', 'error'].forEach(method => {
+  const log = logger[method].bind(logger);
+  logger[method] = (...args) =>
+    log(
+      util.format(
+        ...args.map(value => (value instanceof Error ? value.stack || value.message : value))
+      )
+    );
 });
 
 // Stream adapter for morgan HTTP request logger

@@ -1,5 +1,16 @@
 # Bilunex redesign progress
 
+## Maintenance fixes — 2026-10-28
+
+### Server logging and startup errors
+
+**Status:** done
+
+- Logger methods preserve all arguments and render `Error` values with their stack.
+- Direct logger output check confirmed the label, subsequent arguments, and error stack all print.
+- HTTP server reports a clear port-in-use message; uncaught exceptions log and exit with code 1.
+- `npm run lint` passes; full `npm test` suite passes (62 tests).
+
 ## STAGE 0B — Notification dispatch fix
 
 **Status:** done
