@@ -171,3 +171,13 @@
 - Existing content-level registration links remain outside the shared header.
 
 **Next:** Part 2.
+
+### Part 2 — Development port notice
+
+**Status:** done
+
+- Kept the health-check based notice and made it compact. Dismissal is remembered in `sessionStorage`; the link preserves the current path, query, and fragment at `http://localhost:5000`.
+- API-origin pages on `localhost:5000` and `127.0.0.1:5000` use same-origin `/api/v1` health checks; the notice is only mounted after a failed health check.
+- CORS remains unchanged in `server/src/app.js`: requests without an Origin are permitted for tools such as curl; browser origins are permitted only when equal to configured `env.CLIENT_URL` (`http://localhost:5000` by default). Credentials remain enabled.
+
+**Next:** Part 3.

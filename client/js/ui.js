@@ -184,6 +184,7 @@ export const ui = {
    */
   checkOriginBanner() {
     if (typeof window === 'undefined' || !window.location) return;
+    if (sessionStorage.getItem('bilunex-origin-notice-dismissed') === 'true') return;
     if (this.originHealthCheck) return this.originHealthCheck;
 
     this.originHealthCheck = (async () => {
@@ -205,7 +206,7 @@ export const ui = {
       text.textContent = 'Development Notice: The API is not running on this port. ';
 
       const link = document.createElement('a');
-      link.href = `http://localhost:5000${window.location.pathname}`;
+      link.href = `http://localhost:5000${window.location.pathname}${window.location.search}${window.location.hash}`;
       link.textContent = 'Open this site at http://localhost:5000';
       link.className = 'origin-mismatch-link';
 
@@ -216,7 +217,10 @@ export const ui = {
       close.className = 'origin-mismatch-close';
       close.setAttribute('aria-label', 'Dismiss development notice');
       close.textContent = 'Dismiss';
-      close.addEventListener('click', () => banner.remove());
+      close.addEventListener('click', () => {
+        sessionStorage.setItem('bilunex-origin-notice-dismissed', 'true');
+        banner.remove();
+      });
       banner.appendChild(close);
 
       const mount = () => {

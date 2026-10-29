@@ -139,11 +139,12 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 2px solid #7f1d1d;
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid #7f1d1d;
   background: #b91c1c;
   color: #fff;
-  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
 }
 .origin-mismatch-link {
   color: #fff;
@@ -155,8 +156,8 @@
   color: #fff;
 }
 .origin-mismatch-close {
-  min-height: 2.75rem;
-  padding-inline: var(--space-3);
+  min-height: 2rem;
+  padding-inline: var(--space-2);
   border: 1px solid #fff;
   border-radius: var(--radius-sm);
   background: transparent;
