@@ -207,3 +207,11 @@
 - Replaced the mission, vision, values, three “Support starts with listening” items, and “Our Commitment” description with the exact supplied copy.
 
 **Next:** Part 6.
+
+### Part 6 — Services copy
+
+**Status:** done
+
+- Replaced the three service placeholders with the exact supplied Academic Support, Mentoring & Guidance, and Professional Counseling descriptions. Existing qualified psychologist and counseling/mentoring distinction statements remain.
+
+**Next:** Part 7.
