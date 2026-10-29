@@ -223,3 +223,11 @@
 - Replaced the supplied review, consultation, grade/subject coverage, and family information placeholders with the exact supplied copy. Other FAQ placeholders that were outside this part remain tracked for launch review.
 
 **Next:** Part 8.
+
+### Part 8 — Become a Mentor copy
+
+**Status:** done
+
+- Replaced the four specified recruitment copy placeholders with the supplied exact descriptions. Application form and commitment checkbox remain intact.
+
+**Next:** Part 9.
