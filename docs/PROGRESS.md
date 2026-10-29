@@ -181,3 +181,13 @@
 - CORS remains unchanged in `server/src/app.js`: requests without an Origin are permitted for tools such as curl; browser origins are permitted only when equal to configured `env.CLIENT_URL` (`http://localhost:5000` by default). Credentials remain enabled.
 
 **Next:** Part 3.
+
+### Part 3 — Single source for contact details
+
+**Status:** done
+
+- Added `client/js/config/site-info.js` as the source for email, phone, Telegram, social handles/URLs, parent support hours, and the confirmed address placeholder.
+- Shared footer and Contact page render email, phone, Telegram, LinkedIn, and Twitter/X from the module. Email, phone, and external links use the requested schemes and `noopener noreferrer` on external links.
+- Contact page support-hours wording and the supplied parent support and counseling copy are present. Physical address remains `[To be confirmed by Bilunex]` in the footer.
+
+**Next:** Part 4.

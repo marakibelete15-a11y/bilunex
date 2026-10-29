@@ -2,6 +2,7 @@
 
 import { ui } from '../ui.js';
 import { auth } from '../auth.js';
+import { siteInfo } from '../config/site-info.js';
 
 export const NAV_ITEMS = [
   { key: 'home', label: 'Home', href: 'index.html' },
@@ -125,14 +126,28 @@ export function renderFooter() {
   contact.className = 'footer-col';
   const contactTitle = document.createElement('h2');
   contactTitle.textContent = 'Contact';
+  const email = document.createElement('a');
+  email.href = `mailto:${siteInfo.email}`;
+  email.textContent = siteInfo.email;
   const contactInfo = document.createElement('p');
-  contactInfo.textContent = 'Email: [To be confirmed by Bilunex]';
+  contactInfo.append('Email: ', email);
+  const phone = document.createElement('a');
+  phone.href = `tel:${siteInfo.phoneHref}`;
+  phone.textContent = siteInfo.phone;
+  const phoneInfo = document.createElement('p');
+  phoneInfo.append('Phone: ', phone);
   const location = document.createElement('p');
-  location.textContent = 'Location: [To be confirmed by Bilunex]';
+  location.textContent = `Location: ${siteInfo.address}`;
   const mentorLogin = document.createElement('a');
   mentorLogin.href = '../mentor/login.html';
   mentorLogin.textContent = 'Mentor portal login';
-  contact.append(contactTitle, contactInfo, location, mentorLogin);
+  const telegram = document.createElement('a');
+  telegram.href = siteInfo.telegramUrl;
+  telegram.textContent = siteInfo.telegram;
+  telegram.rel = 'noopener noreferrer';
+  const telegramInfo = document.createElement('p');
+  telegramInfo.append('Telegram: ', telegram);
+  contact.append(contactTitle, contactInfo, phoneInfo, telegramInfo, location, mentorLogin);
   grid.appendChild(contact);
 
   const bottom = document.createElement('div');

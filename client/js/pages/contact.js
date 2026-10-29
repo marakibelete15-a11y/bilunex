@@ -2,9 +2,22 @@ import { initLayout } from '../components/layout.js';
 import { api, ApiError } from '../api.js';
 import { ui } from '../ui.js';
 import { validator } from '../validation.js';
+import { siteInfo } from '../config/site-info.js';
 
 initLayout('contact');
 ui.checkOriginBanner();
+
+const setContactLink = (key, label, href, external = false) => {
+  const link = document.querySelector(`[data-contact="${key}"]`);
+  link.textContent = label;
+  link.href = href;
+  if (external) link.rel = 'noopener noreferrer';
+};
+setContactLink('email', siteInfo.email, `mailto:${siteInfo.email}`);
+setContactLink('phone', siteInfo.phone, `tel:${siteInfo.phoneHref}`);
+setContactLink('telegram', siteInfo.telegram, siteInfo.telegramUrl, true);
+setContactLink('linkedin', siteInfo.linkedin, siteInfo.linkedinUrl, true);
+setContactLink('twitter', siteInfo.twitter, siteInfo.twitterUrl, true);
 
 const form = document.getElementById('contact-form');
 const feedback = document.getElementById('contact-feedback');
