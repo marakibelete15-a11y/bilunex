@@ -199,3 +199,11 @@
 - Replaced the four “How Bilunex works” step titles and descriptions with the exact supplied copy; initial rendered step matches the interactive content.
 
 **Next:** Part 5.
+
+### Part 5 — About Us copy
+
+**Status:** done
+
+- Replaced the mission, vision, values, three “Support starts with listening” items, and “Our Commitment” description with the exact supplied copy.
+
+**Next:** Part 6.
