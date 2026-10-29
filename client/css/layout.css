@@ -334,8 +334,8 @@
   border-left: 3px solid var(--color-primary);
 }
 
-/* Desktop Navigation (min-width: 960px) */
-@media (min-width: 960px) {
+/* Desktop Navigation (min-width: 1200px) */
+@media (min-width: 1200px) {
   .nav-toggle {
     display: none;
   }
@@ -359,8 +359,8 @@
 
   .nav-link {
     min-height: 2.75rem;
-    padding: var(--space-2) 0.35rem;
-    font-size: 0.75rem;
+    padding: var(--space-2) 0.25rem;
+    font-size: 0.7rem;
     white-space: nowrap;
   }
 
@@ -368,9 +368,9 @@
     display: inline-flex;
     flex: 0 0 auto;
     min-height: 2.75rem;
-    padding-inline: 0.7rem;
-    margin-left: var(--space-2);
-    font-size: 0.75rem;
+    padding-inline: 0.6rem;
+    margin-left: var(--space-1);
+    font-size: 0.7rem;
     white-space: nowrap;
   }
 

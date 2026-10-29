@@ -159,3 +159,15 @@
 - `npm run lint` passes; full `npm test` passes (62 tests). Client ES modules pass Node syntax checks.
 
 **Next:** all requested stages complete. Review the known copy/API gaps above before production use.
+
+## Follow-up polish — 2026-10-29
+
+### Part 1 — Header and navigation
+
+**Status:** done
+
+- Confirmed shared navigation has seven informational items; the registration control is a separate gold CTA in the desktop header and mobile drawer.
+- Moved desktop navigation breakpoint from 960px to 1200px and tightened link/button spacing to keep the seven labels on one line. Smaller widths use the drawer.
+- Existing content-level registration links remain outside the shared header.
+
+**Next:** Part 2.
