@@ -231,3 +231,11 @@
 - Replaced the four specified recruitment copy placeholders with the supplied exact descriptions. Application form and commitment checkbox remain intact.
 
 **Next:** Part 9.
+
+### Part 9 — Contact page
+
+**Status:** done
+
+- Contact page general inquiry links, parent support hours, counseling text, and Telegram/social links now use the approved copy and the Part 3 site-info module. Inquiry type selector and submission code are unchanged.
+
+**Next:** Part 10.
