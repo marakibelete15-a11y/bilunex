@@ -14,6 +14,7 @@ const setContactLink = (key, label, href, external = false) => {
   if (external) link.rel = 'noopener noreferrer';
 };
 document.querySelector('[data-contact="hours"]').textContent = siteInfo.parentSupportHours;
+document.querySelector('[data-contact="hours"]').textContent = siteInfo.parentSupportHours;
 setContactLink('email', siteInfo.email, `mailto:${siteInfo.email}`);
 setContactLink('phone', siteInfo.phone, `tel:${siteInfo.phoneHref}`);
 setContactLink('telegram', siteInfo.telegram, siteInfo.telegramUrl, true);

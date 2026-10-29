@@ -239,3 +239,24 @@
 - Contact page general inquiry links, parent support hours, counseling text, and Telegram/social links now use the approved copy and the Part 3 site-info module. Inquiry type selector and submission code are unchanged.
 
 **Next:** Part 10.
+
+### Part 10 — Consistency and content integrity audit
+
+**Status:** done
+
+- Grade review: registration uses a free-text grade field; the client validator requires non-empty text, and `server/src/validators/public.validator.js` accepts any non-empty string. `docs/api.md` examples are `Grade 9` and `Middle School`; no Grades 11–12 or Preparatory / Pre-College option or claim was found in client/API validators. The approved page copy consistently states Explorers (Grades 1-3) through Achievers (Grades 9-10). No wording correction or API/database change is indicated.
+- Claim review: no client claim of background checks/verification, certified or licensed mentors, guaranteed outcomes, numeric statistics, or named external partners was found. “Qualified psychologist” is retained as directed. Existing “professional mentor” and partner wording appears only in user-provided exact copy. The registration form’s Google Form text says “top university mentors,” “premium academic support,” “elite mentor team,” and registration fee; this copy was supplied by the user and is preserved per the earlier instruction to keep the Google Form intro and Next Steps wording. The fee / response promise remains marked for Bilunex confirmation. Stories pages explicitly state there are no testimonials yet; no testimonial is presented as evidence. No unsupported claim was removed in this audit.
+- 24-hour locations: `client/js/pages/home.js` Step 02 (“Our team evaluates the submission within 24 hours…”); `client/public/for-parents.html` Step 02 (“Our team reviews the submission within 24 hours…”); and `client/public/parent-registration.html` Next Steps (“We will contact you within 24 hours…”). The first two describe review; the Google Form Next Steps promise describes contact and is preserved verbatim.
+
+## Verify before launch
+
+- Confirm founding story: `client/public/about.html`.
+- Confirm the Google Form response-time, registration-fee, and trial-session commitment: `client/public/parent-registration.html` (its 24-hour Next Steps wording is retained verbatim).
+- Confirm mentor commitment terms: `client/public/become-a-mentor.html`.
+- Confirm For Parents FAQ answers: subjects/grades, mentor selection, and post-registration response/next steps in `client/public/for-parents.html`.
+- Provide exact Amharic registration introduction; marked placeholder remains in `client/public/parent-registration.html`.
+- Confirm physical address: `[To be confirmed by Bilunex]` in `client/js/config/site-info.js`.
+- Contact details currently set from `client/js/config/site-info.js`: `info@bilunex.edu`; `+251 11 123 4567`; Telegram `@BilunexEducation`; LinkedIn `linkedin.com/company/bilunex`; Twitter/X `@BilunexEdu`; parent support hours `Monday through Friday, 8:00 AM – 5:00 PM`.
+- Remaining literal `[To be confirmed by Bilunex]` locations: founding story (`about.html`); fee/response/trial details (`parent-registration.html`); mentor commitment (`become-a-mentor.html`); three For Parents FAQ responses (`for-parents.html`); physical address (`site-info.js`).
+
+**Next:** Part 11.
