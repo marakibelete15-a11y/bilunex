@@ -278,3 +278,16 @@
 **Unsupported claim removals:** none. The Google Form introduction and Next Steps copy remain verbatim; the audit above flags the claims and response/fee promise for owner confirmation where the SRS does not substantiate them.
 
 **Next:** content work complete. Browser responsive and dynamic-link verification remains open for a browser session with viewport and console controls.
+
+## Follow-up fix — Header registration CTA duplication
+
+**Status:** fixed; regression test added
+
+- Root cause: `renderHeader()` created independent desktop and drawer registration anchors. The desktop copy used `.site-header .nav-register-desktop`; the drawer copy used `.nav-register-mobile`. The drawer hide rule had the same selector specificity as the later generic `.btn { display: inline-flex; }` rule in `components.css`, so the latter could override `display: none` when the desktop nav was open.
+- Replaced both copies with one CTA anchor appended after `.nav-list` inside the shared nav. The nav is hidden while the mobile drawer is closed; when open, the CTA appears at its bottom. At desktop widths, the same nav is horizontal and the same CTA follows the seven-item list. The hamburger is hidden and nav shown at the shared 1200px breakpoint.
+- Added `client/tests/header-layout.test.cjs`, using Node’s built-in test runner and a minimal DOM stub to execute `layout.js`; it checks the seven exact nav labels, one CTA after the list, no CTA in the nav list, and the 1200px CSS breakpoint shared by nav and hamburger. Run with `node --test client/tests/header-layout.test.cjs`.
+- `client/js/api.js` remains an existing uncommitted user edit and is not part of this fix.
+
+- `npm run lint` passes; the client regression test passes; full `npm test` passes (62 tests across 6 suites). The first suite run in this turn hit sandbox loopback `EPERM`; after enabling loopback, all tests passed.
+
+**Next:** ready to commit `fix(client): render a single Register Your Student button`.

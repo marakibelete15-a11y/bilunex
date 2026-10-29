@@ -52,7 +52,7 @@ export function renderHeader(activeKey = '') {
 
   const nav = document.createElement('nav');
   nav.id = 'primary-nav';
-  nav.className = 'primary-nav';
+  nav.className = 'primary-nav header-actions';
   nav.setAttribute('aria-label', 'Primary navigation');
   const list = document.createElement('ul');
   list.className = 'nav-list';
@@ -71,20 +71,14 @@ export function renderHeader(activeKey = '') {
   });
   nav.appendChild(list);
 
-  const drawerCta = document.createElement('a');
-  drawerCta.href = 'parent-registration.html';
-  drawerCta.className = 'btn btn-accent nav-register-mobile';
-  drawerCta.textContent = 'Register Your Student';
-  nav.appendChild(drawerCta);
-
-  const desktopCta = document.createElement('a');
-  desktopCta.href = 'parent-registration.html';
-  desktopCta.className = 'btn btn-accent nav-register-desktop';
-  desktopCta.textContent = 'Register Your Student';
+  const registerCta = document.createElement('a');
+  registerCta.href = 'parent-registration.html';
+  registerCta.className = 'btn btn-accent nav-register-cta';
+  registerCta.textContent = 'Register Your Student';
+  nav.appendChild(registerCta);
 
   header.appendChild(toggle);
   header.appendChild(nav);
-  header.appendChild(desktopCta);
   host.replaceChildren(header);
   ui.initMobileNav();
 }
