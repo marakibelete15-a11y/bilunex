@@ -260,3 +260,21 @@
 - Remaining literal `[To be confirmed by Bilunex]` locations: founding story (`about.html`); fee/response/trial details (`parent-registration.html`); mentor commitment (`become-a-mentor.html`); three For Parents FAQ responses (`for-parents.html`); physical address (`site-info.js`).
 
 **Next:** Part 11.
+
+### Part 11 — Verification
+
+**Status:** lint and suite done; browser matrix partial
+
+- `npm run lint` passes.
+- `npm test` passes: 62 tests across 6 suites. The first attempt was blocked by sandbox loopback restrictions (`listen EPERM`); after requesting network access for loopback verification, the full suite passed.
+- Opened Home and Contact at `http://127.0.0.1:5000`. Home renders the approved initial process copy, and Contact renders the inquiry type selector. This CUA browser session did not initialize the dynamic shared header or contact link labels/hrefs. The browser control surface in this session has no viewport override, so the requested 320/375/768/1024/1280/1440 and zoom 100%/150% matrix, focus ring, horizontal overflow, and browser-console checks could not be completed. Do not treat these browser checks as passed; repeat them in a browser with responsive viewport and console inspection enabled.
+- Zoom-specific desktop-nav widths requested in Part 1 (1100/1200/1280/1366 at 100/125/150/200%) were not directly measured. CSS sets the mobile drawer below 1200 CSS px and one-line nav labels at/above 1200 CSS px.
+- Contact link schemes and values are implemented through the shared module: `mailto:info@bilunex.edu`, `tel:+251111234567`, `https://t.me/BilunexEducation`, LinkedIn, and Twitter/X with `rel="noopener noreferrer"`. Dynamic DOM behavior requires a successful browser module initialization check before launch.
+
+**Files changed in this follow-up:** `client/css/components.css`, `client/css/layout.css`, `client/js/components/layout.js`, `client/js/config/site-info.js`, `client/js/pages/contact.js`, `client/js/pages/home.js`, `client/js/ui.js`, `client/public/about.html`, `client/public/become-a-mentor.html`, `client/public/contact.html`, `client/public/for-parents.html`, `client/public/index.html`, `client/public/services.html`, and `docs/PROGRESS.md`. Existing uncommitted user change in `client/js/api.js` was not included.
+
+**Remaining grade mismatches:** none found.
+
+**Unsupported claim removals:** none. The Google Form introduction and Next Steps copy remain verbatim; the audit above flags the claims and response/fee promise for owner confirmation where the SRS does not substantiate them.
+
+**Next:** content work complete. Browser responsive and dynamic-link verification remains open for a browser session with viewport and console controls.
