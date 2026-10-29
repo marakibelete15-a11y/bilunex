@@ -191,3 +191,11 @@
 - Contact page support-hours wording and the supplied parent support and counseling copy are present. Physical address remains `[To be confirmed by Bilunex]` in the footer.
 
 **Next:** Part 4.
+
+### Part 4 — Home process copy
+
+**Status:** done
+
+- Replaced the four “How Bilunex works” step titles and descriptions with the exact supplied copy; initial rendered step matches the interactive content.
+
+**Next:** Part 5.

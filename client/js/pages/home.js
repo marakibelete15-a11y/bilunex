@@ -6,20 +6,20 @@ ui.checkOriginBanner();
 
 const stepContent = [
   [
-    'Share what support you are looking for',
-    'A parent or guardian can send an enquiry with the student’s details, subjects, and requested support category.',
+    'Submit student details',
+    "Share your child's grade level, current academic focus, and specific learning goals through our online intake form.",
   ],
   [
     'Bilunex reviews the enquiry',
-    '[To be confirmed by Bilunex: review process and expected response time.]',
+    "Our team evaluates the submission within 24 hours to understand the student's developmental needs and alignment with the Bilunex growth framework.",
   ],
   [
-    'Discuss the student’s needs',
-    '[To be confirmed by Bilunex: consultation process and who will contact the family.]',
+    "Discuss the student's needs",
+    "An educational coordinator contacts the family to conduct a collaborative consultation regarding the student's learning style, strengths, and objectives.",
   ],
   [
     'Receive next-step information',
-    '[To be confirmed by Bilunex: matching, scheduling, and any fee information.]',
+    'Get matched with a professional mentor, finalize flexible scheduling options, and review program partnership details.',
   ],
 ];
 
