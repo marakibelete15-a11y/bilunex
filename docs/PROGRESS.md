@@ -215,3 +215,11 @@
 - Replaced the three service placeholders with the exact supplied Academic Support, Mentoring & Guidance, and Professional Counseling descriptions. Existing qualified psychologist and counseling/mentoring distinction statements remain.
 
 **Next:** Part 7.
+
+### Part 7 — For Parents copy
+
+**Status:** done
+
+- Replaced the supplied review, consultation, grade/subject coverage, and family information placeholders with the exact supplied copy. Other FAQ placeholders that were outside this part remain tracked for launch review.
+
+**Next:** Part 8.
