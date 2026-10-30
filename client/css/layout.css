@@ -183,6 +183,11 @@
   letter-spacing: -0.02em;
 }
 
+.brand-logo:hover img,
+.brand-logo:focus-visible img {
+  transform: translateY(-1px) rotate(-1deg);
+}
+
 .brand-logo:hover,
 .brand-logo:focus-visible {
   color: var(--color-primary-hover);
@@ -191,6 +196,7 @@
 
 .brand-logo img {
   display: block;
+  transition: transform var(--transition-base);
   width: clamp(148px, 18vw, 190px);
   height: auto;
 }
@@ -537,5 +543,11 @@
 @media (min-width: 960px) {
   .grid-4 {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo img {
+    transition: none;
   }
 }

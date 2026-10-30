@@ -28,6 +28,83 @@ const makeLogo = className => {
   return link;
 };
 
+const svgNamespace = 'http://www.w3.org/2000/svg';
+const learningIcons = [
+  [
+    ['path', 'M7 8.5c4-2 8-2 12 0v12c-4-2-8-2-12 0z'],
+    ['path', 'M19 8.5c4-2 8-2 12 0v12c-4-2-8-2-12 0z'],
+    ['path', 'M19 8v13'],
+  ],
+  [
+    ['circle', 'cx="19" cy="19" r="3"'],
+    ['ellipse', 'cx="19" cy="19" rx="15" ry="6"'],
+    ['ellipse', 'cx="19" cy="19" rx="6" ry="15"'],
+  ],
+  [
+    ['path', 'M5 15h28l-14 9z'],
+    ['path', 'M19 24v7'],
+    ['path', 'M12 31h14'],
+    ['path', 'M12 15l-5-6'],
+    ['path', 'M26 15l5-6'],
+  ],
+  [
+    ['path', 'M19 4a10 10 0 0 0-6 18v5h12v-5a10 10 0 0 0-6-18z'],
+    ['path', 'M14 32h10'],
+    ['path', 'M15 27h8'],
+  ],
+  [
+    ['path', 'M19 5c-8-7-16 1-13 10 2 8 8 13 13 13s11-5 13-13c3-9-5-17-13-10z'],
+    ['path', 'M19 10c-5-3-9 2-7 7 1 3 4 5 7 5'],
+    ['path', 'M19 10c5-3 9 2 7 7-1 3-4 5-7 5'],
+  ],
+  [
+    ['path', 'M6 9h26v16H18l-8 6v-6H6z'],
+    ['path', 'M12 17h14'],
+    ['path', 'M12 21h9'],
+  ],
+  [
+    ['path', 'M12 5h14'],
+    ['path', 'M15 5v11L7 30a3 3 0 0 0 3 4h18a3 3 0 0 0 3-4l-8-14V5'],
+    ['path', 'M11 27h17'],
+  ],
+  [
+    ['path', 'M8 6l21 21'],
+    ['path', 'M6 8l5-5 21 21-5 5z'],
+    ['path', 'M8 26l-3 6 6-3'],
+  ],
+];
+
+function addBannerDecorations() {
+  document.querySelectorAll('.page-hero, .home-hero').forEach(banner => {
+    const decoration = document.createElement('div');
+    decoration.className = 'banner-decorations';
+    decoration.setAttribute('aria-hidden', 'true');
+    decoration.setAttribute('inert', '');
+    learningIcons.forEach((paths, index) => {
+      const icon = document.createElementNS(svgNamespace, 'svg');
+      icon.setAttribute('viewBox', '0 0 38 38');
+      icon.setAttribute('focusable', 'false');
+      icon.classList.add('banner-icon', `banner-icon-${index + 1}`);
+      paths.forEach(([tag, data]) => {
+        const shape = document.createElementNS(svgNamespace, tag);
+        if (tag === 'circle' || tag === 'ellipse') {
+          for (const match of data.matchAll(/([a-z]+)="([^"]+)"/g)) {
+            shape.setAttribute(match[1], match[2]);
+          }
+        } else shape.setAttribute('d', data);
+        shape.setAttribute('fill', 'none');
+        shape.setAttribute('stroke', 'currentColor');
+        shape.setAttribute('stroke-width', '1.5');
+        shape.setAttribute('stroke-linecap', 'round');
+        shape.setAttribute('stroke-linejoin', 'round');
+        icon.appendChild(shape);
+      });
+      decoration.appendChild(icon);
+    });
+    banner.appendChild(decoration);
+  });
+}
+
 export function renderHeader(activeKey = '') {
   const host = document.getElementById('site-header');
   if (!host) return;
@@ -165,6 +242,7 @@ export function renderFooter() {
 }
 
 export function initLayout(activeKey = '') {
+  addBannerDecorations();
   renderHeader(activeKey);
   renderFooter();
 }

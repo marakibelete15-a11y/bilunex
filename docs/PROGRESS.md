@@ -307,3 +307,10 @@
 - Added Sidama Afoo (Sidaamu Afoo) alongside Amharic and English in service and parent-registration copy. Mentor expertise will use the expanded subject choices delivered in Part 5.
 
 **Part 2 status:** done. `npm run lint` passes; `npm test` passes (63 tests across 6 suites).
+
+## User update — Banner artwork and logo animation
+
+- Added a shared inline SVG decoration component to all public `.page-hero` banners and the Home hero. It draws original simple learning, science, and counseling icon shapes with low-contrast opacity, blur, and slow drift; decorations are hidden from assistive technology and pointer input, simplified on narrow screens, and animation stops for reduced motion.
+- Animated the gold growth line in the shared SVG logo using embedded SVG CSS on first load, with a restrained glow cycle. Hover/focus gently lifts and rotates the image; reduced-motion disables animation. Favicon remains static.
+
+**Part 3 status:** implemented; lint and suite run before commit.

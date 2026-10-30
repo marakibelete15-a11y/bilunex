@@ -8,10 +8,90 @@
    ========================================================================== */
 
 .page-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   background: linear-gradient(135deg, #102746 0%, #29415f 100%);
   color: var(--color-text-inverse);
   padding: var(--space-12) 0;
   text-align: center;
+}
+
+.page-hero > .container {
+  position: relative;
+  z-index: 1;
+}
+
+.banner-decorations {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.banner-icon {
+  position: absolute;
+  width: clamp(2rem, 5vw, 4.25rem);
+  height: auto;
+  color: #f0d08e;
+  opacity: 0.2;
+  filter: blur(0.7px);
+  animation: banner-drift 28s ease-in-out infinite alternate;
+}
+
+.banner-icon:nth-child(even) {
+  color: #fff;
+  opacity: 0.16;
+}
+.banner-icon-1 {
+  left: 4%;
+  top: 17%;
+}
+.banner-icon-2 {
+  right: 8%;
+  top: 13%;
+  animation-delay: -7s;
+}
+.banner-icon-3 {
+  right: 3%;
+  bottom: 13%;
+  animation-delay: -12s;
+}
+.banner-icon-4 {
+  left: 13%;
+  bottom: 9%;
+  animation-delay: -4s;
+}
+.banner-icon-5 {
+  right: 19%;
+  top: 50%;
+  animation-delay: -19s;
+}
+.banner-icon-6 {
+  left: 3%;
+  top: 55%;
+  animation-delay: -15s;
+}
+.banner-icon-7 {
+  right: 34%;
+  bottom: 8%;
+  animation-delay: -10s;
+}
+.banner-icon-8 {
+  left: 28%;
+  top: 12%;
+  animation-delay: -22s;
+}
+
+@keyframes banner-drift {
+  from {
+    transform: translate3d(0, -4px, 0) rotate(-4deg);
+  }
+  to {
+    transform: translate3d(0, 7px, 0) rotate(4deg);
+  }
 }
 
 .page-hero h1 {
@@ -265,6 +345,7 @@
 /* Public content pages */
 .home-hero {
   position: relative;
+  isolation: isolate;
   overflow: hidden;
   background: linear-gradient(118deg, #102746 0%, #1d385b 65%, #29415f 100%);
   color: #fff;
@@ -1288,5 +1369,26 @@ fieldset .form-label {
   .mentor-edit-card,
   .mentor-reports-card {
     padding: var(--space-4);
+  }
+}
+
+@media (max-width: 600px) {
+  .banner-icon {
+    opacity: 0.1;
+    filter: blur(1px);
+  }
+  .banner-icon-5,
+  .banner-icon-7,
+  .banner-icon-8 {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner-icon {
+    animation: none;
+  }
+  .home-hero-inner {
+    animation: none;
   }
 }
