@@ -72,8 +72,18 @@
 **Status:** Part 3 done
 
 - Added a simplified, bolder vector favicon at `client/assets/images/favicon.svg`, with no glow or small decorative details.
-- Generated `favicon-32.png`, `apple-touch-icon.png` (180×180), and `favicon.ico` from the SVG using headless Chrome and ImageMagick.
+- Kept the simplified favicon symbol in the canonical `logo-mark.svg`; `favicon.svg` references that symbol. Generated `favicon-32.png`, `apple-touch-icon.png` (180×180), and `favicon.ico` from the SVG using headless Chrome and ImageMagick.
 - Linked the SVG, PNG, Apple touch icon, and ICO on every public, admin, and mentor HTML page.
+
+## Brand update — regression and responsive verification
+
+**Status:** Part 4 done
+
+- Extended `client/tests/header-layout.test.cjs` to assert the inline-SVG lockup has one “Bilunex home” link, no logo `<img>`, real-text wordmark/tagline, unique SVG resource IDs, centrally defined size tokens, exactly seven nav items, one registration CTA, and favicon coverage on every HTML page.
+- Chrome checked all nine public pages and both portal login pages at 320, 375, 768, 1024, and 1440px, plus effective CSS widths approximating 150% zoom (213, 250, 512, 683, 960px). No overflow, duplicate IDs, page errors, raster logos, or incorrect logo sizes were found. Public marks are 44px compact / 52px regular; each login page also has a 72px mark.
+- With reduced motion enabled, ring and shine animation names are `none`; the logo slot retains fixed dimensions. The SVG mark remains vector at every checked size.
+- Replacement: replace `client/assets/images/logo-mark.svg` to update all shared on-page marks and the simplified favicon symbol. Then regenerate `favicon-32.png`, `apple-touch-icon.png`, and `favicon.ico` from `favicon.svg`. If a designer supplies only the full mark, redraw its simplified symbol inside that same SVG before regenerating the raster icons.
+- `node --test client/tests/header-layout.test.cjs`, `npm run lint`, and `npm test` pass.
 
 ## Maintenance fixes — 2026-10-28
 

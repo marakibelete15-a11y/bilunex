@@ -8,14 +8,24 @@ const repoRoot = path.resolve(__dirname, '../..');
 const layoutSource = fs
   .readFileSync(path.join(repoRoot, 'client/js/components/layout.js'), 'utf8')
   .replace(/^import .*;\s*$/gm, '')
-  .replace(/^export /gm, '');
+  .replace(/^export /gm, '')
+  .replace(/import\.meta\.url/g, "'http://localhost/js/components/layout.js'");
 const layoutCss = fs.readFileSync(path.join(repoRoot, 'client/css/layout.css'), 'utf8');
+
+function listHtmlFiles(directory) {
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const fullPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) return listHtmlFiles(fullPath);
+    return entry.name.endsWith('.html') ? [fullPath] : [];
+  });
+}
 
 class Element {
   constructor(tagName) {
     this.tagName = tagName;
     this.children = [];
     this.attributes = {};
+    this.dataset = {};
     this.classList = { add: (...names) => names.forEach(name => this.classes.add(name)) };
     this.classes = new Set();
     this.firstChild = null;
@@ -105,6 +115,12 @@ test('shared header has one registration CTA after the seven-item nav list', () 
     1
   );
   assert.equal(ctas[0].href, 'parent-registration.html');
+  const logo = header.children.find(child => child.className === 'brand-logo');
+  assert.equal(logo.attributes['aria-label'], 'Bilunex home');
+  assert.equal(logo.children.some(child => child.tagName === 'img'), false);
+  assert.equal(logo.children[0].className, 'brand-mark-slot');
+  assert.equal(logo.children[1].children[0].textContent, 'Bilunex');
+  assert.equal(logo.children[1].children[1].textContent, 'Education · Growth · Opportunity');
 });
 
 test('drawer CTA is the same single element and CSS shares the hamburger breakpoint', () => {
@@ -196,4 +212,65 @@ test('footer links render as separate list items with dedicated story and mentor
   );
   assert.equal(all.filter(link => link.textContent === 'Share Your Story').length, 1);
   assert.equal(all.filter(link => link.textContent === 'Mentor portal login').length, 1);
+});
+
+test('logo uses one inline SVG source and shared size tokens without per-page overrides', () => {
+  const logoAsset = fs.readFileSync(
+    path.join(repoRoot, 'client/assets/images/logo-mark.svg'),
+    'utf8'
+  );
+  const faviconSvg = fs.readFileSync(
+    path.join(repoRoot, 'client/assets/images/favicon.svg'),
+    'utf8'
+  );
+  const layoutJs = fs.readFileSync(path.join(repoRoot, 'client/js/components/layout.js'), 'utf8');
+  const logoStyles = layoutCss.match(/[^{}]*brand-logo[^{}]*\{[^{}]*\}/g) || [];
+
+  assert.match(layoutJs, /assets\/images\/logo-mark\.svg/);
+  assert.doesNotMatch(layoutJs, /assets\/images\/logo\.svg|createElement\(['"]img['"]\)/);
+  assert.match(logoAsset, /<path[^>]+class="logo-letter"/);
+  assert.match(logoAsset, /[CQ][^"']+/);
+  assert.doesNotMatch(logoAsset, /<image\b|<text\b|href="https?:/);
+  assert.match(logoAsset, /<linearGradient id="bilunex-gold"/);
+  assert.match(logoAsset, /<symbol id="bilunex-favicon-symbol"/);
+  assert.match(faviconSvg, /logo-mark\.svg#bilunex-favicon-symbol/);
+  assert.match(logoAsset, /@keyframes bilunex-ring-draw/);
+  assert.match(logoAsset, /prefers-reduced-motion:\s*reduce/);
+  assert.equal((layoutCss.match(/--brand-mark-size\s*:/g) || []).length, 2);
+  assert.equal((layoutCss.match(/--brand-mark-size-compact\s*:/g) || []).length, 1);
+  assert.equal((layoutCss.match(/--brand-login-mark-size\s*:/g) || []).length, 1);
+  assert.match(layoutCss, /@media\s*\(max-width:\s*479px\)[\s\S]*?--brand-mark-size:\s*var\(--brand-mark-size-compact\)/);
+  listHtmlFiles(path.join(repoRoot, 'client')).forEach(file => {
+    assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /--brand-mark-size|\.brand-logo\s*\{/);
+  });
+  assert.equal(logoStyles.some(rule => /img/.test(rule)), false);
+  assert.match(layoutJs, /uniqueId = `\$\{originalId\}-\$\{index \+ 1\}`/);
+  assert.equal(fs.existsSync(path.join(repoRoot, 'client/assets/images/logo.svg')), false);
+});
+
+test('every HTML page links the SVG, PNG, Apple touch, and ICO favicon assets', () => {
+  const htmlFiles = listHtmlFiles(path.join(repoRoot, 'client'));
+  assert.ok(htmlFiles.length > 0);
+  htmlFiles.forEach(file => {
+    const source = fs.readFileSync(file, 'utf8');
+    assert.match(source, /rel="icon" type="image\/svg\+xml" href="\.\.\/assets\/images\/favicon\.svg"/);
+    assert.match(source, /sizes="32x32" href="\.\.\/assets\/images\/favicon-32\.png"/);
+    assert.match(source, /rel="apple-touch-icon" sizes="180x180" href="\.\.\/assets\/images\/apple-touch-icon\.png"/);
+    assert.match(source, /rel="shortcut icon" href="\.\.\/assets\/images\/favicon\.ico"/);
+  });
+  [
+    'favicon.svg',
+    'favicon-32.png',
+    'apple-touch-icon.png',
+    'favicon.ico',
+  ].forEach(asset => {
+    assert.ok(fs.existsSync(path.join(repoRoot, 'client/assets/images', asset)), `${asset} exists`);
+  });
+  const pngDimensions = name => {
+    const bytes = fs.readFileSync(path.join(repoRoot, 'client/assets/images', name));
+    assert.deepEqual([...bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+  };
+  assert.deepEqual(pngDimensions('favicon-32.png'), [32, 32]);
+  assert.deepEqual(pngDimensions('apple-touch-icon.png'), [180, 180]);
 });
