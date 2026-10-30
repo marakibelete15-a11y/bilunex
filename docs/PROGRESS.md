@@ -300,3 +300,10 @@
 - Verify before launch: monitor the official email Bilunexmedia@gmail.com, Telegram @Bilunexteam, and phone +251 93 483 4343; confirm parent-support coverage Monday through Friday, 8:00 AM – 5:00 PM.
 
 **Part 1 status:** done. `npm run lint` passes; `npm test` passes (63 tests across 6 suites). The first test attempt hit sandbox loopback `EPERM`; after enabling loopback access, all tests passed.
+
+## User update — Counseling scope and language support
+
+- Clarified throughout public copy that professional counseling is open to everyone, including students, families, and adults; the Services page uses the requested full wording. Contact text notes counseling arrangements are being confirmed.
+- Added Sidama Afoo (Sidaamu Afoo) alongside Amharic and English in service and parent-registration copy. Mentor expertise will use the expanded subject choices delivered in Part 5.
+
+**Part 2 status:** done. `npm run lint` passes; `npm test` passes (63 tests across 6 suites).
