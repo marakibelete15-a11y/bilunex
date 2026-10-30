@@ -23,6 +23,16 @@
 - The requested conflict audit is still in progress; unchanged conflicting copy is listed in the handoff report before asking for the owner’s decision.
 - `node --test client/tests/header-layout.test.cjs`, `npm run lint`, and `npm test` pass.
 
+## Footer layout and contrast
+
+**Status:** done
+
+- All footer text links render in separate list items. “Share Your Story” is in Quick links; “Mentor portal login” is in a separate For mentors group.
+- Footer link targets have a minimum 44px height. At widths 320, 768, and 1440px, Chrome reported no horizontal overflow; all 12 text links were in list items and tap-height CSS was 44px.
+- Footer text contrast against `#0b1329` is at least 7.19:1 for the muted color `#94a3b8`; link colors `#cbd5e1` / `#e2e8f0` measure 12.41:1 / 14.95:1. Hover gold `#f0d08e` measures 12.39:1.
+- Added a footer regression test alongside existing checks for exactly one registration CTA and seven nav items.
+- `node --test client/tests/header-layout.test.cjs`, `npm run lint`, and `npm test` pass.
+
 ## Maintenance fixes — 2026-10-28
 
 ### Server logging and startup errors

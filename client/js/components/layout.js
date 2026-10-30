@@ -190,6 +190,12 @@ export function renderFooter() {
     entry.appendChild(link);
     linkList.appendChild(entry);
   });
+  const storyEntry = document.createElement('li');
+  const storyLink = document.createElement('a');
+  storyLink.href = 'share-your-story.html';
+  storyLink.textContent = 'Share Your Story';
+  storyEntry.appendChild(storyLink);
+  linkList.appendChild(storyEntry);
   links.append(linksTitle, linkList);
   grid.appendChild(links);
 
@@ -200,18 +206,22 @@ export function renderFooter() {
   const email = document.createElement('a');
   email.href = `mailto:${siteInfo.email}`;
   email.textContent = siteInfo.email;
-  const contactInfo = document.createElement('p');
-  contactInfo.append('Email: ', email);
+  const contactList = document.createElement('ul');
+  contactList.className = 'footer-nav-list';
+  const addContactLink = (label, link) => {
+    const entry = document.createElement('li');
+    const prefix = document.createElement('span');
+    prefix.textContent = `${label}: `;
+    entry.append(prefix, link);
+    contactList.appendChild(entry);
+  };
+  addContactLink('Email', email);
   const phone = document.createElement('a');
   phone.href = `tel:${siteInfo.phoneHref}`;
   phone.textContent = siteInfo.phone;
-  const phoneInfo = document.createElement('p');
-  phoneInfo.append('Phone: ', phone);
+  addContactLink('Phone', phone);
   const location = document.createElement('p');
   location.textContent = `Location: ${siteInfo.address}`;
-  const storyLink = document.createElement('a');
-  storyLink.href = 'share-your-story.html';
-  storyLink.textContent = 'Share Your Story';
   const mentorLogin = document.createElement('a');
   mentorLogin.href = '../mentor/login.html';
   mentorLogin.textContent = 'Mentor portal login';
@@ -219,18 +229,21 @@ export function renderFooter() {
   telegram.href = siteInfo.telegramUrl;
   telegram.textContent = siteInfo.telegram;
   telegram.rel = 'noopener noreferrer';
-  const telegramInfo = document.createElement('p');
-  telegramInfo.append('Telegram: ', telegram);
-  contact.append(
-    contactTitle,
-    contactInfo,
-    phoneInfo,
-    telegramInfo,
-    location,
-    storyLink,
-    mentorLogin
-  );
+  addContactLink('Telegram', telegram);
+  contact.append(contactTitle, contactList, location);
   grid.appendChild(contact);
+
+  const mentors = document.createElement('div');
+  mentors.className = 'footer-col footer-mentors';
+  const mentorsTitle = document.createElement('h2');
+  mentorsTitle.textContent = 'For mentors';
+  const mentorList = document.createElement('ul');
+  mentorList.className = 'footer-nav-list';
+  const mentorEntry = document.createElement('li');
+  mentorEntry.appendChild(mentorLogin);
+  mentorList.appendChild(mentorEntry);
+  mentors.append(mentorsTitle, mentorList);
+  grid.appendChild(mentors);
 
   const bottom = document.createElement('div');
   bottom.className = 'footer-bottom';

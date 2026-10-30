@@ -132,3 +132,68 @@ test('drawer CTA is the same single element and CSS shares the hamburger breakpo
   assert.equal(desktopRule[1], '1200');
   assert.match(layoutCss, /@media\s*\(min-width:\s*1200px\)/);
 });
+
+test('footer links render as separate list items with dedicated story and mentor groups', () => {
+  const host = new Element('footer');
+  const document = {
+    createElement: tagName => new Element(tagName),
+    getElementById: id => (id === 'site-footer' ? host : null),
+  };
+  const context = {
+    document,
+    siteInfo: {
+      email: 'team@example.test',
+      phoneHref: '+251900000000',
+      phone: '+251 90 000 0000',
+      address: 'Hawassa, Ethiopia',
+      telegramUrl: 'https://t.me/example',
+      telegram: '@example',
+    },
+    makeLogo: className => {
+      const logo = new Element('a');
+      logo.className = className;
+      return logo;
+    },
+  };
+  vm.createContext(context);
+  vm.runInContext(
+    `${layoutSource}\nthis.renderFooter = renderFooter; this.NAV_ITEMS = NAV_ITEMS;`,
+    context
+  );
+  context.renderFooter();
+  const footer = host.children[0];
+  const all = [];
+  const visit = node => {
+    if (node.tagName === 'a') all.push(node);
+    node.children?.forEach(child => {
+      if (typeof child === 'object') visit(child);
+    });
+  };
+  visit(footer);
+  const quickLinks = footer.children[0].children.find(child => child.children.some(item => item.textContent === 'Quick links'));
+  const quickList = quickLinks.children.find(child => child.className === 'footer-nav-list');
+  const mentorGroup = footer.children[0].children.find(child => child.className === 'footer-col footer-mentors');
+  const mentorList = mentorGroup.children.find(child => child.className === 'footer-nav-list');
+
+  assert.equal(quickList.children.length, 8, 'seven nav links and Share Your Story are list items');
+  assert.equal(quickList.children.at(-1).children[0].textContent, 'Share Your Story');
+  assert.equal(mentorList.children.length, 1);
+  assert.equal(mentorList.children[0].children[0].textContent, 'Mentor portal login');
+  const listLinks = [];
+  const collectListItems = node => {
+    if (node.tagName === 'li') {
+      listLinks.push(...node.children.filter(child => child.tagName === 'a'));
+    }
+    node.children?.forEach(child => {
+      if (typeof child === 'object') collectListItems(child);
+    });
+  };
+  collectListItems(footer);
+  assert.equal(
+    listLinks.length,
+    all.filter(link => link.className !== 'footer-logo').length,
+    'every footer text link is inside its own list item'
+  );
+  assert.equal(all.filter(link => link.textContent === 'Share Your Story').length, 1);
+  assert.equal(all.filter(link => link.textContent === 'Mentor portal login').length, 1);
+});
