@@ -18,7 +18,7 @@ const envSchema = z.object({
     .transform(val => parseInt(val, 10)),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required for database connection'),
-  TEST_DATABASE_URL: z.string().min(1, 'TEST_DATABASE_URL is required for test isolation'),
+  TEST_DATABASE_URL: z.string().optional(),
   JWT_SECRET: z.string().min(16, 'JWT_SECRET must be at least 16 characters for security'),
   JWT_EXPIRES_IN: z.string().default('1d'),
   EMAIL_HOST: z.string().optional().default(''),

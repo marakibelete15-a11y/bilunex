@@ -161,7 +161,7 @@ Submits a prospective mentor application into the 6-stage candidate screening pi
 | `has_teaching_experience`      | `boolean`  | No       | Boolean flag indicating previous teaching experience              |
 | `teaching_experience_duration` | `string`   | No       | Duration of experience (e.g. "2 years")                           |
 | `experience_details`           | `string`   | No       | Context regarding tutoring, TA, or classroom background           |
-| `cgpa`                         | `number`   | No       | CGPA out of 4.00 (0.00 to 4.00)                                   |
+| `cgpa`                         | `number`   | Yes      | Required CGPA out of 4.00 (0.00 to 4.00)                          |
 | `entrance_exam_stream`         | `string`   | Yes      | `natural_science` (maximum 700) or `social_science` (maximum 600) |
 | `entrance_exam_result`         | `number`   | No       | Ethiopian university entrance exam score within selected maximum  |
 | `available_days`               | `string[]` | No       | Days available (e.g. `["Monday", "Wednesday", "Saturday"]`)       |
