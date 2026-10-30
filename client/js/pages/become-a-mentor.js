@@ -96,8 +96,9 @@ const validateStep = index => {
         document.getElementById('mentor-subject-other'),
         'Enter up to 10 other subjects, each no longer than 50 characters.',
       ]);
-    const cgpa = field('cgpa').value;
-    if (cgpa !== '' && (!Number.isFinite(Number(cgpa)) || Number(cgpa) < 0 || Number(cgpa) > 4))
+    const cgpa = field('cgpa').value.trim();
+    if (!cgpa) errors.push([field('cgpa'), 'Enter your CGPA (0.00 to 4.00).']);
+    else if (!Number.isFinite(Number(cgpa)) || Number(cgpa) < 0 || Number(cgpa) > 4)
       errors.push([field('cgpa'), 'CGPA must be between 0.00 and 4.00.']);
     const stream = field('entrance_exam_stream').value;
     const maxScore = stream === 'social_science' ? 600 : 700;
@@ -112,13 +113,13 @@ const validateStep = index => {
         field('entrance_exam_result'),
         `Entrance exam result must be between 0 and ${maxScore}.`,
       ]);
+  }
+  if (index === 2) {
     if (![...form.querySelectorAll('[name="available_hours"]:checked')].length)
       errors.push([
         document.getElementById('available-hours-group'),
         'Select at least one available time.',
       ]);
-  }
-  if (index === 2) {
     if (!validator.isRequired(field('availability').value))
       errors.push([field('availability'), 'Summarize your availability.']);
     ['transcript', 'id_photo'].forEach(name => {
