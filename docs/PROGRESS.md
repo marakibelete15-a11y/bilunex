@@ -335,6 +335,16 @@
 
 **Next:** Part 2 — align the logo treatment and dimensions across the public nav, footer, portal headers, and login banners.
 
+**Part 2 status:** done
+
+- Public pages and admin/mentor login pages use the same shared banner markup and height token. The banner lockup uses the same custom properties and responsive rules on all four page groups; the login pages no longer have a logo-size override.
+- The portal top bars and sticky public navigation reuse the SVG monogram. Their links remain available to keyboard and screen-reader users when displayed.
+- Removed the previous drawn `logo.svg` and its image-only logo CSS. `logo-mark.svg` is now the site’s shared reusable monogram symbol, referenced by SVG `<use>` elements; no site logo or banner uses an `<img>`.
+- Added SVG, 32px and 512px favicons, a 180px Apple touch icon, and a multi-size 16/32/48px ICO, generated from the vector mark. Every public, admin, and mentor page head links the SVG favicon and raster alternatives. If the monogram is replaced, update `logo-mark.svg` and regenerate these favicon derivatives from `favicon.svg`.
+- `magick` was available and rendered the favicon correctly. Raster dimensions are 32×32, 180×180 and 512×512; the ICO contains 16×16, 32×32 and 48×48 images.
+
+**Next:** Part 3 — make every footer link a separate, accessible list item and restore clear copyright contrast.
+
 ## User update — Shared form notifications
 
 - Added one reusable top-of-page toast in `client/js/ui.js`: polite status for success, alert for errors, close button, 8-second success dismissal paused on hover/focus, and a mobile-friendly layout. Parent registration, mentor application, inquiry, and mentor report no longer show reference IDs on screen; intake still requires a valid HTTP 201 response and record ID. Success resets the form and scrolls to the top. Email templates retain their reference IDs; browser success messages do not.

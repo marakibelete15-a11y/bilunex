@@ -195,8 +195,6 @@ export function renderHeader(activeKey = '') {
   header.className = 'container header-inner';
   const compactMark = makeBrandMark('nav-brand-mark');
   compactMark.href = 'index.html';
-  compactMark.setAttribute('aria-hidden', 'true');
-  compactMark.tabIndex = -1;
   header.appendChild(compactMark);
 
   const toggle = document.createElement('button');
