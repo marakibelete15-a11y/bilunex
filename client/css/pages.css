@@ -1392,3 +1392,55 @@ fieldset .form-label {
     animation: none;
   }
 }
+
+/* Keep long labels and cards inside the narrowest viewport, including 150% zoom. */
+.content-card-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+.content-card-grid > .card,
+.contact-layout,
+.contact-details,
+.contact-details > .card {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.form-progress li {
+  min-width: 0;
+}
+.form-progress li > span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.form-progress ol {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 960px) {
+  .content-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.registration-card h1 {
+  overflow-wrap: anywhere;
+}
+.process-list,
+.process-list li,
+.process-list li > div {
+  min-width: 0;
+}
+.process-list li {
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+}
+.process-list li > div {
+  overflow-wrap: anywhere;
+}
+.form-step h2 {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 240px) {
+  .form-progress ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .form-progress li {
+    flex-wrap: wrap;
+  }
+}

@@ -65,11 +65,32 @@ ORDER BY id;
 - [ ] Select a non-PDF transcript, a non-JPG/PNG ID image, and files larger than 5 MB; each must be rejected before upload. Verify selected filenames and clear errors.
 - [ ] Without either file, the server returns 400. Upload a valid PDF transcript and JPG or PNG ID photo. Confirm a genuine `201` and stored document metadata; the UI shows no reference number. Try network loss and confirm no false success.
 
+Mentor verification SQL:
+
+```sql
+SELECT id, full_name, email, subjects, cgpa, entrance_exam_stream,
+       entrance_exam_result, available_days, available_hours, status
+FROM mentor_applications
+ORDER BY id DESC LIMIT 10;
+
+SELECT id, mentor_application_id, document_type, original_filename, mime_type,
+       file_size_bytes, created_at
+FROM mentor_documents
+ORDER BY id DESC LIMIT 10;
+```
+
 ## Contact — http://localhost:5000/public/contact.html
 
 - [ ] Try an empty form, invalid email, and short message. Confirm field-level feedback.
 - [ ] Submit one valid disposable message for each supported type: `general`, `parent_support`, `mentor_application`, and `counseling`. Confirm the top success toast only after `201` and an ID; no reference is shown.
 - [ ] Disconnect the network and retry; confirm clear feedback and no false success. Check the same official contact values everywhere they appear: Bilunexmedia@gmail.com (mailto), +251 93 483 4343 (tel +251934834343), @Bilunexteam (https://t.me/Bilunexteam), Hawassa, Ethiopia, and parent-support hours Monday–Friday, 8:00 AM–5:00 PM.
+
+Inquiry verification SQL:
+
+```sql
+SELECT id, name, email, inquiry_type, status, created_at
+FROM inquiries ORDER BY id DESC LIMIT 10;
+```
 
 ## Share Your Story and public Stories
 

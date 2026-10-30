@@ -359,3 +359,5 @@
 
 - **Responsive:** Chrome DOM width checks passed for all nine public pages at 320, 375, 768, 1024 and 1440 CSS pixels, plus narrow effective CSS widths for 150% zoom. The admin Stories page also passed. No horizontal overflow or browser runtime errors were found. Reduced-motion emulation returned zero banner animations; normal mode reported one running banner animation.
 - **Database:** migrations 016 and 017 are applied in the local development and test databases. Production still needs `npm run migrate` against its configured database after backup.
+
+- **Part 7 audit:** repository scan found no references to the removed social platforms or their domains. Parent/mentor/inquiry/story manual procedures and SQL row checks are in `docs/MANUAL-CHECKLIST.md`.

@@ -551,3 +551,13 @@
     transition: none;
   }
 }
+
+@media (max-width: 240px) {
+  .portal-header-inner .brand-logo img {
+    width: 70px;
+  }
+  .portal-header-controls [id$='user-display'],
+  .portal-header-controls [id$='display'] {
+    display: none;
+  }
+}
