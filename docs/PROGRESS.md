@@ -58,6 +58,15 @@
 - Final own-art previews are saved at 640, 128, 48, 32, and 16 px in `docs/brand/previews/`. The reference image is not copied into the repository.
 - Visual match: the circle size, mark placement, stem/top bar, bowl, arch, gold palette, and top glow are close. Remaining differences are the source’s photographic texture and embossed material; this version is a clean vector with a manually interpreted ligature.
 
+## Brand update — shared inline logo lockup
+
+**Status:** Part 2 done
+
+- Shared headers, footers, and portal top bars now use the SVG mark fetched from `logo-mark.svg` and inline-cloned so the SVG’s CSS ring and shine animation work. Instance IDs are suffixed so gradients, masks, and clip paths do not collide on a page.
+- The logo link is one accessible “Bilunex home” link with the SVG hidden from assistive technology, and “Bilunex” plus “Education · Growth · Opportunity” rendered as real text.
+- Public and portal header/footer marks share 52px sizing, compact screens use 44px, and login-card marks use 72px. Sizes are defined centrally in `client/css/layout.css`; no page has a logo-size override.
+- Removed the obsolete `client/assets/images/logo.svg`; the monogram lives only in `logo-mark.svg`.
+
 ## Maintenance fixes — 2026-10-28
 
 ### Server logging and startup errors

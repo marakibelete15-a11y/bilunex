@@ -14,19 +14,76 @@ export const NAV_ITEMS = [
   { key: 'contact', label: 'Contact Us', href: 'contact.html' },
 ];
 
-const makeLogo = className => {
+const makeLogo = (className, href = 'index.html') => {
   const link = document.createElement('a');
-  link.href = 'index.html';
+  link.href = href;
   link.className = className;
   link.setAttribute('aria-label', 'Bilunex home');
-  const image = document.createElement('img');
-  image.src = '../assets/images/logo.svg';
-  image.alt = 'Bilunex — Education · Growth · Opportunity';
-  image.width = 190;
-  image.height = 48;
-  link.appendChild(image);
+  const mark = document.createElement('span');
+  mark.className = 'brand-mark-slot';
+  mark.dataset.brandMark = '';
+  mark.setAttribute('aria-hidden', 'true');
+  const copy = document.createElement('span');
+  copy.className = 'brand-copy';
+  const wordmark = document.createElement('span');
+  wordmark.className = 'brand-wordmark';
+  wordmark.textContent = 'Bilunex';
+  const tagline = document.createElement('span');
+  tagline.className = 'brand-tagline';
+  tagline.textContent = 'Education · Growth · Opportunity';
+  copy.append(wordmark, tagline);
+  link.append(mark, copy);
   return link;
 };
+
+async function loadLogoMarks() {
+  const slots = [...document.querySelectorAll('[data-brand-mark]')];
+  if (!slots.length) return;
+  try {
+    const response = await fetch(new URL('../../assets/images/logo-mark.svg', import.meta.url));
+    if (!response.ok) throw new Error(`Logo request failed with HTTP ${response.status}`);
+    const source = new DOMParser().parseFromString(await response.text(), 'image/svg+xml');
+    const svg = source.documentElement;
+    if (svg.localName !== 'svg' || source.querySelector('parsererror')) {
+      throw new Error('The Bilunex logo asset is not valid SVG.');
+    }
+    slots.forEach((slot, index) => {
+      const mark = document.importNode(svg, true);
+      const idMap = new Map();
+      mark.querySelectorAll('[id]').forEach(node => {
+        const originalId = node.id;
+        const uniqueId = `${originalId}-${index + 1}`;
+        idMap.set(originalId, uniqueId);
+        node.id = uniqueId;
+      });
+      mark.querySelectorAll('*').forEach(node => {
+        [...node.attributes].forEach(attribute => {
+          let value = attribute.value;
+          idMap.forEach((uniqueId, originalId) => {
+            value = value.replaceAll(`url(#${originalId})`, `url(#${uniqueId})`);
+            if (value === `#${originalId}`) value = `#${uniqueId}`;
+          });
+          if (value !== attribute.value) node.setAttribute(attribute.name, value);
+        });
+        if (node.localName === 'style') {
+          let css = node.textContent;
+          idMap.forEach((uniqueId, originalId) => {
+            css = css.replaceAll(`url(#${originalId})`, `url(#${uniqueId})`);
+          });
+          node.textContent = css;
+        }
+      });
+      mark.setAttribute('aria-hidden', 'true');
+      mark.setAttribute('focusable', 'false');
+      mark.removeAttribute('role');
+      mark.removeAttribute('aria-labelledby');
+      mark.querySelectorAll('title, desc').forEach(node => node.remove());
+      slot.replaceChildren(mark);
+    });
+  } catch (error) {
+    console.error('Could not load the Bilunex logo mark.', error);
+  }
+}
 
 const svgNamespace = 'http://www.w3.org/2000/svg';
 const learningIcons = [
@@ -171,9 +228,6 @@ export function renderFooter() {
   const brand = document.createElement('div');
   brand.className = 'footer-col footer-brand';
   brand.appendChild(makeLogo('footer-logo'));
-  const tagline = document.createElement('p');
-  tagline.textContent = 'Education · Growth · Opportunity';
-  brand.appendChild(tagline);
   grid.appendChild(brand);
 
   const links = document.createElement('div');
@@ -258,6 +312,7 @@ export function initLayout(activeKey = '') {
   addBannerDecorations();
   renderHeader(activeKey);
   renderFooter();
+  loadLogoMarks();
 }
 
 export function initPortalLayout() {
@@ -268,8 +323,7 @@ export function initPortalLayout() {
   const identityText = role === 'Admin' ? 'Admin' : 'Mentor';
   const header = document.createElement('div');
   header.className = 'container header-inner portal-header-inner';
-  const logo = makeLogo('brand-logo');
-  logo.href = '../public/index.html';
+  const logo = makeLogo('brand-logo', '../public/index.html');
   header.appendChild(logo);
   const layout = document.querySelector('.portal-layout');
   const navItems =
@@ -363,4 +417,10 @@ export function initPortalLayout() {
   }
   header.appendChild(controls);
   host.replaceChildren(header);
+  if (window.location.pathname.endsWith('/login.html')) {
+    document
+      .querySelector('.admin-login-card')
+      ?.prepend(makeLogo('brand-logo login-brand-logo', '../public/index.html'));
+  }
+  loadLogoMarks();
 }
