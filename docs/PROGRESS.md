@@ -67,6 +67,14 @@
 - Public and portal header/footer marks share 52px sizing, compact screens use 44px, and login-card marks use 72px. Sizes are defined centrally in `client/css/layout.css`; no page has a logo-size override.
 - Removed the obsolete `client/assets/images/logo.svg`; the monogram lives only in `logo-mark.svg`.
 
+## Brand update — favicon family
+
+**Status:** Part 3 done
+
+- Added a simplified, bolder vector favicon at `client/assets/images/favicon.svg`, with no glow or small decorative details.
+- Generated `favicon-32.png`, `apple-touch-icon.png` (180×180), and `favicon.ico` from the SVG using headless Chrome and ImageMagick.
+- Linked the SVG, PNG, Apple touch icon, and ICO on every public, admin, and mentor HTML page.
+
 ## Maintenance fixes — 2026-10-28
 
 ### Server logging and startup errors
