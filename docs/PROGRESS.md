@@ -320,3 +320,19 @@
 - Added one reusable top-of-page toast in `client/js/ui.js`: polite status for success, alert for errors, close button, 8-second success dismissal paused on hover/focus, and a mobile-friendly layout. Parent registration, mentor application, inquiry, and mentor report no longer show reference IDs on screen; intake still requires a valid HTTP 201 response and record ID. Success resets the form and scrolls to the top.
 
 **Part 4 status:** implementation recorded; lint and suite to run.
+
+## User update — Mentor application form requirements
+
+**Status:** done
+
+- Subjects of expertise now use checkboxes for Mathematics, Biology, English, Chemistry, Physics, Amharic and Sidama Afoo, plus an Other field. Custom entries are trimmed, HTML tags removed, and bounded to 10 entries of at most 50 characters each.
+- GPA was renamed to CGPA across form, API, storage, admin details and documentation. The form shows “CGPA out of 4.00”.
+- Added required Natural Science/Social Science stream selection. The score field remains optional (as requested, preserving its prior optional status); server validation enforces the matching 700/600 cap and the database has a matching CHECK constraint.
+- Available hours are now required selections from Morning, Afternoon and Evening; existing available days remain.
+- Transcript and ID photo are required by the form and endpoint. Existing file type, 5 MB and magic-byte checks remain; missing files receive HTTP 400.
+- Migration `016_mentor_application_requirements` renames `gpa`, converts stored hour text to selections, adds the stream and constraints. Development data maps to a safe Morning default when its old hour value cannot be interpreted.
+- Fixed migration tracking: `npm run migrate` now records applied files, recognizes the existing complete schema as a baseline, skips already-applied migrations, and refuses to replay migrations against an incomplete/unrecognized existing schema. Rollback only applies to migrations recorded as non-baseline.
+- Integration coverage includes valid/invalid CGPA, score limits, mandatory files, multipart persistence and notification dispatch.
+- `npm run migrate` passed on the existing development database. `npm run lint` passes; the full test suite passes (65 tests).
+
+**Next:** Part 6 — Share Your Story workflow.

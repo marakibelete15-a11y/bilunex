@@ -28,7 +28,8 @@ const mentorRepository = {
     teaching_experience = null,
     teaching_experience_duration = null,
     experience_details = null,
-    gpa = null,
+    cgpa = null,
+    entrance_exam_stream = 'natural_science',
     entrance_exam_result = null,
     available_days = [],
     available_hours = null,
@@ -59,13 +60,13 @@ const mentorRepository = {
       INSERT INTO mentor_applications (
         full_name, email, phone, telegram_handle, university, campus,
         field_of_study, academic_year, subjects, has_teaching_experience,
-        teaching_experience_duration, experience_details, gpa, entrance_exam_result,
+        teaching_experience_duration, experience_details, cgpa, entrance_exam_stream, entrance_exam_result,
         available_days, available_hours, availability, motivation,
         commitment_agreement, referral_source, status
       )
       VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, 'application_received'
+        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, 'application_received'
       )
       RETURNING *;
     `;
@@ -82,14 +83,15 @@ const mentorRepository = {
       Boolean(has_teaching_experience),
       finalExperienceDuration,
       experience_details || null,
-      gpa !== null && gpa !== undefined && gpa !== '' ? Number(gpa) : null,
+      cgpa !== null && cgpa !== undefined && cgpa !== '' ? Number(cgpa) : null,
+      entrance_exam_stream,
       entrance_exam_result !== null &&
       entrance_exam_result !== undefined &&
       entrance_exam_result !== ''
         ? Number(entrance_exam_result)
         : null,
       availableDaysArray,
-      available_hours || null,
+      Array.isArray(available_hours) ? available_hours : ['Morning'],
       finalAvailability,
       motivationText,
       commitment_agreement === true || commitment_agreement === 'true',

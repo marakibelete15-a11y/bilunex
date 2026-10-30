@@ -24,7 +24,7 @@ const handleMentorDocumentUpload = (req, res, next) => {
   // If request is not multipart/form-data (e.g. JSON submission in automated tests/APIs), pass through
   const contentType = req.headers['content-type'] || '';
   if (!contentType.includes('multipart/form-data')) {
-    return next();
+    return sendError(res, 'Academic transcript and ID photo are required.', 400);
   }
 
   upload(req, res, err => {
@@ -36,6 +36,10 @@ const handleMentorDocumentUpload = (req, res, next) => {
     }
 
     const files = req.files || {};
+
+    if (!files.transcript?.[0] || !files.id_photo?.[0]) {
+      return sendError(res, 'Academic transcript and ID photo are required.', 400);
+    }
 
     // 1. Validate transcript if uploaded
     if (files.transcript && files.transcript[0]) {

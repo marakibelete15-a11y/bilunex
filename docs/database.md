@@ -32,10 +32,10 @@ erDiagram
         boolean has_teaching_experience
         varchar teaching_experience_duration
         text experience_details
-        numeric gpa
+        numeric cgpa
         numeric entrance_exam_result
         text_array available_days
-        varchar available_hours
+        text_array available_hours
         text availability
         text motivation
         boolean commitment_agreement
@@ -613,9 +613,11 @@ All migration commands are executed through the Node.js runner scripts inside `s
 9. `009_logs.up.sql`: Creates immutable `audit_log` and non-blocking `notification_log`.
 10. `010_indexes.up.sql`: Creates search, filtering, and foreign key indexes.
 11. `011_parent_registration_fields.up.sql`: Adds `preferred_title`, `secondary_phone`, and `preferred_communication_method` array to `parent_registrations`.
-12. `012_mentor_application_fields.up.sql`: Adds `campus`, teaching experience details, GPA, EHEEE score, availability schedule, and commitment agreement to `mentor_applications`.
+12. `012_mentor_application_fields.up.sql`: Adds `campus`, teaching experience details, CGPA, EHEEE score, stream-specific score limits, availability schedule, and commitment agreement to `mentor_applications`.
 13. `013_mentor_documents.up.sql`: Creates `mentor_documents` table for secure file upload tracking.
 14. `014_notification_log_fields.up.sql`: Adds `recipient_role` and failure query index to `notification_log`.
+15. `015_notification_delivery_statuses.up.sql`: Adds offline and timeout notification statuses.
+16. `016_mentor_application_requirements.up.sql`: Renames GPA to CGPA, adds entrance exam stream limits, and converts available hours to validated selections.
 
 ---
 

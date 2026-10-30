@@ -14,6 +14,15 @@ const progressItems = [...document.querySelectorAll('[data-progress-step]')];
 let activeStep = 0;
 let submitting = false;
 const field = name => form.elements.namedItem(name);
+const otherSubjectsToggle = document.getElementById('mentor-subject-other-toggle');
+otherSubjectsToggle.addEventListener('change', () => {
+  document.getElementById('mentor-other-subjects').hidden = !otherSubjectsToggle.checked;
+});
+field('entrance_exam_stream').addEventListener('change', () => {
+  const maximum = field('entrance_exam_stream').value === 'social_science' ? 600 : 700;
+  field('entrance_exam_result').max = String(maximum);
+  document.getElementById('entrance-exam-maximum').textContent = String(maximum);
+});
 
 const clearErrors = () => {
   form.querySelectorAll('.form-error').forEach(error => {
@@ -69,24 +78,44 @@ const validateStep = index => {
       errors.push([field('field_of_study'), 'Enter your field of study.']);
     if (!validator.isRequired(field('academic_year').value))
       errors.push([field('academic_year'), 'Enter your academic year.']);
-    if (
-      !field('subjects')
-        .value.split(',')
-        .map(value => value.trim())
-        .filter(Boolean).length
-    )
-      errors.push([field('subjects'), 'Enter at least one subject.']);
-    const gpa = field('gpa').value;
-    if (gpa !== '' && (!Number.isFinite(Number(gpa)) || Number(gpa) < 0 || Number(gpa) > 4))
-      errors.push([field('gpa'), 'GPA must be between 0.00 and 4.00.']);
+    const otherSubjects = document.getElementById('mentor-subject-other').value;
+    const subjectChecks = [...form.querySelectorAll('[name="subjects"]:checked')];
+    const customSubjects = otherSubjects
+      .split(',')
+      .map(value => value.trim())
+      .filter(Boolean);
+    const subjectError = document.querySelector('[data-subject-error]');
+    subjectError.textContent = '';
+    if (!subjectChecks.length && !(otherSubjectsToggle.checked && customSubjects.length))
+      errors.push([
+        document.getElementById('mentor-subjects-group'),
+        'Choose at least one subject.',
+      ]);
+    if (customSubjects.length > 10 || customSubjects.some(value => value.length > 50))
+      errors.push([
+        document.getElementById('mentor-subject-other'),
+        'Enter up to 10 other subjects, each no longer than 50 characters.',
+      ]);
+    const cgpa = field('cgpa').value;
+    if (cgpa !== '' && (!Number.isFinite(Number(cgpa)) || Number(cgpa) < 0 || Number(cgpa) > 4))
+      errors.push([field('cgpa'), 'CGPA must be between 0.00 and 4.00.']);
+    const stream = field('entrance_exam_stream').value;
+    const maxScore = stream === 'social_science' ? 600 : 700;
+    field('entrance_exam_result').max = String(maxScore);
+    document.getElementById('entrance-exam-maximum').textContent = String(maxScore);
     const entrance = field('entrance_exam_result').value;
     if (
       entrance !== '' &&
-      (!Number.isFinite(Number(entrance)) || Number(entrance) < 0 || Number(entrance) > 700)
+      (!Number.isFinite(Number(entrance)) || Number(entrance) < 0 || Number(entrance) > maxScore)
     )
       errors.push([
         field('entrance_exam_result'),
-        'Entrance exam result must be between 0 and 700.',
+        `Entrance exam result must be between 0 and ${maxScore}.`,
+      ]);
+    if (![...form.querySelectorAll('[name="available_hours"]:checked')].length)
+      errors.push([
+        document.getElementById('available-hours-group'),
+        'Select at least one available time.',
       ]);
   }
   if (index === 2) {
@@ -95,7 +124,13 @@ const validateStep = index => {
     ['transcript', 'id_photo'].forEach(name => {
       const input = field(name);
       const file = input.files[0];
-      if (!file) return;
+      if (!file) {
+        errors.push([
+          input,
+          name === 'transcript' ? 'Upload your academic transcript.' : 'Upload your ID photo.',
+        ]);
+        return;
+      }
       const extension = file.name.split('.').pop().toLowerCase();
       const typeIsValid =
         name === 'transcript'
@@ -152,9 +187,9 @@ const makePayload = () => {
     'academic_year',
     'teaching_experience_duration',
     'experience_details',
-    'gpa',
+    'cgpa',
+    'entrance_exam_stream',
     'entrance_exam_result',
-    'available_hours',
     'availability',
     'motivation',
     'referral_source',
@@ -163,18 +198,27 @@ const makePayload = () => {
     const value = field(name).value.trim();
     if (value) payload.append(name, value);
   });
-  payload.append(
-    'subjects',
-    field('subjects')
-      .value.split(',')
-      .map(value => value.trim())
-      .filter(Boolean)
-      .join(',')
+  const subjects = [...form.querySelectorAll('[name="subjects"]:checked')].map(
+    input => input.value
   );
+  const otherSubjects = otherSubjectsToggle.checked
+    ? document
+        .getElementById('mentor-subject-other')
+        .value.split(',')
+        .map(value => value.trim())
+        .filter(Boolean)
+    : [];
+  payload.append('subjects', [...subjects, ...otherSubjects].join(','));
   payload.append('has_teaching_experience', field('has_teaching_experience').value);
   payload.append(
     'available_days',
     [...form.querySelectorAll('[name="available_days"]:checked')]
+      .map(input => input.value)
+      .join(',')
+  );
+  payload.append(
+    'available_hours',
+    [...form.querySelectorAll('[name="available_hours"]:checked')]
       .map(input => input.value)
       .join(',')
   );

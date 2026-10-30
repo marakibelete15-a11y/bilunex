@@ -183,15 +183,47 @@
                   <p class="form-error"></p>
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="subjects"
-                    >Subjects of Expertise <span class="required">*</span></label
-                  ><input
-                    class="form-control"
-                    id="mentor_subjects"
-                    name="subjects"
-                    required
-                    placeholder="Separate subjects with commas"
-                  />
+                  <fieldset class="form-group" id="mentor-subjects-group">
+                    <legend class="form-label">
+                      Subjects of Expertise <span class="required">*</span>
+                    </legend>
+                    <div class="option-list">
+                      <label
+                        ><input type="checkbox" name="subjects" value="Mathematics" />
+                        Mathematics</label
+                      >
+                      <label
+                        ><input type="checkbox" name="subjects" value="Biology" /> Biology</label
+                      >
+                      <label
+                        ><input type="checkbox" name="subjects" value="English" /> English</label
+                      >
+                      <label
+                        ><input type="checkbox" name="subjects" value="Chemistry" />
+                        Chemistry</label
+                      >
+                      <label
+                        ><input type="checkbox" name="subjects" value="Physics" /> Physics</label
+                      >
+                      <label
+                        ><input type="checkbox" name="subjects" value="Amharic" /> Amharic</label
+                      >
+                      <label
+                        ><input type="checkbox" name="subjects" value="Sidama Afoo" /> Sidama
+                        Afoo</label
+                      >
+                      <label
+                        ><input type="checkbox" id="mentor-subject-other-toggle" /> Other</label
+                      >
+                    </div>
+                    <div id="mentor-other-subjects" hidden>
+                      <label class="form-label" for="mentor-subject-other"
+                        >Other subjects (comma-separated)</label
+                      >
+                      <input class="form-control" id="mentor-subject-other" maxlength="300" />
+                    </div>
+                    <p class="form-error" data-subject-error></p>
+                  </fieldset>
                   <p class="form-error"></p>
                 </div>
                 <fieldset class="form-group">
@@ -227,21 +259,38 @@
                   <p class="form-error"></p>
                 </div>
                 <div class="form-group">
-                  <label class="form-label" for="gpa">GPA (optional, 0.00–4.00)</label
+                  <label class="form-label" for="cgpa">CGPA (optional)</label
                   ><input
                     class="form-control"
-                    id="gpa"
-                    name="gpa"
+                    id="cgpa"
+                    name="cgpa"
                     type="number"
                     min="0"
                     max="4"
                     step="0.01"
                   />
+                  <small>CGPA out of 4.00</small>
+                  <p class="form-error"></p>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="entrance_exam_stream"
+                    >Entrance Exam Stream <span class="required">*</span></label
+                  >
+                  <select
+                    class="form-control"
+                    id="entrance_exam_stream"
+                    name="entrance_exam_stream"
+                    required
+                  >
+                    <option value="natural_science">Natural Science (out of 700)</option>
+                    <option value="social_science">Social Science (out of 600)</option>
+                  </select>
                   <p class="form-error"></p>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="entrance_exam_result"
-                    >Entrance Exam Result (optional, 0–700)</label
+                    >Entrance Exam Result (optional, maximum
+                    <span id="entrance-exam-maximum">700</span>)</label
                   ><input
                     class="form-control"
                     id="entrance_exam_result"
@@ -290,16 +339,26 @@
                     >
                   </div>
                 </fieldset>
-                <div class="form-group">
-                  <label class="form-label" for="available_hours">Available Hours (optional)</label
-                  ><input
-                    class="form-control"
-                    id="available_hours"
-                    name="available_hours"
-                    placeholder="For example, mornings or 4–7 PM"
-                  />
-                  <p class="form-error"></p>
-                </div>
+                <fieldset class="form-group" id="available-hours-group">
+                  <legend class="form-label">
+                    Available Hours <span class="required">*</span>
+                  </legend>
+                  <div class="option-list option-list-inline">
+                    <label
+                      ><input type="checkbox" name="available_hours" value="Morning" />
+                      Morning</label
+                    >
+                    <label
+                      ><input type="checkbox" name="available_hours" value="Afternoon" />
+                      Afternoon</label
+                    >
+                    <label
+                      ><input type="checkbox" name="available_hours" value="Evening" />
+                      Evening</label
+                    >
+                  </div>
+                  <p class="form-error" data-hours-error></p>
+                </fieldset>
                 <div class="form-group">
                   <label class="form-label" for="availability"
                     >Availability Summary <span class="required">*</span></label
@@ -308,26 +367,28 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="transcript"
-                    >Academic Transcript (PDF, up to 5 MB)</label
+                    >Academic Transcript (PDF, up to 5 MB) <span class="required">*</span></label
                   ><input
                     class="form-control"
                     id="transcript"
                     name="transcript"
                     type="file"
                     accept="application/pdf,.pdf"
+                    required
                   />
                   <p class="file-preview" data-file-preview="transcript">No file selected</p>
                   <p class="form-error"></p>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="id_photo"
-                    >ID Photo (JPG, JPEG, or PNG, up to 5 MB)</label
+                    >ID Photo (JPG, JPEG, or PNG, up to 5 MB) <span class="required">*</span></label
                   ><input
                     class="form-control"
                     id="id_photo"
                     name="id_photo"
                     type="file"
                     accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+                    required
                   />
                   <p class="file-preview" data-file-preview="id_photo">No file selected</p>
                   <p class="form-error"></p>

@@ -144,33 +144,34 @@ Submits a prospective mentor application into the 6-stage candidate screening pi
 - **Method**: `POST`
 - **Route**: `/api/v1/public/mentor-applications` (alias: `/api/v1/public/mentors/apply`)
 - **Rate Limit**: Stricter Limiter (15 reqs / 15 mins)
-- **Request Format**: `application/json` or `multipart/form-data`
+- **Request Format**: `multipart/form-data` (required because transcript and ID photo are mandatory)
 - **Request Fields**:
 
-| Field                          | Type       | Required | Description                                                 |
-| ------------------------------ | ---------- | -------- | ----------------------------------------------------------- |
-| `full_name`                    | `string`   | Yes      | Applicant's full name (min 2 chars)                         |
-| `email`                        | `string`   | Yes      | Contact email address (unique in active records)            |
-| `phone`                        | `string`   | Yes      | Ethiopian phone: `^(\+2519\d{8}\|09\d{8})$`                 |
-| `telegram_handle`              | `string`   | No       | Optional Telegram username                                  |
-| `university`                   | `string`   | Yes      | University or college affiliation (min 2 chars)             |
-| `campus`                       | `string`   | No       | Campus location (e.g. "4 Kilo Campus")                      |
-| `field_of_study`               | `string`   | Yes      | Major or degree program (min 2 chars)                       |
-| `academic_year`                | `string`   | Yes      | Year of study (e.g. "3rd Year", "Postgraduate")             |
-| `subjects`                     | `string[]` | Yes      | Non-empty array of subjects applicant can teach             |
-| `has_teaching_experience`      | `boolean`  | No       | Boolean flag indicating previous teaching experience        |
-| `teaching_experience_duration` | `string`   | No       | Duration of experience (e.g. "2 years")                     |
-| `experience_details`           | `string`   | No       | Context regarding tutoring, TA, or classroom background     |
-| `gpa`                          | `number`   | No       | Cumulative University GPA (0.00 to 4.00)                    |
-| `entrance_exam_result`         | `number`   | No       | Ethiopian University Entrance Exam result (0.0 to 700.0)    |
-| `available_days`               | `string[]` | No       | Days available (e.g. `["Monday", "Wednesday", "Saturday"]`) |
-| `available_hours`              | `string`   | No       | Working hours window (e.g. "4 PM - 7 PM")                   |
-| `availability`                 | `string`   | Yes      | Schedule summary string                                     |
-| `motivation`                   | `string`   | Yes      | Statement of motivation (min 10 chars)                      |
-| `commitment_agreement`         | `boolean`  | Yes      | Must be `true` confirming ethical & scheduling commitments  |
-| `referral_source`              | `string`   | No       | How applicant found Bilunex (e.g. "Telegram Channel")       |
-| `transcript`                   | `file`     | No       | PDF file upload (magic bytes checked, max 5 MB)             |
-| `id_photo`                     | `file`     | No       | Image file upload: JPG/PNG (magic bytes checked, max 5 MB)  |
+| Field                          | Type       | Required | Description                                                       |
+| ------------------------------ | ---------- | -------- | ----------------------------------------------------------------- |
+| `full_name`                    | `string`   | Yes      | Applicant's full name (min 2 chars)                               |
+| `email`                        | `string`   | Yes      | Contact email address (unique in active records)                  |
+| `phone`                        | `string`   | Yes      | Ethiopian phone: `^(\+2519\d{8}\|09\d{8})$`                       |
+| `telegram_handle`              | `string`   | No       | Optional Telegram username                                        |
+| `university`                   | `string`   | Yes      | University or college affiliation (min 2 chars)                   |
+| `campus`                       | `string`   | No       | Campus location (e.g. "4 Kilo Campus")                            |
+| `field_of_study`               | `string`   | Yes      | Major or degree program (min 2 chars)                             |
+| `academic_year`                | `string`   | Yes      | Year of study (e.g. "3rd Year", "Postgraduate")                   |
+| `subjects`                     | `string[]` | Yes      | Non-empty array of subjects applicant can teach                   |
+| `has_teaching_experience`      | `boolean`  | No       | Boolean flag indicating previous teaching experience              |
+| `teaching_experience_duration` | `string`   | No       | Duration of experience (e.g. "2 years")                           |
+| `experience_details`           | `string`   | No       | Context regarding tutoring, TA, or classroom background           |
+| `cgpa`                         | `number`   | No       | CGPA out of 4.00 (0.00 to 4.00)                                   |
+| `entrance_exam_stream`         | `string`   | Yes      | `natural_science` (maximum 700) or `social_science` (maximum 600) |
+| `entrance_exam_result`         | `number`   | No       | Ethiopian university entrance exam score within selected maximum  |
+| `available_days`               | `string[]` | No       | Days available (e.g. `["Monday", "Wednesday", "Saturday"]`)       |
+| `available_hours`              | `string[]` | Yes      | One or more of `Morning`, `Afternoon`, `Evening`                  |
+| `availability`                 | `string`   | Yes      | Schedule summary string                                           |
+| `motivation`                   | `string`   | Yes      | Statement of motivation (min 10 chars)                            |
+| `commitment_agreement`         | `boolean`  | Yes      | Must be `true` confirming ethical & scheduling commitments        |
+| `referral_source`              | `string`   | No       | How applicant found Bilunex (e.g. "Telegram Channel")             |
+| `transcript`                   | `file`     | Yes      | PDF file upload (magic bytes checked, max 5 MB)                   |
+| `id_photo`                     | `file`     | Yes      | Image file upload: JPG/PNG (magic bytes checked, max 5 MB)        |
 
 ```json
 {
@@ -183,10 +184,11 @@ Submits a prospective mentor application into the 6-stage candidate screening pi
   "field_of_study": "Computer Science",
   "academic_year": "4th Year",
   "subjects": ["Computer Science", "Mathematics"],
-  "gpa": 3.85,
+  "cgpa": 3.85,
+  "entrance_exam_stream": "natural_science",
   "entrance_exam_result": 615.0,
   "available_days": ["Saturday", "Sunday"],
-  "available_hours": "10:00 AM - 4:00 PM",
+  "available_hours": ["Morning", "Afternoon"],
   "availability": "Weekends 10am - 4pm",
   "motivation": "I want to mentor high school students in programming and STEM careers.",
   "commitment_agreement": true,
@@ -210,10 +212,11 @@ Submits a prospective mentor application into the 6-stage candidate screening pi
     "field_of_study": "Computer Science",
     "academic_year": "4th Year",
     "subjects": ["Computer Science", "Mathematics"],
-    "gpa": "3.85",
+    "cgpa": "3.85",
+    "entrance_exam_stream": "natural_science",
     "entrance_exam_result": "615.0",
     "available_days": ["Saturday", "Sunday"],
-    "available_hours": "10:00 AM - 4:00 PM",
+    "available_hours": ["Morning", "Afternoon"],
     "availability": "Weekends 10am - 4pm",
     "motivation": "I want to mentor high school students in programming and STEM careers.",
     "commitment_agreement": true,

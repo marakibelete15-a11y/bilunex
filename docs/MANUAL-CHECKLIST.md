@@ -60,7 +60,7 @@ ORDER BY id;
 ## Mentor application — http://localhost:5000/public/become-a-mentor.html
 
 - [ ] Empty steps show validation and focus the first error; progress/back/next work.
-- [ ] Test invalid phone, GPA outside 0–4, entrance result outside its allowed range, short motivation, and unchecked commitment agreement.
+- [ ] Test invalid phone, CGPA outside 0–4, Social Science score above 600, Natural Science score above 700, short motivation, and unchecked commitment agreement.
 - [ ] Submit a valid disposable application with the required fields, availability, subjects, commitment agreement, and referral source.
 - [ ] Select a non-PDF transcript, a non-JPG/PNG ID image, and files larger than 5 MB; each must be rejected before upload. Verify selected filenames and clear errors.
 - [ ] Upload a valid PDF transcript and JPG or PNG ID photo. Confirm a genuine `201`, returned application reference, and stored document metadata. Try network loss and confirm no false success.

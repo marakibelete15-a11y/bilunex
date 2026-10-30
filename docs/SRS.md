@@ -38,7 +38,7 @@ Bilunex is a holistic support platform providing integrated academic tutoring, 1
   - Detect local dev server origin mismatch (e.g. VS Code Live Server on port 5500) and display a dismissible warning banner directing users to `http://localhost:5000`.
 - **FR-PUB-03 (Mentor Application)**:
   - Capture full academic and mentoring profile: full name, email, Ethiopian phone, Telegram handle, university, campus, field of study, academic year, subjects of expertise, teaching experience flag, duration, and detailed experience notes.
-  - Academic screening metrics: GPA (numeric 0.00 to 4.00), Ethiopian Higher Education Entrance Examination (EHEEE) score (0.0 to 700.0).
+  - Academic screening metrics: CGPA (numeric 0.00 to 4.00), Ethiopian Higher Education Entrance Examination (EHEEE) score (0.0 to 700.0).
   - Scheduling & commitment: available days (array of days), available hours text, availability summary, motivation statement (min 10 characters), referral source, and mandatory commitment agreement (`true`).
 - **FR-PUB-04 (Secure Document Uploads)**:
   - Candidate mentor applications accept optional multipart file uploads:
@@ -108,3 +108,7 @@ Bilunex is a holistic support platform providing integrated academic tutoring, 1
 ### v1.2 amendment — Contact channels
 
 FR-1.11 social and messaging links are limited to Telegram for now. The official contact email is Bilunexmedia@gmail.com, and the listed phone and location are maintained in the site contact configuration.
+
+### v1.3 amendment — Mentor application requirements
+
+Mentor applications accept multiple expertise subjects (including Sidama Afoo and bounded custom subjects), use CGPA out of 4.00, require an exam stream with a stream-specific score maximum, require at least one Morning/Afternoon/Evening availability selection, and require a valid transcript and ID photo. Existing entrance exam score optionality is retained.

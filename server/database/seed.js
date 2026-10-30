@@ -46,7 +46,7 @@ async function seedDatabase() {
       INSERT INTO mentor_applications (
         full_name, email, phone, telegram_handle, university, campus,
         field_of_study, academic_year, subjects, has_teaching_experience,
-        teaching_experience_duration, experience_details, gpa, entrance_exam_result,
+        teaching_experience_duration, experience_details, cgpa, entrance_exam_result,
         available_days, available_hours, availability, motivation,
         commitment_agreement, referral_source, status
       )
@@ -74,7 +74,7 @@ async function seedDatabase() {
         3.95,
         642.0,
         ['Monday', 'Wednesday', 'Saturday'],
-        '4 PM - 7 PM',
+        ['Afternoon', 'Evening'],
         'Weekdays after 4 PM, Saturdays 10 AM - 2 PM',
         'Passionate about empowering high schoolers to overcome STEM anxiety through patient coaching.',
         true,
@@ -90,7 +90,7 @@ async function seedDatabase() {
       INSERT INTO mentor_applications (
         full_name, email, phone, telegram_handle, university, campus,
         field_of_study, academic_year, subjects, has_teaching_experience,
-        teaching_experience_duration, experience_details, gpa, entrance_exam_result,
+        teaching_experience_duration, experience_details, cgpa, entrance_exam_result,
         available_days, available_hours, availability, motivation,
         commitment_agreement, referral_source, status
       )

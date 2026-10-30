@@ -129,8 +129,18 @@ const createMentorApplicationSchema = z
         return val;
       },
       z
-        .array(z.string().trim().min(1, 'Subject name cannot be empty'))
+        .array(
+          z
+            .string()
+            .trim()
+            .min(1, 'Subject name cannot be empty')
+            .max(50, 'Each subject must be at most 50 characters')
+        )
         .min(1, 'At least one subject must be specified')
+        .max(17, 'Select no more than 17 subjects')
+        .transform(subjects =>
+          subjects.map(subject => subject.replace(/<[^>]*>/g, '').trim()).filter(Boolean)
+        )
     ),
     has_teaching_experience: z
       .preprocess(val => {
@@ -156,18 +166,19 @@ const createMentorApplicationSchema = z
       .optional()
       .nullable()
       .transform(val => (val && val.length > 0 ? val : null)),
-    gpa: z.preprocess(
+    cgpa: z.preprocess(
       val => {
         if (val === '' || val === null || val === undefined) return null;
         return typeof val === 'string' ? parseFloat(val) : val;
       },
       z
-        .number({ invalid_type_error: 'GPA must be numeric' })
-        .min(0, 'GPA cannot be less than 0.00')
-        .max(4.0, 'GPA cannot exceed 4.00')
+        .number({ invalid_type_error: 'CGPA must be numeric' })
+        .min(0, 'CGPA cannot be less than 0.00')
+        .max(4.0, 'CGPA cannot exceed 4.00')
         .optional()
         .nullable()
     ),
+    entrance_exam_stream: z.enum(['natural_science', 'social_science']),
     entrance_exam_result: z.preprocess(
       val => {
         if (val === '' || val === null || val === undefined) return null;
@@ -195,12 +206,16 @@ const createMentorApplicationSchema = z
         return val || [];
       }, z.array(z.string().trim()))
       .default([]),
-    available_hours: z
-      .string()
-      .trim()
-      .optional()
-      .nullable()
-      .transform(val => (val && val.length > 0 ? val : null)),
+    available_hours: z.preprocess(
+      val =>
+        typeof val === 'string'
+          ? val
+              .split(',')
+              .map(s => s.trim())
+              .filter(Boolean)
+          : val,
+      z.array(z.enum(['Morning', 'Afternoon', 'Evening'])).min(1, 'Select available hours')
+    ),
     availability: z
       .string()
       .trim()
@@ -233,6 +248,15 @@ const createMentorApplicationSchema = z
     message: 'Field of study / department is required',
     path: ['field_of_study'],
   })
+  .refine(
+    data =>
+      data.entrance_exam_result == null ||
+      data.entrance_exam_result <= (data.entrance_exam_stream === 'social_science' ? 600 : 700),
+    {
+      message: 'Entrance exam result exceeds the maximum for the selected stream',
+      path: ['entrance_exam_result'],
+    }
+  )
   .refine(data => data.academic_year || data.year_of_study, {
     message: 'Academic year / year of study is required',
     path: ['academic_year'],

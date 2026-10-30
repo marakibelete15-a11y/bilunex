@@ -30,6 +30,17 @@ const waitForNotification = async (relatedType, relatedId, role, timeoutMs = 120
   throw new Error(`Notification log missing for ${relatedType} ${relatedId} (${role})`);
 };
 
+const submitMentor = async payload => {
+  const pdf = Buffer.from('%PDF-1.4 valid transcript fixture');
+  const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13]);
+  const req = request(app).post('/api/v1/public/mentor-applications');
+  Object.entries(payload).forEach(([key, value]) => {
+    if (Array.isArray(value)) req.field(key, value.join(','));
+    else req.field(key, String(value));
+  });
+  return req.attach('transcript', pdf, 'transcript.pdf').attach('id_photo', png, 'id.png');
+};
+
 describe('Public Endpoints (Intake & Safe Notifications)', () => {
   beforeEach(() => {
     _resetTransporter();
@@ -266,21 +277,20 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
       nodemailer.createTransport.mockReturnValue({
         sendMail: jest.fn().mockResolvedValue({ messageId: 'ok' }),
       });
-      const res = await request(app)
-        .post('/api/v1/public/mentor-applications')
-        .send({
-          full_name: 'Mentor Notification Check',
-          email: `mentor_${Date.now()}@example.com`,
-          phone: '+251944556677',
-          university_name: 'Test University',
-          department: 'Math',
-          year_of_study: '3rd Year',
-          subjects: ['Mathematics'],
-          available_days: ['Saturday'],
-          available_hours: 'Morning',
-          motivation: 'I enjoy supporting young learners.',
-          commitment_agreement: true,
-        });
+      const res = await submitMentor({
+        full_name: 'Mentor Notification Check',
+        email: `mentor_${Date.now()}@example.com`,
+        phone: '+251944556677',
+        university_name: 'Test University',
+        department: 'Math',
+        year_of_study: '3rd Year',
+        subjects: ['Mathematics'],
+        entrance_exam_stream: 'natural_science',
+        available_days: ['Saturday'],
+        available_hours: ['Morning'],
+        motivation: 'I enjoy supporting young learners.',
+        commitment_agreement: true,
+      });
       expect(res.status).toBe(201);
       const adminLog = await waitForNotification('mentor_applications', res.body.data.id, 'admin');
       const mentorLog = await waitForNotification(
@@ -301,12 +311,14 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         field_of_study: 'Computer Science',
         academic_year: '4th Year',
         subjects: ['Computer Science', 'Mathematics'],
+        entrance_exam_stream: 'natural_science',
+        available_hours: ['Morning'],
         availability: 'Weekends 10am-4pm',
         motivation: 'I want to mentor high school students in programming and STEM careers.',
         commitment_agreement: true,
       };
 
-      const res = await request(app).post('/api/v1/public/mentor-applications').send(payload);
+      const res = await submitMentor(payload);
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -326,24 +338,26 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         department: 'Software Engineering',
         year_of_study: '3rd Year',
         subjects: ['Algorithms', 'Python'],
+        entrance_exam_stream: 'natural_science',
         has_teaching_experience: true,
         teaching_experience_duration: '2 years',
         experience_details: 'Private coding tutor for preparatory students',
-        gpa: 3.85,
+        cgpa: 3.85,
+        entrance_exam_stream: 'natural_science',
         entrance_exam_result: 615.5,
         available_days: ['Monday', 'Thursday', 'Saturday'],
-        available_hours: '5 PM - 8 PM',
+        available_hours: ['Evening'],
         motivation: 'Passionate about guiding the next generation of engineers in Ethiopia.',
         commitment_agreement: true,
         referral_source: 'University Club',
       };
 
-      const res = await request(app).post('/api/v1/public/mentor-applications').send(payload);
+      const res = await submitMentor(payload);
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
       expect(res.body.data.campus).toBe('Arat Kilo');
-      expect(Number(res.body.data.gpa)).toBe(3.85);
+      expect(Number(res.body.data.cgpa)).toBe(3.85);
       expect(Number(res.body.data.entrance_exam_result)).toBe(615.5);
       expect(res.body.data.commitment_agreement).toBe(true);
       expect(res.body.data.referral_source).toBe('University Club');
@@ -358,12 +372,14 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         field_of_study: 'Math',
         academic_year: '2nd Year',
         subjects: ['Algebra'],
+        entrance_exam_stream: 'natural_science',
+        available_hours: ['Morning'],
         availability: 'Weekends',
         motivation: 'I love teaching young students very much.',
         commitment_agreement: false, // Rejected!
       };
 
-      const res = await request(app).post('/api/v1/public/mentor-applications').send(payload);
+      const res = await submitMentor(payload);
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -379,17 +395,19 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         field_of_study: 'Math',
         academic_year: '2nd Year',
         subjects: ['Algebra'],
+        entrance_exam_stream: 'natural_science',
+        available_hours: ['Morning'],
         availability: 'Weekends',
         motivation: 'I love teaching young students very much.',
         commitment_agreement: true,
-        gpa: 4.5, // Invalid GPA
+        cgpa: 4.5, // Invalid CGPA
       };
 
-      const res = await request(app).post('/api/v1/public/mentor-applications').send(payload);
+      const res = await submitMentor(payload);
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
-      expect(res.body.errors.some(e => e.field === 'gpa')).toBe(true);
+      expect(res.body.errors.some(e => e.field === 'cgpa')).toBe(true);
     });
 
     test('should reject application with motivation shorter than 10 characters', async () => {
@@ -401,12 +419,14 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         field_of_study: 'Physics',
         academic_year: '3rd Year',
         subjects: ['Physics'],
+        entrance_exam_stream: 'natural_science',
+        available_hours: ['Evening'],
         availability: 'Evenings',
         motivation: 'Short', // Less than 10 chars
         commitment_agreement: true,
       };
 
-      const res = await request(app).post('/api/v1/public/mentor-applications').send(payload);
+      const res = await submitMentor(payload);
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
@@ -428,6 +448,8 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         .field('field_of_study', 'Electrical Engineering')
         .field('academic_year', '5th Year')
         .field('subjects', JSON.stringify(['Circuits', 'Physics']))
+        .field('entrance_exam_stream', 'natural_science')
+        .field('available_hours', 'Morning')
         .field('availability', 'Weekends')
         .field('motivation', 'Passionate about engineering mentorship and helping high schoolers.')
         .field('commitment_agreement', 'true')
@@ -462,14 +484,47 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         .field('field_of_study', 'CS')
         .field('academic_year', '4th')
         .field('subjects', JSON.stringify(['Math']))
+        .field('entrance_exam_stream', 'natural_science')
+        .field('available_hours', 'Morning')
         .field('availability', 'Weekends')
         .field('motivation', 'Valid motivation length for test')
         .field('commitment_agreement', 'true')
-        .attach('transcript', fakePdfBuffer, 'fake.pdf');
+        .attach('transcript', fakePdfBuffer, 'fake.pdf')
+        .attach(
+          'id_photo',
+          Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13]),
+          'id.png'
+        );
 
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
       expect(res.body.message).toContain('Invalid file type for transcript');
+    });
+
+    test('requires both transcript and ID photo', async () => {
+      const res = await request(app).post('/api/v1/public/mentor-applications').send({});
+      expect(res.status).toBe(400);
+      expect(res.body.message).toContain('transcript and ID photo are required');
+    });
+
+    test('rejects a Social Science entrance score above 600', async () => {
+      const res = await submitMentor({
+        full_name: 'Social Science Applicant',
+        email: `social_${Date.now()}@example.com`,
+        phone: '+251911223344',
+        university: 'AAU',
+        field_of_study: 'Economics',
+        academic_year: '3rd Year',
+        subjects: ['English'],
+        entrance_exam_stream: 'social_science',
+        entrance_exam_result: 601,
+        available_hours: ['Morning'],
+        availability: 'Weekdays',
+        motivation: 'I want to support students in their studies.',
+        commitment_agreement: true,
+      });
+      expect(res.status).toBe(400);
+      expect(res.body.errors.some(error => error.field === 'entrance_exam_result')).toBe(true);
     });
   });
 
