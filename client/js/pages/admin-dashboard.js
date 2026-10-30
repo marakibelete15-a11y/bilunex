@@ -9,6 +9,7 @@ if (setupAdmin()) {
       ['Parent registrations', data.parent_registrations],
       ['Mentor applications', data.mentor_applications],
       ['Inquiries', data.inquiries],
+      ['Stories awaiting review', [{ status: 'pending', count: data.pending_stories ?? 0 }]],
     ];
     const grid = document.getElementById('summary-cards');
     grid.replaceChildren();

@@ -326,6 +326,26 @@ Immutable tracking log recording access and mutations to sensitive records.
 
 ---
 
+### 3.9 `stories`
+
+Private story submissions are pending by default. Only the approved public projection is returned by the public repository; full name, email, phone and consent details are excluded.
+
+| Column                                   | Type                    | Constraints                                           |
+| ---------------------------------------- | ----------------------- | ----------------------------------------------------- |
+| `full_name`                              | `VARCHAR(255)`          | Required; admin-only/private                          |
+| `display_style`                          | `VARCHAR(20)`           | `first_name`, `initials`, or `anonymous`              |
+| `relationship`                           | `VARCHAR(30)`           | `parent_guardian`, `student`, `mentor`, or `other`    |
+| `email`, `phone`                         | `VARCHAR`               | Optional, private follow-up details                   |
+| `title`                                  | `VARCHAR(160)`          | Required                                              |
+| `body`                                   | `TEXT`                  | 50–2000 characters                                    |
+| `consent_*`                              | `BOOLEAN`               | All required and true; matching timestamps are stored |
+| `status`                                 | `VARCHAR(20)`           | `pending`, `approved`, or `rejected`                  |
+| `reviewed_by`, `reviewed_at`             | `BIGINT`, `TIMESTAMPTZ` | Admin and moderation timestamp                        |
+| `published_at`                           | `TIMESTAMPTZ`           | Set on approval                                       |
+| `deleted_at`, `created_at`, `updated_at` | `TIMESTAMPTZ`           | Soft-delete and lifecycle timestamps                  |
+
+Migration `017_stories` creates this table and partial status/publication indexes. No public stories are seeded.
+
 ## 4. Privacy, Children's Data & Security Guidelines
 
 ### 4.1 Sensitive Data Classification
@@ -618,6 +638,7 @@ All migration commands are executed through the Node.js runner scripts inside `s
 14. `014_notification_log_fields.up.sql`: Adds `recipient_role` and failure query index to `notification_log`.
 15. `015_notification_delivery_statuses.up.sql`: Adds offline and timeout notification statuses.
 16. `016_mentor_application_requirements.up.sql`: Renames GPA to CGPA, adds entrance exam stream limits, and converts available hours to validated selections.
+17. `017_stories.up.sql`: Adds private story submissions and partial moderation/publication indexes.
 
 ---
 

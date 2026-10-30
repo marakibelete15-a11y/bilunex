@@ -443,12 +443,28 @@ const notifyInquiry = async inquiry => {
   });
 };
 
+const notifyStorySubmitted = async story => {
+  const adminUrl = `${env.CLIENT_URL || 'http://localhost:5000'}/admin/stories.html`;
+  const text = `A new story submission (#${story.id}) is waiting for moderation. Open the admin portal: ${adminUrl}`;
+  return dispatchToRecipients({
+    to: env.ADMIN_NOTIFICATION_EMAIL,
+    recipient_role: 'admin',
+    subject: `[Bilunex Alert] Story submission #${story.id} needs review`,
+    text,
+    html: `<p>${text}</p>`,
+    notification_type: 'story_submitted_admin_alert',
+    related_entity_type: 'stories',
+    related_entity_id: story.id,
+  });
+};
+
 module.exports = {
   safeSendNotification,
   notifyParentRegistration,
   notifyMentorApplication,
   notifySupportReportFiled,
   notifyInquiry,
+  notifyStorySubmitted,
   getTransporter,
   _resetTransporter,
 };

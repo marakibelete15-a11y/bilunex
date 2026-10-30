@@ -163,7 +163,7 @@ When `EMAIL_HOST` is blank, development tries Ethereal lazily after the API resp
 
 ```bash
 cd server
-npm run migrate    # Applies migrations sequentially (001 -> 015)
+npm run migrate    # Applies migrations sequentially (001 -> 017)
 npm run seed       # Populates initial admin user and realistic demo fixtures
 ```
 
@@ -226,7 +226,7 @@ npm start
 
 ## 7. Frontend pages and verification
 
-Canonical public pages are `client/public/index.html`, `about.html`, `services.html`, `for-parents.html`, `parent-registration.html`, `become-a-mentor.html`, `stories.html`, and `contact.html`. The admin portal is under `client/admin/`; the mentor portal is under `client/mentor/`. Open each through `http://localhost:5000`, not a static file server.
+Canonical public pages are `client/public/index.html`, `about.html`, `services.html`, `for-parents.html`, `parent-registration.html`, `become-a-mentor.html`, `stories.html`, `share-your-story.html`, and `contact.html`. The admin portal is under `client/admin/`; the mentor portal is under `client/mentor/`. Open each through `http://localhost:5000`, not a static file server.
 
 Use [the page-by-page manual verification checklist](docs/MANUAL-CHECKLIST.md) for responsive widths, public forms, file uploads, portal roles, database checks, and seed logins. From `server/`, run `npm run lint` and `npm test`. The checked-in test suite currently contains 62 tests.
 
@@ -379,3 +379,7 @@ _Example First Commit_:
   5. Restart the server (`npm run dev`). All transactional emails will now deliver directly to real inboxes.
   6. Set `EMAIL_HOST=smtp.gmail.com`, `EMAIL_PORT=587`, `EMAIL_USER` to the Gmail address, and `EMAIL_PASS` to the 16-character app password. Restart the server and submit a test registration. A successful attempt appears in `notification_log` with status `success`; a failed or timed-out attempt is logged without blocking the `201` response.
   7. In development with `EMAIL_HOST` unset, Ethereal is provisioned lazily after the response. When internet access is unavailable, the app switches to offline mode, logs each complete message (recipient, subject, plain text body) in the server console, and writes a `logged_not_sent` row. Offline mode sends no mail. With Ethereal available, preview URLs appear in the console.
+
+### Mentor application and story moderation updates
+
+Migration 016 changes the mentor application score field from GPA to CGPA, adds the exam stream and corresponding 600/700 database limit, stores available hours as Morning/Afternoon/Evening selections, and preserves existing records. Transcript and ID photo are mandatory. Migration 017 adds the private story submission and moderation workflow. Apply pending database changes with `npm run migrate`; do not use database reset on a database containing data. Use the admin Stories page to moderate pending submissions. Only approved stories appear publicly.

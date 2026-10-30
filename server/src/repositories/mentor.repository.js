@@ -44,7 +44,10 @@ const mentorRepository = {
     const finalFieldOfStudy = field_of_study || department || 'Not specified';
     const finalAcademicYear = academic_year || year_of_study || 'Not specified';
     const finalTelegram = telegram_handle || telegram_username || null;
-    const finalAvailability = availability || available_hours || 'Flexible';
+    const finalAvailability =
+      availability ||
+      (Array.isArray(available_hours) ? available_hours.join(', ') : available_hours) ||
+      'Flexible';
     const finalExperienceDuration = teaching_experience_duration || teaching_experience || null;
 
     const subjectsArray = Array.isArray(subjects)

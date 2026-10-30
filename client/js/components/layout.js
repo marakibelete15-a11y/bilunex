@@ -210,7 +210,7 @@ export function renderFooter() {
   const location = document.createElement('p');
   location.textContent = `Location: ${siteInfo.address}`;
   const storyLink = document.createElement('a');
-  storyLink.href = 'stories.html#share-story';
+  storyLink.href = 'share-your-story.html';
   storyLink.textContent = 'Share Your Story';
   const mentorLogin = document.createElement('a');
   mentorLogin.href = '../mentor/login.html';
@@ -267,6 +267,7 @@ export function initPortalLayout() {
           ['applications.html', 'Mentor Applications'],
           ['mentors.html', 'Active Mentors'],
           ['inquiries.html', 'Inquiries'],
+          ['stories.html', 'Stories'],
           ['reports.html', 'Support Reports'],
         ]
       : [

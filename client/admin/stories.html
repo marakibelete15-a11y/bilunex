@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Review and moderate submitted Bilunex stories." />
+    <meta name="theme-color" content="#102746" />
+    <title>Stories | Bilunex Admin</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header id="portal-header" class="portal-header"></header>
+    <div class="portal-layout">
+      <main id="main-content" class="portal-main">
+        <h1>Story moderation</h1>
+        <p class="notice">
+          Before approving, check that the story contains no child's full name or private details.
+        </p>
+        <div class="form-group">
+          <label for="story-status-filter">Filter by status</label
+          ><select id="story-status-filter" class="form-control">
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <p id="stories-admin-state" role="status"></p>
+        <div class="portal-grid">
+          <section class="card">
+            <h2>Submissions</h2>
+            <div id="admin-story-list"></div>
+          </section>
+          <section class="card">
+            <h2>Story details</h2>
+            <div id="admin-story-detail">Choose a submission to review.</div>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="../js/pages/admin-stories.js"></script>
+  </body>
+</html>

@@ -24,24 +24,23 @@
           <p class="eyebrow">Stories &amp; Resources</p>
           <h1 id="page-title">Student voices, shared with care.</h1>
           <p>Stories and resources will appear here when Bilunex has genuine material to share.</p>
+          <a class="btn btn-primary" href="share-your-story.html">Share Your Story</a>
         </div>
       </section>
       <section class="section-block" aria-labelledby="testimonials-title">
-        <div class="container empty-state">
+        <div class="container">
           <p class="eyebrow">Testimonials</p>
-          <h2 id="testimonials-title">No testimonials yet</h2>
-          <p>
-            There are no testimonials to display. Bilunex will not publish invented or unattributed
-            quotes.
-          </p>
-        </div>
-      </section>
-      <section class="section-block bg-alt" aria-labelledby="growth-stories-title">
-        <div class="container empty-state">
-          <p class="eyebrow">Student growth stories</p>
-          <h2 id="growth-stories-title">No stories shared yet</h2>
-          <p>There are no student growth stories to display at this time.</p>
-          <a class="btn btn-outline" href="contact.html">Share a story with Bilunex</a>
+          <h2 id="testimonials-title">Stories from the Bilunex community</h2>
+          <div id="stories-empty" class="empty-state">
+            <p>No stories have been approved for publication yet.</p>
+          </div>
+          <div id="published-stories" class="story-list"></div>
+          <p id="stories-state" role="status"></p>
+          <button id="load-more-stories" class="btn btn-outline" type="button" hidden>
+            Load more
+          </button>
+          <p>Bilunex does not publish invented or unattributed quotes.</p>
+          <a class="btn btn-outline" href="share-your-story.html">Share Your Story</a>
         </div>
       </section>
       <section class="section-block" aria-labelledby="resources-title">
@@ -53,6 +52,6 @@
       </section>
     </main>
     <footer id="site-footer" class="site-footer"></footer>
-    <script type="module" src="../js/pages/public-layout.js"></script>
+    <script type="module" src="../js/pages/stories.js"></script>
   </body>
 </html>

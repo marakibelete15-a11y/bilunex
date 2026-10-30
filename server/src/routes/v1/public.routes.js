@@ -7,6 +7,7 @@
 const express = require('express');
 const router = express.Router();
 const publicController = require('../../controllers/public.controller');
+const storyController = require('../../controllers/story.controller');
 const validate = require('../../middleware/validate.middleware');
 const { strictLimiter } = require('../../middleware/rateLimit.middleware');
 const { handleMentorDocumentUpload } = require('../../middleware/upload.middleware');
@@ -15,6 +16,10 @@ const {
   createMentorApplicationSchema,
   createInquirySchema,
 } = require('../../validators/public.validator');
+const { createStorySchema, publicStoryQuerySchema } = require('../../validators/story.validator');
+
+router.post('/stories', strictLimiter, validate(createStorySchema), storyController.submit);
+router.get('/stories', validate({ query: publicStoryQuerySchema }), storyController.publicList);
 
 // 1. Parent/Student registration
 router.post(

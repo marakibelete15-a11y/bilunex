@@ -693,3 +693,9 @@ Returns all session support reports authored by the authenticated mentor.
 | `404` | Not Found             | Requested route or target database entity does not exist.                      |
 | `429` | Too Many Requests     | Rate limit exceeded on endpoint or IP.                                         |
 | `500` | Internal Server Error | Unexpected server error or aborted transaction.                                |
+
+## Share Your Story
+
+- `POST /api/v1/public/stories` is rate limited and accepts JSON fields `full_name`, `display_style` (`first_name|initials|anonymous`), `relationship` (`parent_guardian|student|mentor|other`), optional private `email` and `phone`, `title`, `body` (50–2000 characters), and all three consent flags set to `true`. Submissions are stored as `pending`; the admin alert contains only the story ID and review link, never the story text.
+- `GET /api/v1/public/stories?page=1&limit=10` returns only approved, non-deleted records with `display_name`, `relationship`, `title`, `body`, and publication date. It never returns a full name, email, phone, or consent details.
+- `GET /api/v1/admin/stories?status=pending&page=1&limit=50`, `GET /api/v1/admin/stories/:id`, and `PATCH /api/v1/admin/stories/:id/status` (`pending|approved|rejected`) require an administrator token. Admin detail includes private contact information. Each status change is written to `audit_log`.

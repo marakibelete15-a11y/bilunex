@@ -38,7 +38,7 @@ Bilunex is a holistic support platform providing integrated academic tutoring, 1
   - Detect local dev server origin mismatch (e.g. VS Code Live Server on port 5500) and display a dismissible warning banner directing users to `http://localhost:5000`.
 - **FR-PUB-03 (Mentor Application)**:
   - Capture full academic and mentoring profile: full name, email, Ethiopian phone, Telegram handle, university, campus, field of study, academic year, subjects of expertise, teaching experience flag, duration, and detailed experience notes.
-  - Academic screening metrics: CGPA (numeric 0.00 to 4.00), Ethiopian Higher Education Entrance Examination (EHEEE) score (0.0 to 700.0).
+  - Academic screening metrics: CGPA (numeric 0.00 to 4.00), Ethiopian university entrance exam score up to 700 for Natural Science or 600 for Social Science.
   - Scheduling & commitment: available days (array of days), available hours text, availability summary, motivation statement (min 10 characters), referral source, and mandatory commitment agreement (`true`).
 - **FR-PUB-04 (Secure Document Uploads)**:
   - Candidate mentor applications accept optional multipart file uploads:
@@ -112,3 +112,7 @@ FR-1.11 social and messaging links are limited to Telegram for now. The official
 ### v1.3 amendment — Mentor application requirements
 
 Mentor applications accept multiple expertise subjects (including Sidama Afoo and bounded custom subjects), use CGPA out of 4.00, require an exam stream with a stream-specific score maximum, require at least one Morning/Afternoon/Evening availability selection, and require a valid transcript and ID photo. Existing entrance exam score optionality is retained.
+
+### v1.4 amendment — Share Your Story
+
+Story submissions require genuine-experience, publication, and child/guardian consents and remain pending until an administrator reviews them. Private full names and follow-up contacts are not exposed publicly. Only approved, non-deleted stories are paginated on the public Stories page; display names follow the submitter's selected privacy style. Administrators can approve, reject, or return stories to pending with an audit record. Stories are not submitted through inquiry or counseling forms.

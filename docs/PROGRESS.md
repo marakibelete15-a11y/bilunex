@@ -97,7 +97,7 @@
 - Services explains Academic Support, Mentoring & Guidance, and Professional Counseling. It states that counseling is provided by a qualified psychologist and mentoring is not a substitute for psychological care.
 - For Parents is now information-only with process, subject/grade, selection/safeguarding, FAQ sections, and registration calls to action.
 - Stories & Resources has truthful empty states and educational resources marked as coming later.
-- New `[To be confirmed by Bilunex]` items: founding story, mission, vision, values, trusted-relationship practices, specific student commitments and safeguarding/privacy details; review process and response timeline; family consultation and next-step details; subjects, grade levels, curriculum scope, scheduling, mentor selection and safeguarding practices; counseling scope, availability, fees, and appointment request process. Existing footer email/location placeholders remain.
+- The initial content audit identified several owner-confirmation items. Supplied copy later resolved some of these; see the current launch-confirmation list at the end of this file.
 - Lint passes; full backend suite passes (62 tests).
 
 **Next:** STAGE 3.
@@ -186,9 +186,9 @@
 
 **Status:** done
 
-- Added `client/js/config/site-info.js` as the source for email, phone, Telegram, Telegram address, parent support hours, and the confirmed address placeholder.
+- Added `client/js/config/site-info.js` as the source for email, phone, Telegram, Telegram address, parent support hours, and Hawassa, Ethiopia.
 - Shared footer and Contact page render email, phone, Telegram, from the module. Email, phone, and external links use the requested schemes and `noopener noreferrer` on external links.
-- Contact page support-hours wording and the supplied parent support and counseling copy are present. Physical address remains `[To be confirmed by Bilunex]` in the footer.
+- Contact page support-hours wording and the supplied parent support and counseling copy are present. Location is set to Hawassa, Ethiopia.
 
 **Next:** Part 4.
 
@@ -255,9 +255,15 @@
 - Confirm mentor commitment terms: `client/public/become-a-mentor.html`.
 - Confirm For Parents FAQ answers: subjects/grades, mentor selection, and post-registration response/next steps in `client/public/for-parents.html`.
 - Provide exact Amharic registration introduction; marked placeholder remains in `client/public/parent-registration.html`.
-- Confirm physical address: `[To be confirmed by Bilunex]` in `client/js/config/site-info.js`.
+- Confirm the listed customer support accounts and hours remain monitored. Location is Hawassa, Ethiopia.
 - Contact details currently set from `client/js/config/site-info.js`: `Bilunexmedia@gmail.com`; `+251 93 483 4343`; Telegram `@Bilunexteam`; parent support hours `Monday through Friday, 8:00 AM – 5:00 PM`.
-- Remaining literal `[To be confirmed by Bilunex]` locations: founding story (`about.html`); fee/response/trial details (`parent-registration.html`); mentor commitment (`become-a-mentor.html`); three For Parents FAQ responses (`for-parents.html`); physical address (`site-info.js`).
+- Current items still marked for Bilunex confirmation:
+  - `client/public/about.html`: Bilunex founding story.
+  - `client/public/parent-registration.html`: exact Amharic intro transcription; response-time, fee and trial-session commitment confirmation. The supplied English and Next Steps wording remains visible as requested.
+  - `client/public/become-a-mentor.html`: applicant commitment terms.
+  - `client/public/for-parents.html`: subjects/grades, mentor selection, and post-registration FAQ answers.
+  - `server/src/services/notification.service.js` and `docs/SRS.md`: confirmation that the same 24-hour/fee/trial statement in the parent email template may be sent.
+  - Contact accounts/hours must remain monitored. The former location placeholder is resolved as Hawassa, Ethiopia.
 
 **Next:** Part 11.
 
@@ -317,9 +323,9 @@
 
 ## User update — Shared form notifications
 
-- Added one reusable top-of-page toast in `client/js/ui.js`: polite status for success, alert for errors, close button, 8-second success dismissal paused on hover/focus, and a mobile-friendly layout. Parent registration, mentor application, inquiry, and mentor report no longer show reference IDs on screen; intake still requires a valid HTTP 201 response and record ID. Success resets the form and scrolls to the top.
+- Added one reusable top-of-page toast in `client/js/ui.js`: polite status for success, alert for errors, close button, 8-second success dismissal paused on hover/focus, and a mobile-friendly layout. Parent registration, mentor application, inquiry, and mentor report no longer show reference IDs on screen; intake still requires a valid HTTP 201 response and record ID. Success resets the form and scrolls to the top. Email templates retain their reference IDs; browser success messages do not.
 
-**Part 4 status:** implementation recorded; lint and suite to run.
+**Part 4 status:** done; lint passes and full suite passes (63 tests).
 
 ## User update — Mentor application form requirements
 
@@ -336,3 +342,20 @@
 - `npm run migrate` passed on the existing development database. `npm run lint` passes; the full test suite passes (65 tests).
 
 **Next:** Part 6 — Share Your Story workflow.
+
+## User update — Share Your Story and moderation
+
+**Status:** done
+
+- Added `share-your-story.html` with private name/contact fields, display-name choice, relationship, title, 50–2000 character story input and live counter, three required consent boxes, child privacy reminder and honeypot.
+- Added migration 017 and story repository/service/controller/routes. Submissions are sanitized and saved pending; admin alert email includes only a submission ID/review link. Public pagination selects approved, non-deleted records only and returns computed display name, relationship label, title, body and date without private contact details.
+- Added authenticated admin list/detail/status moderation, view/update audit events, confirmation prompts with child privacy reminder, Stories menu item and dashboard pending count. No sample public stories are seeded.
+- The Stories & Resources page loads approved stories via DOM text nodes with Load more and an honest empty state. Home, Contact and footer link to Share Your Story; main navigation remains unchanged.
+- Added integration coverage for pending privacy, admin-only moderation, approval visibility, sanitization, public field exclusion and notification logging.
+- Migration 017 applied using `npm run migrate` on both development and isolated test databases. `npm run lint` passes; full test suite passes (66 tests).
+- Chrome viewport check covered all public pages at 320, 375, 768, 1024 and 1440 px; 150% zoom was emulated as the corresponding CSS viewport widths. Initial checks found and fixed narrow zoom overflow in Contact, For Parents, Parent Registration, Mentor cards and the admin header.
+
+## Final verification
+
+- **Responsive:** Chrome DOM width checks passed for all nine public pages at 320, 375, 768, 1024 and 1440 CSS pixels, plus narrow effective CSS widths for 150% zoom. The admin Stories page also passed. No horizontal overflow or browser runtime errors were found. Reduced-motion emulation returned zero banner animations; normal mode reported one running banner animation.
+- **Database:** migrations 016 and 017 are applied in the local development and test databases. Production still needs `npm run migrate` against its configured database after backup.

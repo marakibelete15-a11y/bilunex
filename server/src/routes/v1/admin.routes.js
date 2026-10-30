@@ -7,6 +7,7 @@
 const express = require('express');
 const router = express.Router();
 const adminController = require('../../controllers/admin.controller');
+const storyController = require('../../controllers/story.controller');
 const authenticateToken = require('../../middleware/auth.middleware');
 const requireAdmin = require('../../middleware/requireAdmin.middleware');
 const validate = require('../../middleware/validate.middleware');
@@ -21,12 +22,25 @@ const {
   supportReportFilterSchema,
   idParamSchema,
 } = require('../../validators/admin.validator');
+const {
+  adminStoryQuerySchema,
+  storyStatusSchema,
+  storyIdSchema,
+} = require('../../validators/story.validator');
 
 // 1. Admin Login (Public endpoint with strict rate limiting)
 router.post('/auth/login', strictLimiter, validate(adminLoginSchema), adminController.login);
 
 // All subsequent routes require valid JWT and administrator role
 router.use(authenticateToken, requireAdmin);
+
+router.get('/stories', validate({ query: adminStoryQuerySchema }), storyController.adminList);
+router.get('/stories/:id', validate({ params: storyIdSchema }), storyController.adminGet);
+router.patch(
+  '/stories/:id/status',
+  validate({ params: storyIdSchema, body: storyStatusSchema }),
+  storyController.moderate
+);
 
 // 2. Current admin profile
 router.get('/auth/me', adminController.getMe);

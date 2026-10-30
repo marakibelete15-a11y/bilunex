@@ -564,3 +564,25 @@ textarea.form-control {
     font-size: var(--font-size-sm);
   }
 }
+
+.honeypot-field {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.story-list {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.story-card time {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+.notice {
+  padding: 1rem;
+  border-left: 4px solid var(--color-accent);
+  background: var(--color-background-alt);
+}

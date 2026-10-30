@@ -16,6 +16,7 @@ const reportRepository = require('../repositories/report.repository');
 const auditLogRepository = require('../repositories/audit_log.repository');
 const documentRepository = require('../repositories/document.repository');
 const notificationLogRepository = require('../repositories/notification_log.repository');
+const storyRepository = require('../repositories/story.repository');
 const logger = require('../utils/logger');
 
 const adminService = {
@@ -251,20 +252,21 @@ const adminService = {
    * Aggregate operational summary metrics across registrations, applications, inquiries
    */
   async getReportsSummary() {
-    const [parentCounts, mentorCounts, inquiryCounts, failedNotificationsCount] = await Promise.all(
-      [
+    const [parentCounts, mentorCounts, inquiryCounts, failedNotificationsCount, pendingStories] =
+      await Promise.all([
         parentRepository.countByStatus(),
         mentorRepository.countApplicationsByStatus(),
         inquiryRepository.countByStatus(),
         notificationLogRepository.countFailuresLast7Days(),
-      ]
-    );
+        storyRepository.countPending(),
+      ]);
 
     return {
       parent_registrations: parentCounts,
       mentor_applications: mentorCounts,
       inquiries: inquiryCounts,
       failed_notifications_last_7_days: failedNotificationsCount,
+      pending_stories: pendingStories,
     };
   },
 
