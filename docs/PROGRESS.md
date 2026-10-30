@@ -82,6 +82,7 @@
 - Extended `client/tests/header-layout.test.cjs` to assert the inline-SVG lockup has one “Bilunex home” link, no logo `<img>`, real-text wordmark/tagline, unique SVG resource IDs, centrally defined size tokens, exactly seven nav items, one registration CTA, and favicon coverage on every HTML page.
 - Chrome checked all nine public pages and both portal login pages at 320, 375, 768, 1024, and 1440px, plus effective CSS widths approximating 150% zoom (213, 250, 512, 683, 960px). No overflow, duplicate IDs, page errors, raster logos, or incorrect logo sizes were found. Public marks are 44px compact / 52px regular; each login page also has a 72px mark.
 - With reduced motion enabled, ring and shine animation names are `none`; the logo slot retains fixed dimensions. The SVG mark remains vector at every checked size.
+- Keyboard focus lifts the mark by 2px; the reserved slot dimensions stay identical before and after the ring animation.
 - Replacement: replace `client/assets/images/logo-mark.svg` to update all shared on-page marks and the simplified favicon symbol. Then regenerate `favicon-32.png`, `apple-touch-icon.png`, and `favicon.ico` from `favicon.svg`. If a designer supplies only the full mark, redraw its simplified symbol inside that same SVG before regenerating the raster icons.
 - `node --test client/tests/header-layout.test.cjs`, `npm run lint`, and `npm test` pass.
 
