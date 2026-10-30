@@ -53,6 +53,7 @@ function renderHeader() {
   const host = new Element('header');
   const document = {
     createElement: tagName => new Element(tagName),
+    createElementNS: (_namespace, tagName) => new Element(tagName),
     getElementById: id => (id === 'site-header' ? host : null),
   };
   const context = {

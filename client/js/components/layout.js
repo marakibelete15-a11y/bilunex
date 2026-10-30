@@ -14,21 +14,104 @@ export const NAV_ITEMS = [
   { key: 'contact', label: 'Contact Us', href: 'contact.html' },
 ];
 
-const makeLogo = className => {
+const makeBrandMark = className => {
   const link = document.createElement('a');
   link.href = 'index.html';
   link.className = className;
   link.setAttribute('aria-label', 'Bilunex home');
-  const image = document.createElement('img');
-  image.src = '../assets/images/logo.svg';
-  image.alt = 'Bilunex — Education · Growth · Opportunity';
-  image.width = 190;
-  image.height = 48;
-  link.appendChild(image);
+  const mark = document.createElementNS(svgNamespace, 'svg');
+  mark.setAttribute('viewBox', '0 0 100 100');
+  mark.setAttribute('aria-hidden', 'true');
+  mark.setAttribute('role', 'presentation');
+  mark.setAttribute('focusable', 'false');
+  const use = document.createElementNS(svgNamespace, 'use');
+  use.setAttribute('href', '../assets/images/logo-mark.svg#bilunex-mark');
+  mark.appendChild(use);
+  link.appendChild(mark);
   return link;
 };
 
 const svgNamespace = 'http://www.w3.org/2000/svg';
+const makeBrandLockup = className => {
+  const link = makeBrandMark(className);
+  const wordmark = document.createElement('span');
+  wordmark.className = 'brand-wordmark';
+  wordmark.textContent = 'Bilunex';
+  const tagline = document.createElement('span');
+  tagline.className = 'brand-tagline';
+  tagline.textContent = 'EDUCATION · GROWTH · OPPORTUNITY';
+  const text = document.createElement('span');
+  text.className = 'brand-lockup-text';
+  text.append(wordmark, tagline);
+  link.appendChild(text);
+  return link;
+};
+
+const makeLogo = makeBrandLockup;
+
+function decorativeSvg(className, viewBox) {
+  const svg = document.createElementNS(svgNamespace, 'svg');
+  svg.setAttribute('class', className);
+  svg.setAttribute('viewBox', viewBox);
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  return svg;
+}
+
+function renderBrandBanner(host, compact = false) {
+  if (!host) return;
+  const banner = document.createElement('div');
+  banner.className = compact ? 'brand-banner login-brand-banner' : 'brand-banner';
+  const art = decorativeSvg('brand-banner-art brand-network', '0 0 520 112');
+  [
+    ['path', 'M0 72 56 44 112 79 174 24 238 68 305 31'],
+    ['path', 'M18 7 56 44 90 8 112 79 174 24 207 99 238 68 279 99 305 31 352 76'],
+  ].forEach(([tag, d]) => {
+    const path = document.createElementNS(svgNamespace, tag);
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', 'currentColor');
+    path.setAttribute('stroke-width', '1');
+    art.appendChild(path);
+  });
+  [
+    [18, 7],
+    [56, 44],
+    [90, 8],
+    [112, 79],
+    [174, 24],
+    [207, 99],
+    [238, 68],
+    [279, 99],
+    [305, 31],
+    [352, 76],
+  ].forEach(([cx, cy]) => {
+    const node = document.createElementNS(svgNamespace, 'circle');
+    node.setAttribute('cx', String(cx));
+    node.setAttribute('cy', String(cy));
+    node.setAttribute('r', '2.4');
+    node.setAttribute('fill', 'currentColor');
+    art.appendChild(node);
+  });
+  const book = decorativeSvg('brand-banner-art brand-book', '0 0 180 100');
+  const bookPath = document.createElementNS(svgNamespace, 'path');
+  bookPath.setAttribute(
+    'd',
+    'M12 18c24-8 47-3 78 10v55C59 70 36 66 12 74V18Zm156 0c-24-8-47-3-78 10v55c31-13 54-17 78-9V18ZM90 28v55'
+  );
+  bookPath.setAttribute('fill', 'none');
+  bookPath.setAttribute('stroke', 'currentColor');
+  bookPath.setAttribute('stroke-width', '2');
+  bookPath.setAttribute('stroke-linecap', 'round');
+  bookPath.setAttribute('stroke-linejoin', 'round');
+  book.appendChild(bookPath);
+  const inner = document.createElement('div');
+  inner.className = 'container brand-banner-inner';
+  inner.appendChild(makeBrandLockup('brand-lockup'));
+  banner.append(art, book, inner);
+  host.replaceChildren(banner);
+}
+
 const learningIcons = [
   [
     ['path', 'M7 8.5c4-2 8-2 12 0v12c-4-2-8-2-12 0z'],
@@ -110,7 +193,11 @@ export function renderHeader(activeKey = '') {
   if (!host) return;
   const header = document.createElement('div');
   header.className = 'container header-inner';
-  header.appendChild(makeLogo('brand-logo'));
+  const compactMark = makeBrandMark('nav-brand-mark');
+  compactMark.href = 'index.html';
+  compactMark.setAttribute('aria-hidden', 'true');
+  compactMark.tabIndex = -1;
+  header.appendChild(compactMark);
 
   const toggle = document.createElement('button');
   toggle.type = 'button';
@@ -157,6 +244,14 @@ export function renderHeader(activeKey = '') {
   header.appendChild(toggle);
   header.appendChild(nav);
   host.replaceChildren(header);
+  const bannerHost = document.getElementById('site-brand-banner');
+  renderBrandBanner(bannerHost);
+  if (bannerHost && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(([entry]) => {
+      host.classList.toggle('is-brand-visible', !entry.isIntersecting);
+    });
+    observer.observe(bannerHost);
+  }
   ui.initMobileNav();
 }
 
@@ -255,9 +350,12 @@ export function initPortalLayout() {
   const identityText = role === 'Admin' ? 'Admin' : 'Mentor';
   const header = document.createElement('div');
   header.className = 'container header-inner portal-header-inner';
-  const logo = makeLogo('brand-logo');
+  const logo = makeBrandMark('brand-logo');
   logo.href = '../public/index.html';
   header.appendChild(logo);
+  if (window.location.pathname.endsWith('/login.html')) {
+    renderBrandBanner(document.getElementById('portal-brand-banner'), true);
+  }
   const layout = document.querySelector('.portal-layout');
   const navItems =
     role === 'Admin'

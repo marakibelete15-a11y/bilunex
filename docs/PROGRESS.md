@@ -321,6 +321,20 @@
 
 **Part 3 status:** implemented; lint and suite run before commit.
 
+## User update — Code-built brand banner
+
+**Part 1 status:** done
+
+- Added one shared, code-rendered Bilunex banner component to every public page and to the admin and mentor login logo areas. It uses real text for the wordmark and tagline, with a navy gradient and low-opacity SVG network, book, glow and gold lower-edge decorations.
+- Added responsive `--brand-banner-height` tokens in `client/css/layout.css` (104px wide, 88px through tablet widths and 72px on phones). The tagline is hidden only at widths of 360px and below so the lockup fits without horizontal overflow.
+- Added a reusable external SVG `<symbol>` for the round gold monogram. It is referenced by inline SVG `<use>` elements, not `<img>` elements. The symbol is an original B/n-style approximation based on the supplied description; it does not claim to trace the absent PNG artwork exactly.
+- The public nav remains sticky while the banner scrolls away and reveals the reusable small monogram after the banner leaves view. The mark ring and wordmark shine are motion-aware; reduced-motion users see static branding.
+- The wordmark uses the system serif stack Georgia, Times New Roman, serif; no external font or font download was added.
+- Replaced the favicon artwork with the vector monogram. PNG and ICO variants are deferred to final verification if a local SVG renderer is available.
+- Initial `npm run lint` passed. The first `npm test` attempt was blocked by restricted loopback access; after enabling loopback, the full suite passed (66 tests). `node --test client/tests/header-layout.test.cjs` passed (2 tests).
+
+**Next:** Part 2 — align the logo treatment and dimensions across the public nav, footer, portal headers, and login banners.
+
 ## User update — Shared form notifications
 
 - Added one reusable top-of-page toast in `client/js/ui.js`: polite status for success, alert for errors, close button, 8-second success dismissal paused on hover/focus, and a mobile-friendly layout. Parent registration, mentor application, inquiry, and mentor report no longer show reference IDs on screen; intake still requires a valid HTTP 201 response and record ID. Success resets the form and scrolls to the top. Email templates retain their reference IDs; browser success messages do not.
