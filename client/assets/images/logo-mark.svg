@@ -1,7 +1,75 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
-  <title id="title">Bilunex growth mark</title>
-  <rect x="2" y="2" width="60" height="60" rx="16" fill="#102746"/>
-  <path d="M18 46V18h15c8 0 12 8 5 13 9 4 5 15-4 15H18Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/>
-  <path d="m23 39 8-8 5 3 9-12" fill="none" stroke="#c59a43" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M40 22h5v5" fill="none" stroke="#c59a43" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" role="img" aria-labelledby="bilunex-mark-title bilunex-mark-description">
+  <title id="bilunex-mark-title">Bilunex monogram</title>
+  <desc id="bilunex-mark-description">Gold calligraphic Bilunex monogram inside a thin ring.</desc>
+  <defs>
+    <radialGradient id="bilunex-disc" cx="48%" cy="38%" r="72%">
+      <stop offset="0" stop-color="#0d1e39" />
+      <stop offset="0.72" stop-color="#07152d" />
+      <stop offset="1" stop-color="#040d20" />
+    </radialGradient>
+    <linearGradient id="bilunex-ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe27c" />
+      <stop offset="0.36" stop-color="#d5a83e" />
+      <stop offset="0.7" stop-color="#a96e19" />
+      <stop offset="1" stop-color="#f1ca61" />
+    </linearGradient>
+    <radialGradient id="bilunex-top-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fff0a8" stop-opacity="0.82" />
+      <stop offset="0.44" stop-color="#f7bd38" stop-opacity="0.3" />
+      <stop offset="1" stop-color="#f7bd38" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="bilunex-gold" x1="0.08" y1="0.03" x2="0.92" y2="0.98">
+      <stop offset="0" stop-color="#fff18b" />
+      <stop offset="0.18" stop-color="#ffd94a" />
+      <stop offset="0.48" stop-color="#e8ac18" />
+      <stop offset="0.78" stop-color="#bd7908" />
+      <stop offset="1" stop-color="#f2c43a" />
+    </linearGradient>
+    <linearGradient id="bilunex-highlight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff6ad" stop-opacity="0.95" />
+      <stop offset="0.55" stop-color="#ffe16b" stop-opacity="0.48" />
+      <stop offset="1" stop-color="#fff2a0" stop-opacity="0" />
+    </linearGradient>
+    <linearGradient id="bilunex-shine-pass" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff3a0" stop-opacity="0" />
+      <stop offset="0.43" stop-color="#fff3a0" stop-opacity="0" />
+      <stop offset="0.49" stop-color="#fff9d2" stop-opacity="0.38" />
+      <stop offset="0.54" stop-color="#fff0a0" stop-opacity="0.24" />
+      <stop offset="0.61" stop-color="#fff3a0" stop-opacity="0" />
+      <stop offset="1" stop-color="#fff3a0" stop-opacity="0" />
+    </linearGradient>
+    <mask id="bilunex-monogram-mask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="640" height="640" mask-type="alpha">
+      <rect width="640" height="640" fill="#000" />
+      <use href="#bilunex-letter-left" style="fill:#fff;stroke:none" />
+      <use href="#bilunex-letter-right" style="fill:#fff;stroke:none" />
+      <use href="#bilunex-letter-mark-one" style="fill:#fff;stroke:none" />
+      <use href="#bilunex-letter-mark-two" style="fill:#fff;stroke:none" />
+    </mask>
+    <clipPath id="bilunex-disc-clip"><circle cx="320" cy="304" r="199" /></clipPath>
+  </defs>
+  <g class="logo-symbol">
+    <circle cx="320" cy="304" r="199" fill="url(#bilunex-disc)" />
+    <ellipse class="logo-top-glow" cx="320" cy="108" rx="80" ry="35" fill="url(#bilunex-top-glow)" clip-path="url(#bilunex-disc-clip)" />
+    <circle class="logo-ring-draw" cx="320" cy="304" r="201" fill="none" stroke="url(#bilunex-ring)" stroke-width="3.4" />
+
+    <g class="logo-monogram">
+      <path id="bilunex-letter-left" class="logo-letter" d="M223 169H304Q317 169 320 181L321 195H279V377Q279 394 290 402Q302 411 316 404Q330 397 340 379Q353 356 350 327Q347 285 316 257L340 236Q369 258 379 303Q391 355 371 390Q355 417 326 422Q297 428 270 416Q236 401 233 375L231 198H226Z" />
+      <path id="bilunex-letter-right" class="logo-letter" d="M268 292L300 261Q329 232 358 232Q394 232 414 264Q434 300 437 347Q440 382 430 401Q422 415 407 416Q391 417 378 403Q395 373 389 333Q383 294 366 273Q351 254 330 263Q307 272 281 302Z" />
+      <path id="bilunex-letter-mark-one" class="logo-letter" d="M357 170H395Q405 170 407 180L411 198H369Z" />
+      <path id="bilunex-letter-mark-two" class="logo-letter" d="M402 208Q411 204 419 207L424 218Q416 216 407 221Z" />
+      <path class="logo-gloss" d="M227 171H304Q316 171 318 182L320 190M235 201L236 375Q238 393 252 403M277 291L301 267Q329 239 357 237Q379 237 394 254M360 173H394Q402 173 403 181" />
+    </g>
+    <rect class="logo-shine" x="180" y="160" width="300" height="280" mask="url(#bilunex-monogram-mask)" />
+  </g>
+  <style>
+    .logo-ring-draw { stroke-dasharray: 1263; stroke-dashoffset: 1263; animation: bilunex-ring-draw 1.65s cubic-bezier(.4,0,.2,1) .15s forwards; transform-origin: 320px 304px; }
+    .logo-symbol { transform-origin: 320px 304px; }
+    .logo-monogram { transform-origin: 320px 304px; filter: drop-shadow(0 3px 2px #0008); }
+    .logo-letter { fill: url(#bilunex-gold); }
+    .logo-gloss { fill: none; stroke: url(#bilunex-highlight); stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+    .logo-shine { fill: url(#bilunex-shine-pass); opacity: 0; pointer-events: none; animation: bilunex-shine-pass 6s ease-in-out 2s infinite; }
+    @keyframes bilunex-ring-draw { to { stroke-dashoffset: 0; } }
+    @keyframes bilunex-shine-pass { 0%, 72%, 100% { opacity: 0; transform: translateX(-260px); } 77% { opacity: .42; } 91% { opacity: 0; transform: translateX(290px); } }
+    @media (prefers-reduced-motion: reduce) { .logo-ring-draw, .logo-shine { animation: none !important; stroke-dashoffset: 0; opacity: 0; } }
+  </style>
 </svg>

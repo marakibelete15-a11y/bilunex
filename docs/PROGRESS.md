@@ -49,6 +49,15 @@
 - Footer checked at 320, 768, and 1440px; no overflow; all text links are separate list items, with at least 44px target height.
 - The full test suite passes (66 tests across 7 suites); lint and the client regression test pass.
 
+## Brand update — hand-drawn Bilunex logo mark
+
+**Status:** Part 1 done
+
+- Created `client/assets/images/logo-mark.svg` as a transparent square SVG. The navy disc, thin gradient ring, warm 12-o’clock glow, and calligraphic monogram are hand-drawn paths with gold gradients and a subtle shadow; there are no raster images, fonts, or external references in the SVG.
+- Rendered and compared multiple 640×640 Chrome previews against the supplied reference. Three refinement passes corrected the initial fill rendering, reduced ring weight and adjusted the top bar, narrowed the arch slightly, and tightened/brightened the ring glow.
+- Final own-art previews are saved at 640, 128, 48, 32, and 16 px in `docs/brand/previews/`. The reference image is not copied into the repository.
+- Visual match: the circle size, mark placement, stem/top bar, bowl, arch, gold palette, and top glow are close. Remaining differences are the source’s photographic texture and embossed material; this version is a clean vector with a manually interpreted ligature.
+
 ## Maintenance fixes — 2026-10-28
 
 ### Server logging and startup errors
