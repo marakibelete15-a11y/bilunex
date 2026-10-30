@@ -321,57 +321,6 @@
 
 **Part 3 status:** implemented; lint and suite run before commit.
 
-## User update — Code-built brand banner
-
-**Part 1 status:** done
-
-- Added one shared, code-rendered Bilunex banner component to every public page and to the admin and mentor login logo areas. It uses real text for the wordmark and tagline, with a navy gradient and low-opacity SVG network, book, glow and gold lower-edge decorations.
-- Added responsive `--brand-banner-height` tokens in `client/css/layout.css` (104px wide, 88px through tablet widths and 72px on phones). The tagline is hidden only at widths of 360px and below so the lockup fits without horizontal overflow.
-- Added a reusable external SVG `<symbol>` for the round gold monogram. It is referenced by inline SVG `<use>` elements, not `<img>` elements. The symbol is an original B/n-style approximation based on the supplied description; it does not claim to trace the absent PNG artwork exactly.
-- The public nav remains sticky while the banner scrolls away and reveals the reusable small monogram after the banner leaves view. The mark ring and wordmark shine are motion-aware; reduced-motion users see static branding.
-- The wordmark uses the system serif stack Georgia, Times New Roman, serif; no external font or font download was added.
-- Replaced the favicon artwork with the vector monogram. PNG and ICO variants are deferred to final verification if a local SVG renderer is available.
-- Initial `npm run lint` passed. The first `npm test` attempt was blocked by restricted loopback access; after enabling loopback, the full suite passed (66 tests). `node --test client/tests/header-layout.test.cjs` passed (2 tests).
-
-**Next:** Part 2 — align the logo treatment and dimensions across the public nav, footer, portal headers, and login banners.
-
-**Part 2 status:** done
-
-- Public pages and admin/mentor login pages use the same shared banner markup and height token. The banner lockup uses the same custom properties and responsive rules on all four page groups; the login pages no longer have a logo-size override.
-- The portal top bars and sticky public navigation reuse the SVG monogram. Their links remain available to keyboard and screen-reader users when displayed.
-- Removed the previous drawn `logo.svg` and its image-only logo CSS. `logo-mark.svg` is now the site’s shared reusable monogram symbol, referenced by SVG `<use>` elements; no site logo or banner uses an `<img>`.
-- Added SVG, 32px and 512px favicons, a 180px Apple touch icon, and a multi-size 16/32/48px ICO, generated from the vector mark. Every public, admin, and mentor page head links the SVG favicon and raster alternatives. The `favicon.svg` path is a symlink to the canonical `logo-mark.svg`; each page references the root SVG, so a replacement standalone designer SVG at that path needs no code change. Regenerate the PNG and ICO derivatives from the replacement file after swapping it.
-- `magick` was available and rendered the favicon correctly. Raster dimensions are 32×32, 180×180 and 512×512; the ICO contains 16×16, 32×32 and 48×48 images.
-
-**Next:** Part 3 — make every footer link a separate, accessible list item and restore clear copyright contrast.
-
-**Part 3 status:** done
-
-- The footer logo now uses the code-built gold monogram, live Bilunex wordmark and tagline over the existing navy footer, without a light box.
-- Added “Share Your Story” to Quick links and moved “Mentor portal login” into its own “For mentors” list. All quick, mentor, and contact links now sit in separate list items. Email, phone, Telegram, and Hawassa location remain in the Contact block.
-- Footer links have a 44px minimum tap height with spacing. Copyright now uses `#cbd5e1` on `#0b1329`; footer body and link colors are `#cbd5e1` or brighter, with visible focus/hover colors.
-- At widths of 360px and below, only the header/login banner tagline is hidden to preserve the wordmark lockup; the footer tagline remains visible and wraps as needed.
-
-**Next:** Part 4 — expand regression coverage and verify all page/width combinations, reduced motion, footer contrast and asset references.
-
-**Part 4 status:** done
-
-- Expanded `client/tests/header-layout.test.cjs` to cover the one shared banner render, no banner `<img>`, nav item and CTA structure, one mount on each of nine public pages and both login pages, footer list structure, shared banner-size declarations with no page-level overrides, reduced-motion hooks, favicon links, and footer AA text/link colors.
-- Desktop Chrome verification passed on all nine public pages at 320, 375, 768, 1024 and 1440 CSS px; the equivalent effective widths at 150% zoom (213, 250, 512, 683 and 960 CSS px) also passed. Both admin and mentor login banner areas were checked across the same ten widths. Across all 110 page/width cases, banner heights were identical at each width and horizontal overflow was 0px.
-- At widths over 1200px, the header CTA sits at the far right of the navigation. After scrolling the banner away, the same monogram appears in the sticky nav. At mobile widths the nav CTA is hidden when the drawer is closed and appears once when opened. No uncaught page runtime errors occurred.
-- The extreme 150%-zoom-equivalent width exposed a long-word overflow in the admin login heading; it now wraps at small widths. The banner lower-edge decoration stays within the viewport.
-- The tagline renders at 10px from 361px upward and is hidden at 360px and below. At 320px the banner remains 72px high and has no horizontal overflow.
-- Footer color contrast calculations against `#0b1329`: body text `#94a3b8` is 7.19:1, link/copyright `#cbd5e1` is 12.41:1, and hover `#f0d08e` is 12.39:1. These exceed WCAG AA for normal text.
-- Verification commands: `npm run lint`; `npm test` (66 tests); `node --test client/tests/header-layout.test.cjs` (8 tests). The 150% viewport checks use the equivalent reduced CSS viewport widths, with a 1.5 device scale factor.
-
-**Next:** branding and footer work complete; see final verification below.
-
-## Brand banner final verification
-
-- The canonical brand mark is `client/assets/images/logo-mark.svg`; it is referenced by SVG `<use>` elements, with `client/assets/images/favicon.svg` as a symlink to the same file. The old `client/assets/images/logo.svg` was removed. The original PNG brand assets were not present and are not used.
-- The wordmark is live Georgia/Times New Roman serif text; no web font was downloaded. The custom `bn` mark is a clean geometric approximation based on the written description (gold-ringed navy disc, interlocking B/n strokes and gold gradient). The referenced round PNG was not available in this checkout, so I could not trace its exact letter shapes.
-- A future official standalone SVG can replace `client/assets/images/logo-mark.svg` without changing component code. Regenerate `favicon-32.png`, `apple-touch-icon.png`, `favicon-512.png`, and `favicon.ico` from that SVG afterward.
-
 ## User update — Shared form notifications
 
 - Added one reusable top-of-page toast in `client/js/ui.js`: polite status for success, alert for errors, close button, 8-second success dismissal paused on hover/focus, and a mobile-friendly layout. Parent registration, mentor application, inquiry, and mentor report no longer show reference IDs on screen; intake still requires a valid HTTP 201 response and record ID. Success resets the form and scrolls to the top. Email templates retain their reference IDs; browser success messages do not.
