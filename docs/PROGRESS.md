@@ -15,6 +15,14 @@
 - Replaced the Home introduction body with only the two supplied story sentences and added the “Read our story” About page link.
 - `npm run lint` passes; `npm test` passes (66 tests across 7 suites).
 
+## Content update — For Parents FAQ
+
+**Status:** done
+
+- Replaced the FAQ items with the 11 supplied questions and answers in their supplied order, using native `details`/`summary` disclosures. Linked only existing answer wording to Contact and Parent Registration pages.
+- The requested conflict audit is still in progress; unchanged conflicting copy is listed in the handoff report before asking for the owner’s decision.
+- `node --test client/tests/header-layout.test.cjs`, `npm run lint`, and `npm test` pass.
+
 ## Maintenance fixes — 2026-10-28
 
 ### Server logging and startup errors
