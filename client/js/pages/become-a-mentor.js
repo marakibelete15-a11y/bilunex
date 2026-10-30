@@ -197,11 +197,12 @@ form.addEventListener('submit', async event => {
       expectedStatus: 201,
     });
     if (!response.data?.id) throw new Error('The server did not return an application reference.');
-    document.getElementById('mentor-reference').textContent = `#${response.data.id}`;
-    form.hidden = true;
-    const success = document.getElementById('mentor-success');
-    success.hidden = false;
-    success.focus();
+    form.reset();
+    setStep(0);
+    ui.notify(
+      'Thank you. Your application has been received. The Bilunex team will review it and contact you about next steps.'
+    );
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch (error) {
     if (error instanceof ApiError && error.errors) validator.applyServerErrors(form, error.errors);
     if (error instanceof ApiError && error.status === 429)
@@ -215,6 +216,7 @@ form.addEventListener('submit', async event => {
         'We could not reach Bilunex. Check your connection and try again. Your application has not been confirmed.';
     else
       feedback.textContent = error.message || 'Please check the highlighted fields and try again.';
+    ui.notify(feedback.textContent, 'error');
     feedback.focus();
   } finally {
     submitting = false;

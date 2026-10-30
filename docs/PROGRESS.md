@@ -314,3 +314,9 @@
 - Animated the gold growth line in the shared SVG logo using embedded SVG CSS on first load, with a restrained glow cycle. Hover/focus gently lifts and rotates the image; reduced-motion disables animation. Favicon remains static.
 
 **Part 3 status:** implemented; lint and suite run before commit.
+
+## User update — Shared form notifications
+
+- Added one reusable top-of-page toast in `client/js/ui.js`: polite status for success, alert for errors, close button, 8-second success dismissal paused on hover/focus, and a mobile-friendly layout. Parent registration, mentor application, inquiry, and mentor report no longer show reference IDs on screen; intake still requires a valid HTTP 201 response and record ID. Success resets the form and scrolls to the top.
+
+**Part 4 status:** implementation recorded; lint and suite to run.

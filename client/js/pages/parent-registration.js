@@ -175,11 +175,12 @@ form.addEventListener('submit', async event => {
     });
     const reference = response.data?.id;
     if (!reference) throw new Error('The server did not return a registration reference.');
-    document.getElementById('registration-reference').textContent = `#${reference}`;
-    form.closest('.form-card').hidden = true;
-    const success = document.getElementById('registration-success');
-    success.hidden = false;
-    success.focus();
+    form.reset();
+    setStep(0);
+    ui.notify(
+      'Thank you. Your registration has been received. Our team will review it and contact you.'
+    );
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch (error) {
     if (error instanceof ApiError && error.errors) validator.applyServerErrors(form, error.errors);
     if (error instanceof ApiError && error.status === 429) {
@@ -194,6 +195,7 @@ form.addEventListener('submit', async event => {
     } else {
       feedback.textContent = error.message || 'Please check the highlighted fields and try again.';
     }
+    ui.notify(feedback.textContent, 'error');
     feedback.focus();
   } finally {
     submitting = false;

@@ -109,6 +109,48 @@ export const ui = {
     }
   },
 
+  notify(message, type = 'success') {
+    const header = document.querySelector('.site-header');
+    if (!header) return null;
+    document.getElementById('site-notification')?.remove();
+    const toast = document.createElement('div');
+    toast.id = 'site-notification';
+    toast.className = `site-notification site-notification-${type}`;
+    toast.setAttribute('role', type === 'success' ? 'status' : 'alert');
+    toast.setAttribute('aria-live', type === 'success' ? 'polite' : 'assertive');
+    const icon = document.createElement('span');
+    icon.className = 'site-notification-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = type === 'success' ? '✓' : '!';
+    const text = document.createElement('p');
+    text.textContent = message;
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'site-notification-close';
+    close.setAttribute('aria-label', 'Dismiss notification');
+    close.textContent = '×';
+    toast.append(icon, text, close);
+    header.insertAdjacentElement('afterend', toast);
+
+    let timer;
+    const startTimer = () => {
+      if (type === 'success') timer = setTimeout(() => toast.remove(), 8000);
+    };
+    const stopTimer = () => clearTimeout(timer);
+    toast.addEventListener('mouseenter', stopTimer);
+    toast.addEventListener('focusin', stopTimer);
+    toast.addEventListener('mouseleave', startTimer);
+    toast.addEventListener('focusout', event => {
+      if (!toast.contains(event.relatedTarget)) startTimer();
+    });
+    close.addEventListener('click', () => {
+      stopTimer();
+      toast.remove();
+    });
+    startTimer();
+    return toast;
+  },
+
   /**
    * Initialize accessible mobile navigation drawer toggle
    */

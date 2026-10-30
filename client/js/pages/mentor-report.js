@@ -18,11 +18,7 @@ if (setupMentor()) {
     const fields = new FormData(form);
     try {
       const response = await api.post('/mentor/reports', Object.fromEntries(fields));
-      showMessage(
-        feedback,
-        `Support report filed successfully (reference ${response.data.id}).`,
-        'success'
-      );
+      showMessage(feedback, 'Support report filed successfully.', 'success');
       form.reset();
       const list = await api.get('/mentor/reports');
       renderReports(reportsHost, list.data || []);
