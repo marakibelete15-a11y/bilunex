@@ -8,6 +8,13 @@
 - Kept the Mission, Vision and Values, Our Approach, Our Commitment, and three principles unchanged. The new story’s vision paragraph overlaps conceptually with the existing “Our vision” card; both remain as instructed.
 - `npm run lint` passes; `npm test` passes (66 tests across 7 suites).
 
+## Content update — Home introduction
+
+**Status:** done
+
+- Replaced the Home introduction body with only the two supplied story sentences and added the “Read our story” About page link.
+- `npm run lint` passes; `npm test` passes (66 tests across 7 suites).
+
 ## Maintenance fixes — 2026-10-28
 
 ### Server logging and startup errors
