@@ -264,9 +264,6 @@ export function renderFooter() {
   const brand = document.createElement('div');
   brand.className = 'footer-col footer-brand';
   brand.appendChild(makeLogo('footer-logo'));
-  const tagline = document.createElement('p');
-  tagline.textContent = 'Education · Growth · Opportunity';
-  brand.appendChild(tagline);
   grid.appendChild(brand);
 
   const links = document.createElement('div');
@@ -284,6 +281,26 @@ export function renderFooter() {
     linkList.appendChild(entry);
   });
   links.append(linksTitle, linkList);
+  const storyItem = document.createElement('li');
+  const storyLink = document.createElement('a');
+  storyLink.href = 'share-your-story.html';
+  storyLink.textContent = 'Share Your Story';
+  storyItem.appendChild(storyLink);
+  linkList.appendChild(storyItem);
+  const mentorGroup = document.createElement('section');
+  mentorGroup.className = 'footer-mentor-group';
+  const mentorTitle = document.createElement('h3');
+  mentorTitle.textContent = 'For mentors';
+  const mentorList = document.createElement('ul');
+  mentorList.className = 'footer-nav-list';
+  const mentorItem = document.createElement('li');
+  const mentorLogin = document.createElement('a');
+  mentorLogin.href = '../mentor/login.html';
+  mentorLogin.textContent = 'Mentor portal login';
+  mentorItem.appendChild(mentorLogin);
+  mentorList.appendChild(mentorItem);
+  mentorGroup.append(mentorTitle, mentorList);
+  links.appendChild(mentorGroup);
   grid.appendChild(links);
 
   const contact = document.createElement('div');
@@ -293,36 +310,27 @@ export function renderFooter() {
   const email = document.createElement('a');
   email.href = `mailto:${siteInfo.email}`;
   email.textContent = siteInfo.email;
-  const contactInfo = document.createElement('p');
-  contactInfo.append('Email: ', email);
+  const contactList = document.createElement('ul');
+  contactList.className = 'footer-contact-list';
+  const emailItem = document.createElement('li');
+  emailItem.append('Email: ', email);
+  contactList.appendChild(emailItem);
   const phone = document.createElement('a');
   phone.href = `tel:${siteInfo.phoneHref}`;
   phone.textContent = siteInfo.phone;
-  const phoneInfo = document.createElement('p');
-  phoneInfo.append('Phone: ', phone);
-  const location = document.createElement('p');
-  location.textContent = `Location: ${siteInfo.address}`;
-  const storyLink = document.createElement('a');
-  storyLink.href = 'share-your-story.html';
-  storyLink.textContent = 'Share Your Story';
-  const mentorLogin = document.createElement('a');
-  mentorLogin.href = '../mentor/login.html';
-  mentorLogin.textContent = 'Mentor portal login';
+  const phoneItem = document.createElement('li');
+  phoneItem.append('Phone: ', phone);
+  contactList.appendChild(phoneItem);
   const telegram = document.createElement('a');
   telegram.href = siteInfo.telegramUrl;
   telegram.textContent = siteInfo.telegram;
   telegram.rel = 'noopener noreferrer';
-  const telegramInfo = document.createElement('p');
-  telegramInfo.append('Telegram: ', telegram);
-  contact.append(
-    contactTitle,
-    contactInfo,
-    phoneInfo,
-    telegramInfo,
-    location,
-    storyLink,
-    mentorLogin
-  );
+  const telegramItem = document.createElement('li');
+  telegramItem.append('Telegram: ', telegram);
+  const locationItem = document.createElement('li');
+  locationItem.textContent = `Location: ${siteInfo.address}`;
+  contactList.append(telegramItem, locationItem);
+  contact.append(contactTitle, contactList);
   grid.appendChild(contact);
 
   const bottom = document.createElement('div');

@@ -345,6 +345,15 @@
 
 **Next:** Part 3 — make every footer link a separate, accessible list item and restore clear copyright contrast.
 
+**Part 3 status:** done
+
+- The footer logo now uses the code-built gold monogram, live Bilunex wordmark and tagline over the existing navy footer, without a light box.
+- Added “Share Your Story” to Quick links and moved “Mentor portal login” into its own “For mentors” list. All quick, mentor, and contact links now sit in separate list items. Email, phone, Telegram, and Hawassa location remain in the Contact block.
+- Footer links have a 44px minimum tap height with spacing. Copyright now uses `#cbd5e1` on `#0b1329`; footer body and link colors are `#cbd5e1` or brighter, with visible focus/hover colors.
+- At widths of 360px and below, only the header/login banner tagline is hidden to preserve the wordmark lockup; the footer tagline remains visible and wraps as needed.
+
+**Next:** Part 4 — expand regression coverage and verify all page/width combinations, reduced motion, footer contrast and asset references.
+
 ## User update — Shared form notifications
 
 - Added one reusable top-of-page toast in `client/js/ui.js`: polite status for success, alert for errors, close button, 8-second success dismissal paused on hover/focus, and a mobile-friendly layout. Parent registration, mentor application, inquiry, and mentor report no longer show reference IDs on screen; intake still requires a valid HTTP 201 response and record ID. Success resets the form and scrolls to the top. Email templates retain their reference IDs; browser success messages do not.
