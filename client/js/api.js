@@ -4,7 +4,27 @@
  * Includes timeout handling, JSON normalization, and a standardized error shape.
  */
 
-const API_BASE = '/api/v1';
+/**
+ * Decide where the API lives.
+ * - Page served by Express (port 5000) or in production: same origin, relative URL.
+ * - Page served by another dev server (Live Server on :5500): call Express on :5000.
+ * - Override anytime with: window.BILUNEX_API_ORIGIN = 'https://api.example.com'
+ */
+const DEV_API_ORIGIN = 'http://localhost:5000';
+
+function resolveApiOrigin() {
+  if (typeof window === 'undefined') return '';
+  if (window.BILUNEX_API_ORIGIN) return window.BILUNEX_API_ORIGIN;
+
+  const { hostname, port } = window.location;
+  const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+  if (isLocalHost && port !== '5000') return DEV_API_ORIGIN;
+  return '';
+}
+
+export const API_ORIGIN = resolveApiOrigin();
+export const API_BASE = `${API_ORIGIN}/api/v1`;
 const DEFAULT_TIMEOUT_MS = 10000;
 
 export class ApiError extends Error {
@@ -14,6 +34,17 @@ export class ApiError extends Error {
     this.status = status;
     this.errors = errors;
   }
+}
+
+/**
+ * Redirect to the login page of the current area (admin or mentor),
+ * keeping whatever folder prefix the page is served under (e.g. /client/).
+ */
+function redirectToLogin() {
+  const { pathname } = window.location;
+  const area = pathname.includes('/admin/') ? 'admin' : 'mentor';
+  const loginPath = pathname.replace(/\/(admin|mentor)\/[^/]*$/, `/${area}/login.html`);
+  window.location.replace(loginPath);
 }
 
 export const api = {
@@ -35,7 +66,7 @@ export const api = {
     const headers = { ...options.headers };
     if (!isFormData && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
 
-    // Attach Bearer token from localStorage if user session exists
+    // Attach Bearer token from sessionStorage if a user session exists
     const token = sessionStorage.getItem('bilunex_token');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -75,10 +106,7 @@ export const api = {
         ) {
           sessionStorage.removeItem('bilunex_token');
           sessionStorage.removeItem('bilunex_user');
-          const login = window.location.pathname.includes('/admin/')
-            ? '/admin/login.html'
-            : '/mentor/login.html';
-          window.location.replace(login);
+          redirectToLogin();
         }
         let fallbackMessage = `Request failed with status ${response.status}`;
         if (response.status === 429) {
@@ -110,7 +138,8 @@ export const api = {
         });
       }
 
-      // Network unreachable or server offline
+      // Network unreachable, server offline, or blocked by CORS
+      console.error(`[api] Network error calling ${url}:`, err);
       throw new ApiError({
         status: 0,
         message:
