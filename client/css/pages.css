@@ -1288,6 +1288,9 @@ fieldset .form-label {
   overflow-wrap: anywhere;
 }
 @media (max-width: 600px) {
+  .admin-login-card h1 {
+    overflow-wrap: anywhere;
+  }
   .admin-filters {
     align-items: stretch;
   }

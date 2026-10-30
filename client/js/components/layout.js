@@ -25,7 +25,7 @@ const makeBrandMark = className => {
   mark.setAttribute('role', 'presentation');
   mark.setAttribute('focusable', 'false');
   const use = document.createElementNS(svgNamespace, 'use');
-  use.setAttribute('href', '../assets/images/logo-mark.svg#bilunex-mark');
+  use.setAttribute('href', '../assets/images/logo-mark.svg');
   mark.appendChild(use);
   link.appendChild(mark);
   return link;

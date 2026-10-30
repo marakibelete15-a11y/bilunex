@@ -340,7 +340,7 @@
 - Public pages and admin/mentor login pages use the same shared banner markup and height token. The banner lockup uses the same custom properties and responsive rules on all four page groups; the login pages no longer have a logo-size override.
 - The portal top bars and sticky public navigation reuse the SVG monogram. Their links remain available to keyboard and screen-reader users when displayed.
 - Removed the previous drawn `logo.svg` and its image-only logo CSS. `logo-mark.svg` is now the site’s shared reusable monogram symbol, referenced by SVG `<use>` elements; no site logo or banner uses an `<img>`.
-- Added SVG, 32px and 512px favicons, a 180px Apple touch icon, and a multi-size 16/32/48px ICO, generated from the vector mark. Every public, admin, and mentor page head links the SVG favicon and raster alternatives. If the monogram is replaced, update `logo-mark.svg` and regenerate these favicon derivatives from `favicon.svg`.
+- Added SVG, 32px and 512px favicons, a 180px Apple touch icon, and a multi-size 16/32/48px ICO, generated from the vector mark. Every public, admin, and mentor page head links the SVG favicon and raster alternatives. The `favicon.svg` path is a symlink to the canonical `logo-mark.svg`; each page references the root SVG, so a replacement standalone designer SVG at that path needs no code change. Regenerate the PNG and ICO derivatives from the replacement file after swapping it.
 - `magick` was available and rendered the favicon correctly. Raster dimensions are 32×32, 180×180 and 512×512; the ICO contains 16×16, 32×32 and 48×48 images.
 
 **Next:** Part 3 — make every footer link a separate, accessible list item and restore clear copyright contrast.
@@ -353,6 +353,24 @@
 - At widths of 360px and below, only the header/login banner tagline is hidden to preserve the wordmark lockup; the footer tagline remains visible and wraps as needed.
 
 **Next:** Part 4 — expand regression coverage and verify all page/width combinations, reduced motion, footer contrast and asset references.
+
+**Part 4 status:** done
+
+- Expanded `client/tests/header-layout.test.cjs` to cover the one shared banner render, no banner `<img>`, nav item and CTA structure, one mount on each of nine public pages and both login pages, footer list structure, shared banner-size declarations with no page-level overrides, reduced-motion hooks, favicon links, and footer AA text/link colors.
+- Desktop Chrome verification passed on all nine public pages at 320, 375, 768, 1024 and 1440 CSS px; the equivalent effective widths at 150% zoom (213, 250, 512, 683 and 960 CSS px) also passed. Both admin and mentor login banner areas were checked across the same ten widths. Across all 110 page/width cases, banner heights were identical at each width and horizontal overflow was 0px.
+- At widths over 1200px, the header CTA sits at the far right of the navigation. After scrolling the banner away, the same monogram appears in the sticky nav. At mobile widths the nav CTA is hidden when the drawer is closed and appears once when opened. No uncaught page runtime errors occurred.
+- The extreme 150%-zoom-equivalent width exposed a long-word overflow in the admin login heading; it now wraps at small widths. The banner lower-edge decoration stays within the viewport.
+- The tagline renders at 10px from 361px upward and is hidden at 360px and below. At 320px the banner remains 72px high and has no horizontal overflow.
+- Footer color contrast calculations against `#0b1329`: body text `#94a3b8` is 7.19:1, link/copyright `#cbd5e1` is 12.41:1, and hover `#f0d08e` is 12.39:1. These exceed WCAG AA for normal text.
+- Verification commands: `npm run lint`; `npm test` (66 tests); `node --test client/tests/header-layout.test.cjs` (8 tests). The 150% viewport checks use the equivalent reduced CSS viewport widths, with a 1.5 device scale factor.
+
+**Next:** branding and footer work complete; see final verification below.
+
+## Brand banner final verification
+
+- The canonical brand mark is `client/assets/images/logo-mark.svg`; it is referenced by SVG `<use>` elements, with `client/assets/images/favicon.svg` as a symlink to the same file. The old `client/assets/images/logo.svg` was removed. The original PNG brand assets were not present and are not used.
+- The wordmark is live Georgia/Times New Roman serif text; no web font was downloaded. The custom `bn` mark is a clean geometric approximation based on the written description (gold-ringed navy disc, interlocking B/n strokes and gold gradient). The referenced round PNG was not available in this checkout, so I could not trace its exact letter shapes.
+- A future official standalone SVG can replace `client/assets/images/logo-mark.svg` without changing component code. Regenerate `favicon-32.png`, `apple-touch-icon.png`, `favicon-512.png`, and `favicon.ico` from that SVG afterward.
 
 ## User update — Shared form notifications
 
