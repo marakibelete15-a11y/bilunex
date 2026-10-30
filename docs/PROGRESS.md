@@ -1,5 +1,13 @@
 # Bilunex redesign progress
 
+## Content update — About Us story
+
+**Status:** done
+
+- Replaced the Our Story placeholder with the exact supplied “Why Bilunex Began” copy, preserving paragraph breaks; the opening paragraph is larger and the closing line is styled as a quiet pull-quote.
+- Kept the Mission, Vision and Values, Our Approach, Our Commitment, and three principles unchanged. The new story’s vision paragraph overlaps conceptually with the existing “Our vision” card; both remain as instructed.
+- `npm run lint` passes; `npm test` passes (66 tests across 7 suites).
+
 ## Maintenance fixes — 2026-10-28
 
 ### Server logging and startup errors

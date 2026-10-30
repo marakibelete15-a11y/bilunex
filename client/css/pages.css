@@ -423,6 +423,15 @@
 .narrow-copy {
   max-width: 52rem;
 }
+
+.story-lead {
+  font-size: 1.15rem;
+}
+
+.story-pull-quote {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
 .intro-section h2,
 .section-header h2,
 .stories-empty h2,
