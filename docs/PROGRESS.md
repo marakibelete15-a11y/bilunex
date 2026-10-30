@@ -33,6 +33,22 @@
 - Added a footer regression test alongside existing checks for exactly one registration CTA and seven nav items.
 - `node --test client/tests/header-layout.test.cjs`, `npm run lint`, and `npm test` pass.
 
+## FAQ consistency audit and responsive verification
+
+**Status:** audit complete; owner decision requested for listed copy
+
+- Left every prior claim unchanged. Claims to review before publication:
+  - `client/js/pages/home.js:14`: “Our team evaluates the submission within 24 hours to understand the student's developmental needs and alignment with the Bilunex growth framework.” This is a specific 24-hour review promise; the new FAQ answer 3 describes review/contact and says registration does not guarantee immediate placement, without promising a response time.
+  - `client/public/for-parents.html:52-53`: “Our team reviews the submission within 24 hours to evaluate student developmental needs and alignment with the Bilunex growth framework.” Same timing promise in the process section; FAQ answer 3 omits the timing.
+  - `client/public/parent-registration.html:45-46`: “We will contact you within 24 hours to finalize the registration fee and schedule a Trial Session.” This is the original Google Form Next Steps wording; it is stronger than FAQ answer 3, and adds a trial-session promise not in the FAQ. Preserved as previously instructed.
+  - `client/public/for-parents.html:79-81` and `client/public/services.html:47-50`: both state coverage from “Explorers (Grades 1-3) through Achievers (Grades 9-10)” and describe specific subjects. FAQ answer 1 instead says subject and mentor availability depends on current team and service area. These are narrower coverage assertions that should be confirmed together.
+  - `client/public/for-parents.html:90-93`: “Mentors undergo rigorous self-evaluation and training” and parents/guardians “are encouraged to be present during sessions.” `client/public/services.html:75-77` also describes mentors as selected through “rigorous self-evaluation standards”; `client/public/become-a-mentor.html:63-64` says screening/orientation is based on “mentor self-evaluation guidelines and curriculum standards.” FAQ answer 2 describes application review and possible interviews/assessments, not this stated selection method. The universal encouragement for parent presence is more specific than FAQ answer 6, which says supervision should be agreed based on age and circumstances.
+  - `client/public/services.html:97-100` says counseling is provided by a qualified psychologist and is open to everyone; `client/public/contact.html:50-52` says it focuses on well-being and exam preparation. FAQ answer 9 says Bilunex connects people with appropriately qualified counseling professionals, and appointment availability/nature varies. Confirm whether “psychologist” is a fixed requirement and whether exam preparation is the full or only one counseling focus.
+  - The new FAQ answer 5 says fees depend on the service arrangement and are communicated before sessions; the 24-hour Google Form Next Steps above promises fee finalization and a Trial Session. Confirm whether that fixed flow remains current.
+- Chrome checked Home, About, and For Parents at 320, 375, 768, 1024, and 1440 CSS px, and effective CSS widths approximating 150% zoom (213, 250, 512, 683, 960 px). No horizontal overflow, page errors, or heading-level jumps were found; each page has one `h1`. The For Parents FAQ opens with keyboard Enter.
+- Footer checked at 320, 768, and 1440px; no overflow; all text links are separate list items, with at least 44px target height.
+- The full test suite passes (66 tests across 7 suites); lint and the client regression test pass.
+
 ## Maintenance fixes — 2026-10-28
 
 ### Server logging and startup errors
