@@ -29,6 +29,7 @@ const envSchema = z.object({
     .transform(val => parseInt(String(val), 10) || 587),
   EMAIL_USER: z.string().optional().default(''),
   EMAIL_PASS: z.string().optional().default(''),
+  EMAIL_REPLY_TO: z.string().email().optional(),
   EMAIL_FROM: z.string().optional().default('"Bilunex Support" <no-reply@bilunex.org>'),
   ADMIN_NOTIFICATION_EMAIL: z
     .string()

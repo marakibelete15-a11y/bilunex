@@ -12,6 +12,7 @@ const nodemailer = require('nodemailer');
 const env = require('../config/env');
 const logger = require('../utils/logger');
 const notificationLogRepository = require('../repositories/notification_log.repository');
+const siteInfo = require('../config/site-info');
 
 let transporter = null;
 let etherealProvision = null;
@@ -122,6 +123,7 @@ const safeSendNotification = async ({
       from: env.EMAIL_FROM || `"Bilunex Platform" <${env.EMAIL_USER || 'no-reply@bilunex.org'}>`,
       to,
       subject,
+      ...(env.EMAIL_REPLY_TO ? { replyTo: env.EMAIL_REPLY_TO } : {}),
       text: text || '',
       html: html || text || '',
     };
@@ -287,12 +289,15 @@ const notifyParentRegistration = async registration => {
     '',
     'Best regards,',
     'Bilunex Admissions & Academic Team',
+    '',
+    `Questions? Contact us at ${siteInfo.customerEmail}.`,
   ].join('\n');
 
   const parentHtml = `
     <p>Dear ${registration.parent_name},</p>
     <p>Thank you for registering with Bilunex. Your registration has been received under reference ID <strong>#${registration.id}</strong>.</p>
     <p>${nextStepsNotice}</p>
+    <p>Questions? Contact us at ${siteInfo.customerEmail}.</p>
     <p>Best regards,<br/>Bilunex Admissions &amp; Academic Team</p>
   `;
 
@@ -360,12 +365,15 @@ const notifyMentorApplication = async application => {
     '',
     'Best regards,',
     'Bilunex Academic Mentorship Team',
+    '',
+    `Questions? Contact us at ${siteInfo.customerEmail}.`,
   ].join('\n');
 
   const mentorHtml = `
     <p>Dear ${application.full_name},</p>
     <p>Thank you for applying to become a mentor at Bilunex. Your application has been received under reference ID <strong>#${application.id}</strong>.</p>
     <p>Our academic screening committee will review your qualifications, academic record, and supporting documents within 3 to 5 business days. If shortlisted, you will be invited for an interview.</p>
+    <p>Questions? Contact us at ${siteInfo.customerEmail}.</p>
     <p>Best regards,<br/>Bilunex Academic Mentorship Team</p>
   `;
 

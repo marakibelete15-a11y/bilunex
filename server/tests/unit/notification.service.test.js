@@ -119,6 +119,18 @@ describe('Notification Service (Safe Dispatch)', () => {
     });
   });
 
+  test('includes Reply-To only when EMAIL_REPLY_TO is configured', async () => {
+    const previous = env.EMAIL_REPLY_TO;
+    delete env.EMAIL_REPLY_TO;
+    await safeSendNotification({ to: 'one@example.com', subject: 'No reply-to', text: 'Body' });
+    expect(sendMailMock.mock.calls[0][0]).not.toHaveProperty('replyTo');
+    env.EMAIL_REPLY_TO = 'Bilunexmedia@gmail.com';
+    await safeSendNotification({ to: 'two@example.com', subject: 'Reply-to', text: 'Body' });
+    expect(sendMailMock.mock.calls[1][0].replyTo).toBe('Bilunexmedia@gmail.com');
+    if (previous === undefined) delete env.EMAIL_REPLY_TO;
+    else env.EMAIL_REPLY_TO = previous;
+  });
+
   test('notifyParentRegistration should send parent confirmation and admin alert without personal data', async () => {
     const reg = {
       id: 42,

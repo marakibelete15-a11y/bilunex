@@ -132,6 +132,9 @@ export function renderFooter() {
   phoneInfo.append('Phone: ', phone);
   const location = document.createElement('p');
   location.textContent = `Location: ${siteInfo.address}`;
+  const storyLink = document.createElement('a');
+  storyLink.href = 'stories.html#share-story';
+  storyLink.textContent = 'Share Your Story';
   const mentorLogin = document.createElement('a');
   mentorLogin.href = '../mentor/login.html';
   mentorLogin.textContent = 'Mentor portal login';
@@ -141,7 +144,15 @@ export function renderFooter() {
   telegram.rel = 'noopener noreferrer';
   const telegramInfo = document.createElement('p');
   telegramInfo.append('Telegram: ', telegram);
-  contact.append(contactTitle, contactInfo, phoneInfo, telegramInfo, location, mentorLogin);
+  contact.append(
+    contactTitle,
+    contactInfo,
+    phoneInfo,
+    telegramInfo,
+    location,
+    storyLink,
+    mentorLogin
+  );
   grid.appendChild(contact);
 
   const bottom = document.createElement('div');

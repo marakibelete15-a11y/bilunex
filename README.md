@@ -152,6 +152,7 @@ EMAIL_PORT=587
 EMAIL_USER=
 EMAIL_PASS=
 EMAIL_FROM="Bilunex Support" <no-reply@bilunex.org>
+# Optional: EMAIL_REPLY_TO=Bilunexmedia@gmail.com
 ADMIN_NOTIFICATION_EMAIL=admin@bilunex.org
 CLIENT_URL=http://localhost:5000
 ```

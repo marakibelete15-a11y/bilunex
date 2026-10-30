@@ -104,3 +104,7 @@ Bilunex is a holistic support platform providing integrated academic tutoring, 1
 
 - **v1.0 (2026-10-25)**: Initial release with core intake, mentor portal, admin reviews, and safe notifications.
 - **v1.1 (2026-10-28)**: Reversion to Bilunex brand; added parent registration title, secondary phone, and communication preferences; added mentor academic GPA, EHEEE scores, campus, availability, and commitment agreement; added secure magic-byte document upload pipeline and audited admin streaming; added Ethereal fallback, multi-admin alerts, and notification role logging.
+
+### v1.2 amendment — Contact channels
+
+FR-1.11 social and messaging links are limited to Telegram for now. The official contact email is Bilunexmedia@gmail.com, and the listed phone and location are maintained in the site contact configuration.

@@ -112,7 +112,7 @@
 - Every visible Google Form field has an API mapping. The preferred-title checkbox group can select multiple values in Google Forms, while the API field is scalar; the page tells the visitor to select one and blocks multiple selections so no value is discarded. If multi-select behavior must be retained, the smallest backend extension is an array field stored in a PostgreSQL `text[]` column with matching validation and serialization. The screenshot’s Amharic introduction is represented by a confirmation placeholder because the raster text could not be transcribed confidently; exact Amharic copy is still needed to fully match that line.
 - Parent validation mirrors server requirements for name, email, Ethiopian phone format, title, communication preferences, student name, grade, subjects, and exact support category values. Success requires HTTP 201 and a returned reference ID; double-submit guard, inline errors, focus handling, 429/5xx/network messages are in place.
 - Mentor application now includes all API fields, multi-step progress, commitment agreement, transcript PDF and ID photo JPG/PNG checks (5 MB), file-name previews, and multipart submission. Backend remains responsible for magic-byte validation.
-- Contact inquiry form now maps `name`, `email`, optional `phone`, `inquiry_type`, and `message` to the inquiry API; contact/social/Telegram information is placeholder text.
+- Contact inquiry form now maps `name`, `email`, optional `phone`, `inquiry_type`, and `message` to the inquiry API; contact/Telegram information is placeholder text.
 - API client preserves browser `FormData` content boundaries and can enforce expected HTTP 201 responses.
 - Lint passes; full backend suite passes (62 tests). Browser inspection confirmed empty parent required-field validation and progression to student fields.
 
@@ -186,8 +186,8 @@
 
 **Status:** done
 
-- Added `client/js/config/site-info.js` as the source for email, phone, Telegram, social handles/URLs, parent support hours, and the confirmed address placeholder.
-- Shared footer and Contact page render email, phone, Telegram, LinkedIn, and Twitter/X from the module. Email, phone, and external links use the requested schemes and `noopener noreferrer` on external links.
+- Added `client/js/config/site-info.js` as the source for email, phone, Telegram, Telegram address, parent support hours, and the confirmed address placeholder.
+- Shared footer and Contact page render email, phone, Telegram, from the module. Email, phone, and external links use the requested schemes and `noopener noreferrer` on external links.
 - Contact page support-hours wording and the supplied parent support and counseling copy are present. Physical address remains `[To be confirmed by Bilunex]` in the footer.
 
 **Next:** Part 4.
@@ -236,7 +236,7 @@
 
 **Status:** done
 
-- Contact page general inquiry links, parent support hours, counseling text, and Telegram/social links now use the approved copy and the Part 3 site-info module. Inquiry type selector and submission code are unchanged.
+- Contact page general inquiry links, parent support hours, counseling text, and Telegram link now use the approved copy and the Part 3 site-info module. Inquiry type selector and submission code are unchanged.
 
 **Next:** Part 10.
 
@@ -256,7 +256,7 @@
 - Confirm For Parents FAQ answers: subjects/grades, mentor selection, and post-registration response/next steps in `client/public/for-parents.html`.
 - Provide exact Amharic registration introduction; marked placeholder remains in `client/public/parent-registration.html`.
 - Confirm physical address: `[To be confirmed by Bilunex]` in `client/js/config/site-info.js`.
-- Contact details currently set from `client/js/config/site-info.js`: `info@bilunex.edu`; `+251 11 123 4567`; Telegram `@BilunexEducation`; LinkedIn `linkedin.com/company/bilunex`; Twitter/X `@BilunexEdu`; parent support hours `Monday through Friday, 8:00 AM – 5:00 PM`.
+- Contact details currently set from `client/js/config/site-info.js`: `Bilunexmedia@gmail.com`; `+251 93 483 4343`; Telegram `@Bilunexteam`; parent support hours `Monday through Friday, 8:00 AM – 5:00 PM`.
 - Remaining literal `[To be confirmed by Bilunex]` locations: founding story (`about.html`); fee/response/trial details (`parent-registration.html`); mentor commitment (`become-a-mentor.html`); three For Parents FAQ responses (`for-parents.html`); physical address (`site-info.js`).
 
 **Next:** Part 11.
@@ -269,7 +269,7 @@
 - `npm test` passes: 62 tests across 6 suites. The first attempt was blocked by sandbox loopback restrictions (`listen EPERM`); after requesting network access for loopback verification, the full suite passed.
 - Opened Home and Contact at `http://127.0.0.1:5000`. Home renders the approved initial process copy, and Contact renders the inquiry type selector. This CUA browser session did not initialize the dynamic shared header or contact link labels/hrefs. The browser control surface in this session has no viewport override, so the requested 320/375/768/1024/1280/1440 and zoom 100%/150% matrix, focus ring, horizontal overflow, and browser-console checks could not be completed. Do not treat these browser checks as passed; repeat them in a browser with responsive viewport and console inspection enabled.
 - Zoom-specific desktop-nav widths requested in Part 1 (1100/1200/1280/1366 at 100/125/150/200%) were not directly measured. CSS sets the mobile drawer below 1200 CSS px and one-line nav labels at/above 1200 CSS px.
-- Contact link schemes and values are implemented through the shared module: `mailto:info@bilunex.edu`, `tel:+251111234567`, `https://t.me/BilunexEducation`, LinkedIn, and Twitter/X with `rel="noopener noreferrer"`. Dynamic DOM behavior requires a successful browser module initialization check before launch.
+- Contact link schemes and values are implemented through the shared module: `mailto:Bilunexmedia@gmail.com`, `tel:+251934834343`, and `https://t.me/Bilunexteam`. Dynamic DOM behavior requires a successful browser module initialization check before launch.
 
 **Files changed in this follow-up:** `client/css/components.css`, `client/css/layout.css`, `client/js/components/layout.js`, `client/js/config/site-info.js`, `client/js/pages/contact.js`, `client/js/pages/home.js`, `client/js/ui.js`, `client/public/about.html`, `client/public/become-a-mentor.html`, `client/public/contact.html`, `client/public/for-parents.html`, `client/public/index.html`, `client/public/services.html`, and `docs/PROGRESS.md`. Existing uncommitted user change in `client/js/api.js` was not included.
 
@@ -291,3 +291,12 @@
 - `npm run lint` passes; the client regression test passes; full `npm test` passes (62 tests across 6 suites). The first suite run in this turn hit sandbox loopback `EPERM`; after enabling loopback, all tests passed.
 
 **Next:** ready to commit `fix(client): render a single Register Your Student button`.
+
+## User update — Contact channel correction
+
+- Updated the single contact source, footer, Contact page, repository docs, and notification confirmations to use Bilunexmedia@gmail.com, +251 93 483 4343, @Bilunexteam, and Hawassa, Ethiopia. The email, phone and Telegram URLs are generated from site configuration; contact email is shared with server templates from `server/src/config/site-info.js`.
+- Removed the two former social platform entries and labels from the contact source and Contact page, and removed their references from checklist and progress text. The remaining messaging channel is Telegram.
+- Added optional EMAIL_REPLY_TO support (unset by default), and tests for present/absent behavior. Parent and mentor confirmation messages include the requested contact sentence; their templates still contain reference IDs.
+- Verify before launch: monitor the official email Bilunexmedia@gmail.com, Telegram @Bilunexteam, and phone +251 93 483 4343; confirm parent-support coverage Monday through Friday, 8:00 AM – 5:00 PM.
+
+**Part 1 status:** done. `npm run lint` passes; `npm test` passes (63 tests across 6 suites). The first test attempt hit sandbox loopback `EPERM`; after enabling loopback access, all tests passed.

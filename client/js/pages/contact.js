@@ -14,12 +14,12 @@ const setContactLink = (key, label, href, external = false) => {
   if (external) link.rel = 'noopener noreferrer';
 };
 document.querySelector('[data-contact="hours"]').textContent = siteInfo.parentSupportHours;
-document.querySelector('[data-contact="hours"]').textContent = siteInfo.parentSupportHours;
 setContactLink('email', siteInfo.email, `mailto:${siteInfo.email}`);
 setContactLink('phone', siteInfo.phone, `tel:${siteInfo.phoneHref}`);
 setContactLink('telegram', siteInfo.telegram, siteInfo.telegramUrl, true);
-setContactLink('linkedin', siteInfo.linkedin, siteInfo.linkedinUrl, true);
-setContactLink('twitter', siteInfo.twitter, siteInfo.twitterUrl, true);
+document.querySelector('[data-contact="location"]').textContent = siteInfo.address;
+setContactLink('parent-email', siteInfo.email, `mailto:${siteInfo.email}`);
+setContactLink('counseling-email', siteInfo.email, `mailto:${siteInfo.email}`);
 
 const form = document.getElementById('contact-form');
 const feedback = document.getElementById('contact-feedback');

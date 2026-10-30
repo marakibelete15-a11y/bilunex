@@ -69,7 +69,7 @@ ORDER BY id;
 
 - [ ] Try an empty form, invalid email, and short message. Confirm field-level feedback.
 - [ ] Submit one valid disposable message for each supported type: `general`, `parent_support`, `mentor_application`, and `counseling`. Confirm success/reference only after `201`.
-- [ ] Disconnect the network and retry; confirm clear feedback and no false success. Check contact, social, and Telegram placeholders for owner confirmation.
+- [ ] Disconnect the network and retry; confirm clear feedback and no false success. Check the shared email, phone, location, and Telegram contact links.
 
 ## Admin portal — http://localhost:5000/admin/login.html
 
