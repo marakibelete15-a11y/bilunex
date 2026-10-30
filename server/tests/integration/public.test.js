@@ -192,6 +192,30 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
       expect(res.body.data.preferred_communication_method).toEqual(['telegram', 'phone_call']);
     });
 
+    test('should save a custom preferred title as its actual value', async () => {
+      const customTitle = 'Professor';
+      const res = await request(app)
+        .post('/api/v1/public/parent-registrations')
+        .send({
+          preferred_title: customTitle,
+          parent_name: 'Custom Title Parent',
+          email: `custom_title_${Date.now()}@example.com`,
+          phone: '+251911223344',
+          child_name: 'Custom Title Student',
+          grade_level: 'Grade 10',
+          subjects: ['Physics'],
+          support_category: 'tutoring',
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.data.preferred_title).toBe(customTitle);
+      const saved = await db.query(
+        'SELECT preferred_title FROM parent_registrations WHERE id = $1',
+        [res.body.data.id]
+      );
+      expect(saved.rows[0].preferred_title).toBe(customTitle);
+    });
+
     test('should still store registration (HTTP 201) even if email dispatch fails (Safe Dispatch)', async () => {
       // Simulate SMTP network failure
       nodemailer.createTransport.mockReturnValue({
@@ -273,6 +297,26 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
   });
 
   describe('POST /api/v1/public/mentor-applications', () => {
+    test('should reject a missing CGPA', async () => {
+      const res = await submitMentor({
+        full_name: 'Missing CGPA Applicant',
+        email: `missing_cgpa_${Date.now()}@example.com`,
+        phone: '+251944556677',
+        university: 'Test University',
+        field_of_study: 'Mathematics',
+        academic_year: '3rd Year',
+        subjects: ['Mathematics'],
+        entrance_exam_stream: 'natural_science',
+        available_hours: ['Morning'],
+        availability: 'Weekends',
+        motivation: 'I enjoy supporting young learners.',
+        commitment_agreement: true,
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errors.some(error => error.field === 'cgpa')).toBe(true);
+    });
+
     test('logs admin and mentor notification attempts after successful application', async () => {
       nodemailer.createTransport.mockReturnValue({
         sendMail: jest.fn().mockResolvedValue({ messageId: 'ok' }),
@@ -285,6 +329,7 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         department: 'Math',
         year_of_study: '3rd Year',
         subjects: ['Mathematics'],
+        cgpa: 3.5,
         entrance_exam_stream: 'natural_science',
         available_days: ['Saturday'],
         available_hours: ['Morning'],
@@ -311,6 +356,7 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         field_of_study: 'Computer Science',
         academic_year: '4th Year',
         subjects: ['Computer Science', 'Mathematics'],
+        cgpa: 3.5,
         entrance_exam_stream: 'natural_science',
         available_hours: ['Morning'],
         availability: 'Weekends 10am-4pm',
@@ -448,6 +494,7 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         .field('field_of_study', 'Electrical Engineering')
         .field('academic_year', '5th Year')
         .field('subjects', JSON.stringify(['Circuits', 'Physics']))
+        .field('cgpa', '3.50')
         .field('entrance_exam_stream', 'natural_science')
         .field('available_hours', 'Morning')
         .field('availability', 'Weekends')
@@ -516,6 +563,7 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         field_of_study: 'Economics',
         academic_year: '3rd Year',
         subjects: ['English'],
+        cgpa: 3.4,
         entrance_exam_stream: 'social_science',
         entrance_exam_result: 601,
         available_hours: ['Morning'],
