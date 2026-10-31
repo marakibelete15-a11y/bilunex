@@ -44,3 +44,20 @@ test('For Parents contains the 11 ordered, closed native FAQ disclosures', () =>
   assert.match(html, /href="parent-registration\.html">Register Your Student<\/a>/);
   assert.ok((html.match(/href="contact\.html"/g) || []).length >= 3);
 });
+
+test('updated content pages have one H1 and do not skip heading levels', () => {
+  for (const file of [
+    'client/public/about.html',
+    'client/public/index.html',
+    'client/public/for-parents.html',
+  ]) {
+    const html = read(file);
+    const levels = [...html.matchAll(/<h([1-6])\b/gi)].map(match => Number(match[1]));
+    assert.equal(levels.filter(level => level === 1).length, 1, `${file} has one H1`);
+    let previous = 0;
+    for (const level of levels) {
+      assert.ok(level <= previous + 1 || previous === 0, `${file} heading level ${level} follows ${previous}`);
+      previous = level;
+    }
+  }
+});
