@@ -419,3 +419,9 @@
 
 - Replaced the About page story placeholder with the supplied “Why Bilunex Began” copy verbatim. The story uses a readable narrow column, a slightly larger lead paragraph, and a quiet pull-quote for its final line. Other About sections were left intact.
 - The new story’s vision paragraph overlaps thematically with the existing “Our vision” card: both describe a purpose-led environment and preparing students to realize their potential. Both were retained as requested.
+
+## User update — Home story introduction
+
+**Status:** done
+
+- Replaced the Home introduction with only the two supplied story sentences and linked “Read our story” to the About story section.
