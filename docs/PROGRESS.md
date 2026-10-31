@@ -412,3 +412,10 @@
 - **Database:** migrations 016 and 017 are applied in the local development and test databases. Production still needs `npm run migrate` against its configured database after backup.
 
 - **Part 7 audit:** repository scan found no references to the removed social platforms or their domains. Parent/mentor/inquiry/story manual procedures and SQL row checks are in `docs/MANUAL-CHECKLIST.md`.
+
+## User update — Founding story
+
+**Status:** done
+
+- Replaced the About page story placeholder with the supplied “Why Bilunex Began” copy verbatim. The story uses a readable narrow column, a slightly larger lead paragraph, and a quiet pull-quote for its final line. Other About sections were left intact.
+- The new story’s vision paragraph overlaps thematically with the existing “Our vision” card: both describe a purpose-led environment and preparing students to realize their potential. Both were retained as requested.
