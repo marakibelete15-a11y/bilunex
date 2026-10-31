@@ -425,3 +425,9 @@
 **Status:** done
 
 - Replaced the Home introduction with only the two supplied story sentences and linked “Read our story” to the About story section.
+
+## User update — For Parents FAQs
+
+**Status:** done
+
+- Replaced the FAQ placeholders with the 11 supplied questions and answers in the requested order. Native `details` and `summary` elements provide keyboard-accessible disclosure; all items remain closed by default, matching the existing pattern. Added Contact and registration links by wrapping the permitted existing words.
