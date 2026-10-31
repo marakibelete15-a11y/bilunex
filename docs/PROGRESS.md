@@ -431,3 +431,10 @@
 **Status:** done
 
 - Replaced the FAQ placeholders with the 11 supplied questions and answers in the requested order. Native `details` and `summary` elements provide keyboard-accessible disclosure; all items remain closed by default, matching the existing pattern. Added Contact and registration links by wrapping the permitted existing words.
+
+## User update — Footer and copy regression coverage
+
+**Status:** done
+
+- The shared footer already places every text link in its own list item, places “Share Your Story” under Quick links and “Mentor portal login” under For mentors, uses 44px link targets, and uses high contrast footer colors. The existing layout regression test verifies the link list structure, the seven-item navigation, one registration CTA, and WCAG AA contrast colors.
+- Added client content tests for the founding-story sentences, the Home story link, and the ordered set of 11 closed native FAQ disclosures and their Contact/registration links.
