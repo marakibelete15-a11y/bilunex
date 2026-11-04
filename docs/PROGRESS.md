@@ -447,3 +447,40 @@
 - **Database:** migrations 016 and 017 are applied in the local development and test databases. Production still needs `npm run migrate` against its configured database after backup.
 
 - **Part 7 audit:** repository scan found no references to the removed social platforms or their domains. Parent/mentor/inquiry/story manual procedures and SQL row checks are in `docs/MANUAL-CHECKLIST.md`.
+
+## User update — Founding story
+
+**Status:** done
+
+- Replaced the About page story placeholder with the supplied “Why Bilunex Began” copy verbatim. The story uses a readable narrow column, a slightly larger lead paragraph, and a quiet pull-quote for its final line. Other About sections were left intact.
+- The new story’s vision paragraph overlaps thematically with the existing “Our vision” card: both describe a purpose-led environment and preparing students to realize their potential. Both were retained as requested.
+
+## User update — Home story introduction
+
+**Status:** done
+
+- Replaced the Home introduction with only the two supplied story sentences and linked “Read our story” to the About story section.
+
+## User update — For Parents FAQs
+
+**Status:** done
+
+- Replaced the FAQ placeholders with the 11 supplied questions and answers in the requested order. Native `details` and `summary` elements provide keyboard-accessible disclosure; all items remain closed by default, matching the existing pattern. Added Contact and registration links by wrapping the permitted existing words.
+
+## User update — Footer and copy regression coverage
+
+**Status:** done
+
+- The shared footer already places every text link in its own list item, places “Share Your Story” under Quick links and “Mentor portal login” under For mentors, uses 44px link targets, and uses high contrast footer colors. The existing layout regression test verifies the link list structure, the seven-item navigation, one registration CTA, and WCAG AA contrast colors.
+- Added client content tests for the founding-story sentences, the Home story link, and the ordered set of 11 closed native FAQ disclosures and their Contact/registration links.
+
+## User update — Consistency review and verification
+
+**Status:** content updates done; owner review needed for consistency items
+
+- **24-hour timing:** `client/js/pages/home.js` says, “Our team evaluates the submission within 24 hours to understand the student's developmental needs and alignment with the Bilunex growth framework.” `client/public/for-parents.html` says, “Our team reviews the submission within 24 hours to evaluate student developmental needs and alignment with the Bilunex growth framework.” `client/public/parent-registration.html` says, “We will contact you within 24 hours to finalize the registration fee and schedule a Trial Session.” The new FAQ #3 describes review/contact and says registration does not guarantee immediate placement, but gives no response time. These are stronger timing promises, not direct placement guarantees; the form already has a confirmation placeholder for the 24-hour, fee, and trial-session wording.
+- **Mentor selection:** `client/public/for-parents.html` says, “Mentors undergo rigorous self-evaluation and training to serve as professional role models,” and says parents/guardians “are encouraged to be present during sessions.” `client/public/services.html` says mentors are “selected through rigorous self-evaluation standards”; `client/public/become-a-mentor.html` says applications undergo “screening and orientation based on mentor self-evaluation guidelines and curriculum standards” and says mentors adhere to self-evaluation standards. New FAQ #2 describes review against educational background, subject knowledge, communication, motivation, and suitability, with interviews/other assessments depending on the recruitment process. These can coexist, but the FAQ does not confirm the more specific self-evaluation/training process. FAQ #6 asks that supervision be agreed based on age and circumstances, which is less prescriptive than encouraging a parent to attend every session.
+- **Grades and location:** `client/public/for-parents.html` and `client/public/services.html` retain the Grades 1–3 through 9–10 range. FAQ #1 does not state a different range. The Hawassa/limited Addis Ababa wording in FAQ #4 is consistent with the site’s Hawassa contact location.
+- **Fees and counseling:** FAQ #5 says fees vary by service and arrangement and are communicated before sessions; this is compatible with the registration form's fee-finalization wording, pending its existing confirmation note. `client/public/services.html`, `client/public/contact.html`, and `client/public/index.html` say counseling is provided by a qualified psychologist; FAQ #9 says Bilunex aims to connect people with appropriately qualified counseling professionals. These statements may describe the same service, but the FAQ uses more conditional availability language. No confirmed contradiction was found; these are the wording/policy points to decide before further edits.
+- **Checks:** the eight shared-header/footer layout tests and three content tests pass; `npm run lint` passes. The accessible FAQ was opened with Enter in the browser. Static checks show one H1 and no skipped heading levels on About, Home, and For Parents. The full backend suite ran but failed 44 of 68 tests, with database-backed endpoints returning HTTP 500; 24 tests passed. No server logic was changed as part of this content task.
+- **Responsive limitation:** the available browser preview was 896 CSS pixels wide. The requested 320, 375, 768, 1024, and 1440px matrix and 150% zoom matrix could not be run: this browser session has no viewport override, and the installed headless Chrome could not start in the environment. Treat those viewport checks as unverified.
