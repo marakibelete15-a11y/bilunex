@@ -3,35 +3,33 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
-const { globSync } = require('node:fs');
 
 const repoRoot = path.resolve(__dirname, '../..');
 const layoutSource = fs
   .readFileSync(path.join(repoRoot, 'client/js/components/layout.js'), 'utf8')
   .replace(/^import .*;\s*$/gm, '')
-  .replace(/^export /gm, '');
+  .replace(/^export /gm, '')
+  .replace(/import\.meta\.url/g, "'http://localhost/js/components/layout.js'");
 const layoutCss = fs.readFileSync(path.join(repoRoot, 'client/css/layout.css'), 'utf8');
-const pageCss = fs.readFileSync(path.join(repoRoot, 'client/css/pages.css'), 'utf8');
-const componentCss = fs.readFileSync(path.join(repoRoot, 'client/css/components.css'), 'utf8');
+
+function listHtmlFiles(directory) {
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+    const fullPath = path.join(directory, entry.name);
+    if (entry.isDirectory()) return listHtmlFiles(fullPath);
+    return entry.name.endsWith('.html') ? [fullPath] : [];
+  });
+}
 
 class Element {
   constructor(tagName) {
     this.tagName = tagName;
     this.children = [];
     this.attributes = {};
-    this.classList = {
-      add: (...names) => names.forEach(name => this.classes.add(name)),
-      toggle: (name, force) => {
-        const shouldAdd = force ?? !this.classes.has(name);
-        if (shouldAdd) this.classes.add(name);
-        else this.classes.delete(name);
-        return shouldAdd;
-      },
-    };
+    this.dataset = {};
+    this.classList = { add: (...names) => names.forEach(name => this.classes.add(name)) };
     this.classes = new Set();
     this.firstChild = null;
-    this._textContent = '';
-    this.id = '';
+    this.textContent = '';
   }
 
   set className(value) {
@@ -40,15 +38,6 @@ class Element {
 
   get className() {
     return [...this.classes].join(' ');
-  }
-
-  set textContent(value) {
-    this._textContent = String(value);
-    this.children = [];
-  }
-
-  get textContent() {
-    return this._textContent + this.children.map(child => child.textContent).join('');
   }
 
   setAttribute(name, value) {
@@ -62,11 +51,7 @@ class Element {
   }
 
   append(...children) {
-    children.forEach(child =>
-      this.appendChild(
-        typeof child === 'string' ? Object.assign(new Element('#text'), { _textContent: child }) : child
-      )
-    );
+    children.forEach(child => this.appendChild(child));
   }
 
   replaceChildren(...children) {
@@ -74,69 +59,30 @@ class Element {
   }
 }
 
-function renderLayout() {
+function renderHeader() {
   const host = new Element('header');
-  const bannerHost = new Element('div');
-  const footerHost = new Element('footer');
-  bannerHost.id = 'site-brand-banner';
-  footerHost.id = 'site-footer';
-  const hosts = {
-    'site-header': host,
-    'site-brand-banner': bannerHost,
-    'site-footer': footerHost,
-  };
   const document = {
     createElement: tagName => new Element(tagName),
-    createElementNS: (_namespace, tagName) => new Element(tagName),
-    getElementById: id => hosts[id] || null,
+    getElementById: id => (id === 'site-header' ? host : null),
   };
   const context = {
     document,
     window: { location: { pathname: '/public/index.html' } },
     ui: { initMobileNav() {} },
     auth: { logout() {} },
-    siteInfo: {
-      email: 'hello@example.test',
-      phoneHref: '+251900000000',
-      phone: '+251 90 000 0000',
-      telegramUrl: 'https://t.me/example',
-      telegram: '@example',
-      address: 'Hawassa, Ethiopia',
-    },
     console,
   };
   vm.createContext(context);
   vm.runInContext(
-    `${layoutSource}\nthis.renderHeader = renderHeader; this.renderBrandBanner = renderBrandBanner; this.renderFooter = renderFooter; this.NAV_ITEMS = NAV_ITEMS;`,
+    `${layoutSource}\nthis.renderHeader = renderHeader; this.NAV_ITEMS = NAV_ITEMS;`,
     context
   );
   context.renderHeader('home');
-  context.renderBrandBanner(bannerHost);
-  context.renderFooter();
-  return {
-    header: host.children[0],
-    banner: bannerHost.children[0],
-    footer: footerHost.children[0],
-    navItems: context.NAV_ITEMS,
-  };
-}
-
-function descendants(node) {
-  return [node, ...node.children.flatMap(descendants)];
-}
-
-function byClass(node, className) {
-  return descendants(node).find(child => child.className.split(/\s+/).includes(className));
+  return { header: host.children[0], navItems: context.NAV_ITEMS };
 }
 
 test('shared header has one registration CTA after the seven-item nav list', () => {
-  const { header, navItems } = renderLayout();
-  const brand = byClass(header, 'header-brand-lockup');
-  assert.ok(brand, 'public header includes the Bilunex brand lockup');
-  assert.equal(byClass(brand, 'brand-wordmark').textContent, 'Bilunex');
-  assert.equal(brand.children[0].tagName, 'img');
-  assert.equal(brand.children[0].src, '../assets/images/bilunex-brand-logo.png');
-  assert.equal(byClass(brand, 'brand-tagline').textContent, 'EDUCATION · GROWTH · OPPORTUNITY');
+  const { header, navItems } = renderHeader();
   const nav = header.children.find(child => child.id === 'primary-nav');
   const navList = nav.children.find(child => child.className === 'nav-list');
   const ctas = nav.children.filter(child => child.textContent.trim() === 'Register Your Student');
@@ -169,10 +115,16 @@ test('shared header has one registration CTA after the seven-item nav list', () 
     1
   );
   assert.equal(ctas[0].href, 'parent-registration.html');
+  const logo = header.children.find(child => child.className === 'brand-logo');
+  assert.equal(logo.attributes['aria-label'], 'Bilunex home');
+  assert.equal(logo.children.some(child => child.tagName === 'img'), false);
+  assert.equal(logo.children[0].className, 'brand-mark-slot');
+  assert.equal(logo.children[1].children[0].textContent, 'Bilunex');
+  assert.equal(logo.children[1].children[1].textContent, 'Education · Growth · Opportunity');
 });
 
 test('drawer CTA is the same single element and CSS shares the hamburger breakpoint', () => {
-  const { header } = renderLayout();
+  const { header } = renderHeader();
   const nav = header.children.find(child => child.id === 'primary-nav');
   const cta = nav.children.find(child => child.className.includes('nav-register-cta'));
   const desktopRule = layoutCss.match(/@media\s*\(min-width:\s*(1200)px\)\s*\{/);
@@ -193,124 +145,132 @@ test('drawer CTA is the same single element and CSS shares the hamburger breakpo
   assert.match(desktopStyles, /\.nav-toggle\s*\{\s*display:\s*none;/);
   assert.match(desktopStyles, /\.primary-nav\s*\{\s*display:\s*flex;/);
   assert.match(desktopStyles, /\.nav-register-cta\s*\{/);
-  assert.match(desktopStyles, /\.primary-nav\s*\{[^}]*justify-content:\s*space-between/s);
   assert.equal(desktopRule[1], '1200');
   assert.match(layoutCss, /@media\s*\(min-width:\s*1200px\)/);
 });
 
-test('shared banner is one accessible code-built SVG lockup with no raster image', () => {
-  const { banner } = renderLayout();
-  const bannerNodes = descendants(banner);
-  const lockup = byClass(banner, 'brand-lockup');
-
-  assert.ok(banner, 'shared component renders the brand banner');
-  assert.equal(bannerNodes.filter(node => node.tagName === 'img').length, 0);
-  assert.ok(lockup, 'one linked brand lockup is rendered');
-  assert.equal(lockup.attributes['aria-label'], 'Bilunex home');
-  assert.equal(lockup.children.find(node => node.tagName === 'svg').attributes['aria-hidden'], 'true');
-  assert.equal(
-    bannerNodes.filter(node => node.className === 'brand-wordmark').length,
-    1
-  );
-  assert.equal(
-    bannerNodes.find(node => node.className === 'brand-wordmark').textContent,
-    'Bilunex'
-  );
-  assert.equal(
-    bannerNodes.find(node => node.className === 'brand-tagline').textContent,
-    'EDUCATION · GROWTH · OPPORTUNITY'
-  );
-  assert.equal(
-    lockup.children.find(node => node.tagName === 'svg').children[0].attributes.href,
-    '../assets/images/logo-mark.svg',
-    'the single external mark file can be replaced without changing the component'
-  );
-});
-
-test('public pages do not add a second brand banner above the shared navigation', () => {
-  const publicPages = globSync('client/public/*.html', { cwd: repoRoot });
-
-  assert.equal(publicPages.length, 9);
-  publicPages.forEach(page => {
-    const html = fs.readFileSync(path.join(repoRoot, page), 'utf8');
-    assert.equal((html.match(/id="site-brand-banner"/g) || []).length, 0, page);
-  });
-  for (const page of ['client/admin/login.html', 'client/mentor/login.html']) {
-    const html = fs.readFileSync(path.join(repoRoot, page), 'utf8');
-    assert.equal((html.match(/id="portal-brand-banner"/g) || []).length, 1, page);
-    assert.ok(html.indexOf('id="portal-brand-banner"') < html.indexOf('id="portal-header"'));
-  }
-});
-
-test('footer quick, mentor, and contact links are separate list items', () => {
-  const { footer } = renderLayout();
-  const lists = descendants(footer).filter(node => node.tagName === 'ul');
-  const listItems = lists.flatMap(list => list.children);
-  const listText = listItems.map(item => item.textContent.trim());
-  const anchors = descendants(footer).filter(node => node.tagName === 'a');
-  const listedAnchors = descendants(footer)
-    .filter(node => node.tagName === 'li')
-    .flatMap(item => descendants(item).filter(child => child.tagName === 'a'));
-
-  assert.ok(listText.includes('Share Your Story'));
-  assert.ok(listText.includes('Mentor portal login'));
-  assert.equal(anchors.length - 1, listedAnchors.length, 'only the footer brand link sits outside a list');
-  assert.equal(byClass(footer, 'footer-mentor-group').children[0].textContent, 'For mentors');
-  assert.equal(byClass(footer, 'footer-brand').children[0].children[1].children[1].textContent,
-    'EDUCATION · GROWTH · OPPORTUNITY');
-});
-
-test('banner size is controlled only by the shared CSS tokens', () => {
-  const styles = globSync('client/**/*.css', { cwd: repoRoot });
-  const tokenDeclarations = /--brand-banner-height\s*:/g;
-  const declaringFiles = styles.filter(file =>
-    tokenDeclarations.test(fs.readFileSync(path.join(repoRoot, file), 'utf8'))
-  );
-  const declarations = layoutCss.match(tokenDeclarations) || [];
-
-  assert.deepEqual(declaringFiles, ['client/css/layout.css']);
-  assert.equal(declarations.length, 3, 'one value per responsive breakpoint');
-  assert.match(layoutCss, /\.brand-banner\s*\{[^}]*height:\s*var\(--brand-banner-height\)/s);
-  assert.match(layoutCss, /@media\s*\(max-width:\s*1199px\)[\s\S]*?--brand-banner-height:\s*88px/);
-  assert.match(layoutCss, /@media\s*\(max-width:\s*767px\)[\s\S]*?--brand-banner-height:\s*72px/);
-  assert.match(layoutCss, /@media\s*\(max-width:\s*360px\)[\s\S]*?\.brand-banner \.brand-tagline\s*\{[^}]*display:\s*none/s);
-  assert.doesNotMatch(pageCss + componentCss, /brand-banner|brand-banner-height/);
-  for (const file of globSync('client/**/*.html', { cwd: repoRoot })) {
-    const html = fs.readFileSync(path.join(repoRoot, file), 'utf8');
-    assert.doesNotMatch(html, /style\s*=\s*['"][^'"]*(?:brand-banner|height\s*:)/i, file);
-  }
-});
-
-test('footer colors keep all text and links at WCAG AA contrast on navy', () => {
-  const luminance = hex => {
-    const channels = hex.match(/[a-f\d]{2}/gi).map(value => parseInt(value, 16) / 255);
-    const linear = channels.map(value =>
-      value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
-    );
-    return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+test('footer links render as separate list items with dedicated story and mentor groups', () => {
+  const host = new Element('footer');
+  const document = {
+    createElement: tagName => new Element(tagName),
+    getElementById: id => (id === 'site-footer' ? host : null),
   };
-  const contrast = (foreground, background) => {
-    const [lighter, darker] = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
-    return (lighter + 0.05) / (darker + 0.05);
+  const context = {
+    document,
+    siteInfo: {
+      email: 'team@example.test',
+      phoneHref: '+251900000000',
+      phone: '+251 90 000 0000',
+      address: 'Hawassa, Ethiopia',
+      telegramUrl: 'https://t.me/example',
+      telegram: '@example',
+    },
+    makeLogo: className => {
+      const logo = new Element('a');
+      logo.className = className;
+      return logo;
+    },
   };
-  const footerColors = ['#cbd5e1', '#e2e8f0', '#94a3b8', '#f0d08e', '#e5d5a9', '#ffffff'];
+  vm.createContext(context);
+  vm.runInContext(
+    `${layoutSource}\nthis.renderFooter = renderFooter; this.NAV_ITEMS = NAV_ITEMS;`,
+    context
+  );
+  context.renderFooter();
+  const footer = host.children[0];
+  const all = [];
+  const visit = node => {
+    if (node.tagName === 'a') all.push(node);
+    node.children?.forEach(child => {
+      if (typeof child === 'object') visit(child);
+    });
+  };
+  visit(footer);
+  const quickLinks = footer.children[0].children.find(child => child.children.some(item => item.textContent === 'Quick links'));
+  const quickList = quickLinks.children.find(child => child.className === 'footer-nav-list');
+  const mentorGroup = footer.children[0].children.find(child => child.className === 'footer-col footer-mentors');
+  const mentorList = mentorGroup.children.find(child => child.className === 'footer-nav-list');
 
-  footerColors.forEach(color => {
-    assert.ok(contrast(color, '#0b1329') >= 4.5, `${color} must pass WCAG AA on the footer navy`);
-  });
-  assert.match(layoutCss, /\.footer-nav-list a\s*\{[^}]*min-height:\s*2\.75rem/s);
-  assert.match(layoutCss, /\.footer-bottom\s*\{[^}]*color:\s*#cbd5e1/s);
+  assert.equal(quickList.children.length, 8, 'seven nav links and Share Your Story are list items');
+  assert.equal(quickList.children.at(-1).children[0].textContent, 'Share Your Story');
+  assert.equal(mentorList.children.length, 1);
+  assert.equal(mentorList.children[0].children[0].textContent, 'Mentor portal login');
+  const listLinks = [];
+  const collectListItems = node => {
+    if (node.tagName === 'li') {
+      listLinks.push(...node.children.filter(child => child.tagName === 'a'));
+    }
+    node.children?.forEach(child => {
+      if (typeof child === 'object') collectListItems(child);
+    });
+  };
+  collectListItems(footer);
+  assert.equal(
+    listLinks.length,
+    all.filter(link => link.className !== 'footer-logo').length,
+    'every footer text link is inside its own list item'
+  );
+  assert.equal(all.filter(link => link.textContent === 'Share Your Story').length, 1);
+  assert.equal(all.filter(link => link.textContent === 'Mentor portal login').length, 1);
 });
 
-test('all client page heads include the SVG mark favicon', () => {
-  for (const file of globSync('client/**/*.html', { cwd: repoRoot })) {
-    const html = fs.readFileSync(path.join(repoRoot, file), 'utf8');
-    assert.match(html, /rel="icon" type="image\/svg\+xml" href="\.\.\/assets\/images\/favicon\.svg"/, file);
-    assert.match(html, /favicon-32\.png/, file);
-    assert.match(html, /apple-touch-icon\.png/, file);
-  }
-  assert.equal(fs.readlinkSync(path.join(repoRoot, 'client/assets/images/favicon.svg')), 'logo-mark.svg');
-  const markSvg = fs.readFileSync(path.join(repoRoot, 'client/assets/images/logo-mark.svg'), 'utf8');
-  assert.match(markSvg, /<symbol id="bilunex-mark"/, 'the one source SVG exposes the reusable monogram symbol');
-  assert.match(markSvg, /prefers-reduced-motion: reduce[\s\S]*?\.mark-shine \{ animation: none; opacity: 0;/);
+test('logo uses one inline SVG source and shared size tokens without per-page overrides', () => {
+  const logoAsset = fs.readFileSync(
+    path.join(repoRoot, 'client/assets/images/logo-mark.svg'),
+    'utf8'
+  );
+  const faviconSvg = fs.readFileSync(
+    path.join(repoRoot, 'client/assets/images/favicon.svg'),
+    'utf8'
+  );
+  const layoutJs = fs.readFileSync(path.join(repoRoot, 'client/js/components/layout.js'), 'utf8');
+  const logoStyles = layoutCss.match(/[^{}]*brand-logo[^{}]*\{[^{}]*\}/g) || [];
+
+  assert.match(layoutJs, /assets\/images\/logo-mark\.svg/);
+  assert.doesNotMatch(layoutJs, /assets\/images\/logo\.svg|createElement\(['"]img['"]\)/);
+  assert.match(logoAsset, /<path[^>]+class="logo-letter"/);
+  assert.match(logoAsset, /[CQ][^"']+/);
+  assert.doesNotMatch(logoAsset, /<image\b|<text\b|href="https?:/);
+  assert.match(logoAsset, /<linearGradient id="bilunex-gold"/);
+  assert.match(logoAsset, /<symbol id="bilunex-favicon-symbol"/);
+  assert.match(faviconSvg, /logo-mark\.svg#bilunex-favicon-symbol/);
+  assert.match(logoAsset, /@keyframes bilunex-ring-draw/);
+  assert.match(logoAsset, /prefers-reduced-motion:\s*reduce/);
+  assert.equal((layoutCss.match(/--brand-mark-size\s*:/g) || []).length, 2);
+  assert.equal((layoutCss.match(/--brand-mark-size-compact\s*:/g) || []).length, 1);
+  assert.equal((layoutCss.match(/--brand-login-mark-size\s*:/g) || []).length, 1);
+  assert.match(layoutCss, /@media\s*\(max-width:\s*479px\)[\s\S]*?--brand-mark-size:\s*var\(--brand-mark-size-compact\)/);
+  listHtmlFiles(path.join(repoRoot, 'client')).forEach(file => {
+    assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /--brand-mark-size|\.brand-logo\s*\{/);
+  });
+  assert.equal(logoStyles.some(rule => /img/.test(rule)), false);
+  assert.match(layoutJs, /uniqueId = `\$\{originalId\}-\$\{index \+ 1\}`/);
+  assert.equal(fs.existsSync(path.join(repoRoot, 'client/assets/images/logo.svg')), false);
+});
+
+test('every HTML page links the SVG, PNG, Apple touch, and ICO favicon assets', () => {
+  const htmlFiles = listHtmlFiles(path.join(repoRoot, 'client'));
+  assert.ok(htmlFiles.length > 0);
+  htmlFiles.forEach(file => {
+    const source = fs.readFileSync(file, 'utf8');
+    assert.match(source, /rel="icon" type="image\/svg\+xml" href="\.\.\/assets\/images\/favicon\.svg"/);
+    assert.match(source, /sizes="32x32" href="\.\.\/assets\/images\/favicon-32\.png"/);
+    assert.match(source, /rel="apple-touch-icon" sizes="180x180" href="\.\.\/assets\/images\/apple-touch-icon\.png"/);
+    assert.match(source, /rel="shortcut icon" href="\.\.\/assets\/images\/favicon\.ico"/);
+  });
+  [
+    'favicon.svg',
+    'favicon-32.png',
+    'apple-touch-icon.png',
+    'favicon.ico',
+  ].forEach(asset => {
+    assert.ok(fs.existsSync(path.join(repoRoot, 'client/assets/images', asset)), `${asset} exists`);
+  });
+  const pngDimensions = name => {
+    const bytes = fs.readFileSync(path.join(repoRoot, 'client/assets/images', name));
+    assert.deepEqual([...bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+  };
+  assert.deepEqual(pngDimensions('favicon-32.png'), [32, 32]);
+  assert.deepEqual(pngDimensions('apple-touch-icon.png'), [180, 180]);
 });

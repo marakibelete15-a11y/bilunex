@@ -1,5 +1,91 @@
 # Bilunex redesign progress
 
+## Content update — About Us story
+
+**Status:** done
+
+- Replaced the Our Story placeholder with the exact supplied “Why Bilunex Began” copy, preserving paragraph breaks; the opening paragraph is larger and the closing line is styled as a quiet pull-quote.
+- Kept the Mission, Vision and Values, Our Approach, Our Commitment, and three principles unchanged. The new story’s vision paragraph overlaps conceptually with the existing “Our vision” card; both remain as instructed.
+- `npm run lint` passes; `npm test` passes (66 tests across 7 suites).
+
+## Content update — Home introduction
+
+**Status:** done
+
+- Replaced the Home introduction body with only the two supplied story sentences and added the “Read our story” About page link.
+- `npm run lint` passes; `npm test` passes (66 tests across 7 suites).
+
+## Content update — For Parents FAQ
+
+**Status:** done
+
+- Replaced the FAQ items with the 11 supplied questions and answers in their supplied order, using native `details`/`summary` disclosures. Linked only existing answer wording to Contact and Parent Registration pages.
+- The requested conflict audit is still in progress; unchanged conflicting copy is listed in the handoff report before asking for the owner’s decision.
+- `node --test client/tests/header-layout.test.cjs`, `npm run lint`, and `npm test` pass.
+
+## Footer layout and contrast
+
+**Status:** done
+
+- All footer text links render in separate list items. “Share Your Story” is in Quick links; “Mentor portal login” is in a separate For mentors group.
+- Footer link targets have a minimum 44px height. At widths 320, 768, and 1440px, Chrome reported no horizontal overflow; all 12 text links were in list items and tap-height CSS was 44px.
+- Footer text contrast against `#0b1329` is at least 7.19:1 for the muted color `#94a3b8`; link colors `#cbd5e1` / `#e2e8f0` measure 12.41:1 / 14.95:1. Hover gold `#f0d08e` measures 12.39:1.
+- Added a footer regression test alongside existing checks for exactly one registration CTA and seven nav items.
+- `node --test client/tests/header-layout.test.cjs`, `npm run lint`, and `npm test` pass.
+
+## FAQ consistency audit and responsive verification
+
+**Status:** audit complete; owner decision requested for listed copy
+
+- Left every prior claim unchanged. Claims to review before publication:
+  - `client/js/pages/home.js:14`: “Our team evaluates the submission within 24 hours to understand the student's developmental needs and alignment with the Bilunex growth framework.” This is a specific 24-hour review promise; the new FAQ answer 3 describes review/contact and says registration does not guarantee immediate placement, without promising a response time.
+  - `client/public/for-parents.html:52-53`: “Our team reviews the submission within 24 hours to evaluate student developmental needs and alignment with the Bilunex growth framework.” Same timing promise in the process section; FAQ answer 3 omits the timing.
+  - `client/public/parent-registration.html:45-46`: “We will contact you within 24 hours to finalize the registration fee and schedule a Trial Session.” This is the original Google Form Next Steps wording; it is stronger than FAQ answer 3, and adds a trial-session promise not in the FAQ. Preserved as previously instructed.
+  - `client/public/for-parents.html:79-81` and `client/public/services.html:47-50`: both state coverage from “Explorers (Grades 1-3) through Achievers (Grades 9-10)” and describe specific subjects. FAQ answer 1 instead says subject and mentor availability depends on current team and service area. These are narrower coverage assertions that should be confirmed together.
+  - `client/public/for-parents.html:90-93`: “Mentors undergo rigorous self-evaluation and training” and parents/guardians “are encouraged to be present during sessions.” `client/public/services.html:75-77` also describes mentors as selected through “rigorous self-evaluation standards”; `client/public/become-a-mentor.html:63-64` says screening/orientation is based on “mentor self-evaluation guidelines and curriculum standards.” FAQ answer 2 describes application review and possible interviews/assessments, not this stated selection method. The universal encouragement for parent presence is more specific than FAQ answer 6, which says supervision should be agreed based on age and circumstances.
+  - `client/public/services.html:97-100` says counseling is provided by a qualified psychologist and is open to everyone; `client/public/contact.html:50-52` says it focuses on well-being and exam preparation. FAQ answer 9 says Bilunex connects people with appropriately qualified counseling professionals, and appointment availability/nature varies. Confirm whether “psychologist” is a fixed requirement and whether exam preparation is the full or only one counseling focus.
+  - The new FAQ answer 5 says fees depend on the service arrangement and are communicated before sessions; the 24-hour Google Form Next Steps above promises fee finalization and a Trial Session. Confirm whether that fixed flow remains current.
+- Chrome checked Home, About, and For Parents at 320, 375, 768, 1024, and 1440 CSS px, and effective CSS widths approximating 150% zoom (213, 250, 512, 683, 960 px). No horizontal overflow, page errors, or heading-level jumps were found; each page has one `h1`. The For Parents FAQ opens with keyboard Enter.
+- Footer checked at 320, 768, and 1440px; no overflow; all text links are separate list items, with at least 44px target height.
+- The full test suite passes (66 tests across 7 suites); lint and the client regression test pass.
+
+## Brand update — hand-drawn Bilunex logo mark
+
+**Status:** Part 1 done
+
+- Created `client/assets/images/logo-mark.svg` as a transparent square SVG. The navy disc, thin gradient ring, warm 12-o’clock glow, and calligraphic monogram are hand-drawn paths with gold gradients and a subtle shadow; there are no raster images, fonts, or external references in the SVG.
+- Rendered and compared multiple 640×640 Chrome previews against the supplied reference. Three refinement passes corrected the initial fill rendering, reduced ring weight and adjusted the top bar, narrowed the arch slightly, and tightened/brightened the ring glow.
+- Final own-art previews are saved at 640, 128, 48, 32, and 16 px in `docs/brand/previews/`. The reference image is not copied into the repository.
+- Visual match: the circle size, mark placement, stem/top bar, bowl, arch, gold palette, and top glow are close. Remaining differences are the source’s photographic texture and embossed material; this version is a clean vector with a manually interpreted ligature.
+
+## Brand update — shared inline logo lockup
+
+**Status:** Part 2 done
+
+- Shared headers, footers, and portal top bars now use the SVG mark fetched from `logo-mark.svg` and inline-cloned so the SVG’s CSS ring and shine animation work. Instance IDs are suffixed so gradients, masks, and clip paths do not collide on a page.
+- The logo link is one accessible “Bilunex home” link with the SVG hidden from assistive technology, and “Bilunex” plus “Education · Growth · Opportunity” rendered as real text.
+- Public and portal header/footer marks share 52px sizing, compact screens use 44px, and login-card marks use 72px. Sizes are defined centrally in `client/css/layout.css`; no page has a logo-size override.
+- Removed the obsolete `client/assets/images/logo.svg`; the monogram lives only in `logo-mark.svg`.
+
+## Brand update — favicon family
+
+**Status:** Part 3 done
+
+- Added a simplified, bolder vector favicon at `client/assets/images/favicon.svg`, with no glow or small decorative details.
+- Kept the simplified favicon symbol in the canonical `logo-mark.svg`; `favicon.svg` references that symbol. Generated `favicon-32.png`, `apple-touch-icon.png` (180×180), and `favicon.ico` from the SVG using headless Chrome and ImageMagick.
+- Linked the SVG, PNG, Apple touch icon, and ICO on every public, admin, and mentor HTML page.
+
+## Brand update — regression and responsive verification
+
+**Status:** Part 4 done
+
+- Extended `client/tests/header-layout.test.cjs` to assert the inline-SVG lockup has one “Bilunex home” link, no logo `<img>`, real-text wordmark/tagline, unique SVG resource IDs, centrally defined size tokens, exactly seven nav items, one registration CTA, and favicon coverage on every HTML page.
+- Chrome checked all nine public pages and both portal login pages at 320, 375, 768, 1024, and 1440px, plus effective CSS widths approximating 150% zoom (213, 250, 512, 683, 960px). No overflow, duplicate IDs, page errors, raster logos, or incorrect logo sizes were found. Public marks are 44px compact / 52px regular; each login page also has a 72px mark.
+- With reduced motion enabled, ring and shine animation names are `none`; the logo slot retains fixed dimensions. The SVG mark remains vector at every checked size.
+- Keyboard focus lifts the mark by 2px; the reserved slot dimensions stay identical before and after the ring animation.
+- Replacement: replace `client/assets/images/logo-mark.svg` to update all shared on-page marks and the simplified favicon symbol. Then regenerate `favicon-32.png`, `apple-touch-icon.png`, and `favicon.ico` from `favicon.svg`. If a designer supplies only the full mark, redraw its simplified symbol inside that same SVG before regenerating the raster icons.
+- `node --test client/tests/header-layout.test.cjs`, `npm run lint`, and `npm test` pass.
+
 ## Maintenance fixes — 2026-10-28
 
 ### Server logging and startup errors
@@ -320,57 +406,6 @@
 - Animated the gold growth line in the shared SVG logo using embedded SVG CSS on first load, with a restrained glow cycle. Hover/focus gently lifts and rotates the image; reduced-motion disables animation. Favicon remains static.
 
 **Part 3 status:** implemented; lint and suite run before commit.
-
-## User update — Code-built brand banner
-
-**Part 1 status:** done
-
-- Added one shared, code-rendered Bilunex banner component to every public page and to the admin and mentor login logo areas. It uses real text for the wordmark and tagline, with a navy gradient and low-opacity SVG network, book, glow and gold lower-edge decorations.
-- Added responsive `--brand-banner-height` tokens in `client/css/layout.css` (104px wide, 88px through tablet widths and 72px on phones). The tagline is hidden only at widths of 360px and below so the lockup fits without horizontal overflow.
-- Added a reusable external SVG `<symbol>` for the round gold monogram. It is referenced by inline SVG `<use>` elements, not `<img>` elements. The symbol is an original B/n-style approximation based on the supplied description; it does not claim to trace the absent PNG artwork exactly.
-- The public nav remains sticky while the banner scrolls away and reveals the reusable small monogram after the banner leaves view. The mark ring and wordmark shine are motion-aware; reduced-motion users see static branding.
-- The wordmark uses the system serif stack Georgia, Times New Roman, serif; no external font or font download was added.
-- Replaced the favicon artwork with the vector monogram. PNG and ICO variants are deferred to final verification if a local SVG renderer is available.
-- Initial `npm run lint` passed. The first `npm test` attempt was blocked by restricted loopback access; after enabling loopback, the full suite passed (66 tests). `node --test client/tests/header-layout.test.cjs` passed (2 tests).
-
-**Next:** Part 2 — align the logo treatment and dimensions across the public nav, footer, portal headers, and login banners.
-
-**Part 2 status:** done
-
-- Public pages and admin/mentor login pages use the same shared banner markup and height token. The banner lockup uses the same custom properties and responsive rules on all four page groups; the login pages no longer have a logo-size override.
-- The portal top bars and sticky public navigation reuse the SVG monogram. Their links remain available to keyboard and screen-reader users when displayed.
-- Removed the previous drawn `logo.svg` and its image-only logo CSS. `logo-mark.svg` is now the site’s shared reusable monogram symbol, referenced by SVG `<use>` elements; no site logo or banner uses an `<img>`.
-- Added SVG, 32px and 512px favicons, a 180px Apple touch icon, and a multi-size 16/32/48px ICO, generated from the vector mark. Every public, admin, and mentor page head links the SVG favicon and raster alternatives. The `favicon.svg` path is a symlink to the canonical `logo-mark.svg`; each page references the root SVG, so a replacement standalone designer SVG at that path needs no code change. Regenerate the PNG and ICO derivatives from the replacement file after swapping it.
-- `magick` was available and rendered the favicon correctly. Raster dimensions are 32×32, 180×180 and 512×512; the ICO contains 16×16, 32×32 and 48×48 images.
-
-**Next:** Part 3 — make every footer link a separate, accessible list item and restore clear copyright contrast.
-
-**Part 3 status:** done
-
-- The footer logo now uses the code-built gold monogram, live Bilunex wordmark and tagline over the existing navy footer, without a light box.
-- Added “Share Your Story” to Quick links and moved “Mentor portal login” into its own “For mentors” list. All quick, mentor, and contact links now sit in separate list items. Email, phone, Telegram, and Hawassa location remain in the Contact block.
-- Footer links have a 44px minimum tap height with spacing. Copyright now uses `#cbd5e1` on `#0b1329`; footer body and link colors are `#cbd5e1` or brighter, with visible focus/hover colors.
-- At widths of 360px and below, only the header/login banner tagline is hidden to preserve the wordmark lockup; the footer tagline remains visible and wraps as needed.
-
-**Next:** Part 4 — expand regression coverage and verify all page/width combinations, reduced motion, footer contrast and asset references.
-
-**Part 4 status:** done
-
-- Expanded `client/tests/header-layout.test.cjs` to cover the one shared banner render, no banner `<img>`, nav item and CTA structure, one mount on each of nine public pages and both login pages, footer list structure, shared banner-size declarations with no page-level overrides, reduced-motion hooks, favicon links, and footer AA text/link colors.
-- Desktop Chrome verification passed on all nine public pages at 320, 375, 768, 1024 and 1440 CSS px; the equivalent effective widths at 150% zoom (213, 250, 512, 683 and 960 CSS px) also passed. Both admin and mentor login banner areas were checked across the same ten widths. Across all 110 page/width cases, banner heights were identical at each width and horizontal overflow was 0px.
-- At widths over 1200px, the header CTA sits at the far right of the navigation. After scrolling the banner away, the same monogram appears in the sticky nav. At mobile widths the nav CTA is hidden when the drawer is closed and appears once when opened. No uncaught page runtime errors occurred.
-- The extreme 150%-zoom-equivalent width exposed a long-word overflow in the admin login heading; it now wraps at small widths. The banner lower-edge decoration stays within the viewport.
-- The tagline renders at 10px from 361px upward and is hidden at 360px and below. At 320px the banner remains 72px high and has no horizontal overflow.
-- Footer color contrast calculations against `#0b1329`: body text `#94a3b8` is 7.19:1, link/copyright `#cbd5e1` is 12.41:1, and hover `#f0d08e` is 12.39:1. These exceed WCAG AA for normal text.
-- Verification commands: `npm run lint`; `npm test` (66 tests); `node --test client/tests/header-layout.test.cjs` (8 tests). The 150% viewport checks use the equivalent reduced CSS viewport widths, with a 1.5 device scale factor.
-
-**Next:** branding and footer work complete; see final verification below.
-
-## Brand banner final verification
-
-- The canonical brand mark is `client/assets/images/logo-mark.svg`; it is referenced by SVG `<use>` elements, with `client/assets/images/favicon.svg` as a symlink to the same file. The old `client/assets/images/logo.svg` was removed. The original PNG brand assets were not present and are not used.
-- The wordmark is live Georgia/Times New Roman serif text; no web font was downloaded. The custom `bn` mark is a clean geometric approximation based on the written description (gold-ringed navy disc, interlocking B/n strokes and gold gradient). The referenced round PNG was not available in this checkout, so I could not trace its exact letter shapes.
-- A future official standalone SVG can replace `client/assets/images/logo-mark.svg` without changing component code. Regenerate `favicon-32.png`, `apple-touch-icon.png`, `favicon-512.png`, and `favicon.ico` from that SVG afterward.
 
 ## User update — Shared form notifications
 

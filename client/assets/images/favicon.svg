@@ -1,1 +1,3 @@
-logo-mark.svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <use href="logo-mark.svg#bilunex-favicon-symbol" />
+</svg>

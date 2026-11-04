@@ -14,128 +14,78 @@ export const NAV_ITEMS = [
   { key: 'contact', label: 'Contact Us', href: 'contact.html' },
 ];
 
-const makeBrandMark = className => {
+const makeLogo = (className, href = 'index.html') => {
   const link = document.createElement('a');
-  link.href = 'index.html';
+  link.href = href;
   link.className = className;
   link.setAttribute('aria-label', 'Bilunex home');
-  const mark = document.createElementNS(svgNamespace, 'svg');
-  mark.setAttribute('viewBox', '0 0 100 100');
+  const mark = document.createElement('span');
+  mark.className = 'brand-mark-slot';
+  mark.dataset.brandMark = '';
   mark.setAttribute('aria-hidden', 'true');
-  mark.setAttribute('role', 'presentation');
-  mark.setAttribute('focusable', 'false');
-  const use = document.createElementNS(svgNamespace, 'use');
-  use.setAttribute('href', '../assets/images/logo-mark.svg');
-  mark.appendChild(use);
-  link.appendChild(mark);
+  const copy = document.createElement('span');
+  copy.className = 'brand-copy';
+  const wordmark = document.createElement('span');
+  wordmark.className = 'brand-wordmark';
+  wordmark.textContent = 'Bilunex';
+  const tagline = document.createElement('span');
+  tagline.className = 'brand-tagline';
+  tagline.textContent = 'Education · Growth · Opportunity';
+  copy.append(wordmark, tagline);
+  link.append(mark, copy);
   return link;
 };
+
+async function loadLogoMarks() {
+  const slots = [...document.querySelectorAll('[data-brand-mark]')];
+  if (!slots.length) return;
+  try {
+    const response = await fetch(new URL('../../assets/images/logo-mark.svg', import.meta.url));
+    if (!response.ok) throw new Error(`Logo request failed with HTTP ${response.status}`);
+    const source = new DOMParser().parseFromString(await response.text(), 'image/svg+xml');
+    const svg = source.documentElement;
+    if (svg.localName !== 'svg' || source.querySelector('parsererror')) {
+      throw new Error('The Bilunex logo asset is not valid SVG.');
+    }
+    slots.forEach((slot, index) => {
+      const mark = document.importNode(svg, true);
+      const idMap = new Map();
+      mark.querySelectorAll('[id]').forEach(node => {
+        const originalId = node.id;
+        const uniqueId = `${originalId}-${index + 1}`;
+        idMap.set(originalId, uniqueId);
+        node.id = uniqueId;
+      });
+      mark.querySelectorAll('*').forEach(node => {
+        [...node.attributes].forEach(attribute => {
+          let value = attribute.value;
+          idMap.forEach((uniqueId, originalId) => {
+            value = value.replaceAll(`url(#${originalId})`, `url(#${uniqueId})`);
+            if (value === `#${originalId}`) value = `#${uniqueId}`;
+          });
+          if (value !== attribute.value) node.setAttribute(attribute.name, value);
+        });
+        if (node.localName === 'style') {
+          let css = node.textContent;
+          idMap.forEach((uniqueId, originalId) => {
+            css = css.replaceAll(`url(#${originalId})`, `url(#${uniqueId})`);
+          });
+          node.textContent = css;
+        }
+      });
+      mark.setAttribute('aria-hidden', 'true');
+      mark.setAttribute('focusable', 'false');
+      mark.removeAttribute('role');
+      mark.removeAttribute('aria-labelledby');
+      mark.querySelectorAll('title, desc').forEach(node => node.remove());
+      slot.replaceChildren(mark);
+    });
+  } catch (error) {
+    console.error('Could not load the Bilunex logo mark.', error);
+  }
+}
 
 const svgNamespace = 'http://www.w3.org/2000/svg';
-const makeHeaderBrand = () => {
-  const link = document.createElement('a');
-  link.href = 'index.html';
-  link.className = 'header-brand-lockup';
-  link.setAttribute('aria-label', 'Bilunex home');
-  const logo = document.createElement('img');
-  logo.src = '../assets/images/bilunex-brand-logo.png';
-  logo.alt = '';
-  logo.width = 56;
-  logo.height = 56;
-  logo.setAttribute('aria-hidden', 'true');
-  const text = document.createElement('span');
-  text.className = 'brand-lockup-text';
-  const wordmark = document.createElement('span');
-  wordmark.className = 'brand-wordmark';
-  wordmark.textContent = 'Bilunex';
-  const tagline = document.createElement('span');
-  tagline.className = 'brand-tagline';
-  tagline.textContent = 'EDUCATION · GROWTH · OPPORTUNITY';
-  text.append(wordmark, tagline);
-  link.append(logo, text);
-  return link;
-};
-
-const makeBrandLockup = className => {
-  const link = makeBrandMark(className);
-  const wordmark = document.createElement('span');
-  wordmark.className = 'brand-wordmark';
-  wordmark.textContent = 'Bilunex';
-  const tagline = document.createElement('span');
-  tagline.className = 'brand-tagline';
-  tagline.textContent = 'EDUCATION · GROWTH · OPPORTUNITY';
-  const text = document.createElement('span');
-  text.className = 'brand-lockup-text';
-  text.append(wordmark, tagline);
-  link.appendChild(text);
-  return link;
-};
-
-const makeLogo = makeBrandLockup;
-
-function decorativeSvg(className, viewBox) {
-  const svg = document.createElementNS(svgNamespace, 'svg');
-  svg.setAttribute('class', className);
-  svg.setAttribute('viewBox', viewBox);
-  svg.setAttribute('aria-hidden', 'true');
-  svg.setAttribute('focusable', 'false');
-  return svg;
-}
-
-function renderBrandBanner(host, compact = false) {
-  if (!host) return;
-  const banner = document.createElement('div');
-  banner.className = compact ? 'brand-banner login-brand-banner' : 'brand-banner';
-  const art = decorativeSvg('brand-banner-art brand-network', '0 0 520 112');
-  [
-    ['path', 'M0 72 56 44 112 79 174 24 238 68 305 31'],
-    ['path', 'M18 7 56 44 90 8 112 79 174 24 207 99 238 68 279 99 305 31 352 76'],
-  ].forEach(([tag, d]) => {
-    const path = document.createElementNS(svgNamespace, tag);
-    path.setAttribute('d', d);
-    path.setAttribute('fill', 'none');
-    path.setAttribute('stroke', 'currentColor');
-    path.setAttribute('stroke-width', '1');
-    art.appendChild(path);
-  });
-  [
-    [18, 7],
-    [56, 44],
-    [90, 8],
-    [112, 79],
-    [174, 24],
-    [207, 99],
-    [238, 68],
-    [279, 99],
-    [305, 31],
-    [352, 76],
-  ].forEach(([cx, cy]) => {
-    const node = document.createElementNS(svgNamespace, 'circle');
-    node.setAttribute('cx', String(cx));
-    node.setAttribute('cy', String(cy));
-    node.setAttribute('r', '2.4');
-    node.setAttribute('fill', 'currentColor');
-    art.appendChild(node);
-  });
-  const book = decorativeSvg('brand-banner-art brand-book', '0 0 180 100');
-  const bookPath = document.createElementNS(svgNamespace, 'path');
-  bookPath.setAttribute(
-    'd',
-    'M12 18c24-8 47-3 78 10v55C59 70 36 66 12 74V18Zm156 0c-24-8-47-3-78 10v55c31-13 54-17 78-9V18ZM90 28v55'
-  );
-  bookPath.setAttribute('fill', 'none');
-  bookPath.setAttribute('stroke', 'currentColor');
-  bookPath.setAttribute('stroke-width', '2');
-  bookPath.setAttribute('stroke-linecap', 'round');
-  bookPath.setAttribute('stroke-linejoin', 'round');
-  book.appendChild(bookPath);
-  const inner = document.createElement('div');
-  inner.className = 'container brand-banner-inner';
-  inner.appendChild(makeBrandLockup('brand-lockup'));
-  banner.append(art, book, inner);
-  host.replaceChildren(banner);
-}
-
 const learningIcons = [
   [
     ['path', 'M7 8.5c4-2 8-2 12 0v12c-4-2-8-2-12 0z'],
@@ -217,9 +167,7 @@ export function renderHeader(activeKey = '') {
   if (!host) return;
   const header = document.createElement('div');
   header.className = 'container header-inner';
-  const headerBrand = makeHeaderBrand();
-  headerBrand.href = 'index.html';
-  header.appendChild(headerBrand);
+  header.appendChild(makeLogo('brand-logo'));
 
   const toggle = document.createElement('button');
   toggle.type = 'button';
@@ -296,27 +244,13 @@ export function renderFooter() {
     entry.appendChild(link);
     linkList.appendChild(entry);
   });
-  links.append(linksTitle, linkList);
-  const storyItem = document.createElement('li');
+  const storyEntry = document.createElement('li');
   const storyLink = document.createElement('a');
   storyLink.href = 'share-your-story.html';
   storyLink.textContent = 'Share Your Story';
-  storyItem.appendChild(storyLink);
-  linkList.appendChild(storyItem);
-  const mentorGroup = document.createElement('section');
-  mentorGroup.className = 'footer-mentor-group';
-  const mentorTitle = document.createElement('h3');
-  mentorTitle.textContent = 'For mentors';
-  const mentorList = document.createElement('ul');
-  mentorList.className = 'footer-nav-list';
-  const mentorItem = document.createElement('li');
-  const mentorLogin = document.createElement('a');
-  mentorLogin.href = '../mentor/login.html';
-  mentorLogin.textContent = 'Mentor portal login';
-  mentorItem.appendChild(mentorLogin);
-  mentorList.appendChild(mentorItem);
-  mentorGroup.append(mentorTitle, mentorList);
-  links.appendChild(mentorGroup);
+  storyEntry.appendChild(storyLink);
+  linkList.appendChild(storyEntry);
+  links.append(linksTitle, linkList);
   grid.appendChild(links);
 
   const contact = document.createElement('div');
@@ -327,27 +261,43 @@ export function renderFooter() {
   email.href = `mailto:${siteInfo.email}`;
   email.textContent = siteInfo.email;
   const contactList = document.createElement('ul');
-  contactList.className = 'footer-contact-list';
-  const emailItem = document.createElement('li');
-  emailItem.append('Email: ', email);
-  contactList.appendChild(emailItem);
+  contactList.className = 'footer-nav-list';
+  const addContactLink = (label, link) => {
+    const entry = document.createElement('li');
+    const prefix = document.createElement('span');
+    prefix.textContent = `${label}: `;
+    entry.append(prefix, link);
+    contactList.appendChild(entry);
+  };
+  addContactLink('Email', email);
   const phone = document.createElement('a');
   phone.href = `tel:${siteInfo.phoneHref}`;
   phone.textContent = siteInfo.phone;
-  const phoneItem = document.createElement('li');
-  phoneItem.append('Phone: ', phone);
-  contactList.appendChild(phoneItem);
+  addContactLink('Phone', phone);
+  const location = document.createElement('p');
+  location.textContent = `Location: ${siteInfo.address}`;
+  const mentorLogin = document.createElement('a');
+  mentorLogin.href = '../mentor/login.html';
+  mentorLogin.textContent = 'Mentor portal login';
   const telegram = document.createElement('a');
   telegram.href = siteInfo.telegramUrl;
   telegram.textContent = siteInfo.telegram;
   telegram.rel = 'noopener noreferrer';
-  const telegramItem = document.createElement('li');
-  telegramItem.append('Telegram: ', telegram);
-  const locationItem = document.createElement('li');
-  locationItem.textContent = `Location: ${siteInfo.address}`;
-  contactList.append(telegramItem, locationItem);
-  contact.append(contactTitle, contactList);
+  addContactLink('Telegram', telegram);
+  contact.append(contactTitle, contactList, location);
   grid.appendChild(contact);
+
+  const mentors = document.createElement('div');
+  mentors.className = 'footer-col footer-mentors';
+  const mentorsTitle = document.createElement('h2');
+  mentorsTitle.textContent = 'For mentors';
+  const mentorList = document.createElement('ul');
+  mentorList.className = 'footer-nav-list';
+  const mentorEntry = document.createElement('li');
+  mentorEntry.appendChild(mentorLogin);
+  mentorList.appendChild(mentorEntry);
+  mentors.append(mentorsTitle, mentorList);
+  grid.appendChild(mentors);
 
   const bottom = document.createElement('div');
   bottom.className = 'footer-bottom';
@@ -362,6 +312,7 @@ export function initLayout(activeKey = '') {
   addBannerDecorations();
   renderHeader(activeKey);
   renderFooter();
+  loadLogoMarks();
 }
 
 export function initPortalLayout() {
@@ -372,12 +323,8 @@ export function initPortalLayout() {
   const identityText = role === 'Admin' ? 'Admin' : 'Mentor';
   const header = document.createElement('div');
   header.className = 'container header-inner portal-header-inner';
-  const logo = makeBrandMark('brand-logo');
-  logo.href = '../public/index.html';
+  const logo = makeLogo('brand-logo', '../public/index.html');
   header.appendChild(logo);
-  if (window.location.pathname.endsWith('/login.html')) {
-    renderBrandBanner(document.getElementById('portal-brand-banner'), true);
-  }
   const layout = document.querySelector('.portal-layout');
   const navItems =
     role === 'Admin'
@@ -470,4 +417,10 @@ export function initPortalLayout() {
   }
   header.appendChild(controls);
   host.replaceChildren(header);
+  if (window.location.pathname.endsWith('/login.html')) {
+    document
+      .querySelector('.admin-login-card')
+      ?.prepend(makeLogo('brand-logo login-brand-logo', '../public/index.html'));
+  }
+  loadLogoMarks();
 }

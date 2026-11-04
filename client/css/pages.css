@@ -423,17 +423,12 @@
 .narrow-copy {
   max-width: 52rem;
 }
-.story-copy {
-  max-width: 46rem;
-}
+
 .story-lead {
-  font-size: 1.125rem;
-  line-height: var(--line-height-relaxed);
+  font-size: 1.15rem;
 }
-.story-pullquote {
-  margin-top: var(--space-6);
-  padding-left: var(--space-4);
-  border-left: 3px solid var(--color-border);
+
+.story-pull-quote {
   color: var(--color-text-muted);
   font-style: italic;
 }
@@ -1302,9 +1297,6 @@ fieldset .form-label {
   overflow-wrap: anywhere;
 }
 @media (max-width: 600px) {
-  .admin-login-card h1 {
-    overflow-wrap: anywhere;
-  }
   .admin-filters {
     align-items: stretch;
   }
