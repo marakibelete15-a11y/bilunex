@@ -323,26 +323,31 @@ export function initPortalLayout() {
   const identityText = role === 'Admin' ? 'Admin' : 'Mentor';
   const header = document.createElement('div');
   header.className = 'container header-inner portal-header-inner';
+<<<<<<< HEAD
   const logo = makeLogo('brand-logo', '../public/index.html');
+=======
+  const logo = makeBrandMark('brand-logo');
+  logo.href = '/public/index.html';
+>>>>>>> 23a8f84 (Change the layout js)
   header.appendChild(logo);
   const layout = document.querySelector('.portal-layout');
   const navItems =
     role === 'Admin'
       ? [
-          ['index.html', 'Dashboard'],
-          ['registrations.html', 'Parent Registrations'],
-          ['applications.html', 'Mentor Applications'],
-          ['mentors.html', 'Active Mentors'],
-          ['inquiries.html', 'Inquiries'],
-          ['stories.html', 'Stories'],
-          ['reports.html', 'Support Reports'],
+          ['/admin/index.html', 'Dashboard'],
+          ['/admin/registrations.html', 'Parent Registrations'],
+          ['/admin/applications.html', 'Mentor Applications'],
+          ['/admin/mentors.html', 'Active Mentors'],
+          ['/admin/inquiries.html', 'Inquiries'],
+          ['/admin/stories.html', 'Stories'],
+          ['/admin/reports.html', 'Support Reports'],
         ]
       : [
-          ['profile.html', 'My Profile'],
-          ['report.html', 'Support Reports'],
+          ['/mentor/profile.html', 'My Profile'],
+          ['/mentor/report.html', 'Support Reports'],
         ];
   if (layout) {
-    const currentPage = window.location.pathname.split('/').pop();
+    const currentPage = window.location.pathname;
     const aside = document.createElement('aside');
     aside.className = 'portal-sidebar';
     aside.id = 'portal-navigation';
@@ -413,7 +418,9 @@ export function initPortalLayout() {
     logout.className = 'btn btn-outline btn-sm';
     logout.textContent = role === 'Admin' ? 'Logout' : 'Sign Out';
     controls.appendChild(logout);
-    logout.addEventListener('click', () => auth.logout('login.html'));
+    logout.addEventListener('click', () =>
+      auth.logout(role === 'Admin' ? '/admin/login.html' : '/mentor/login.html')
+    );
   }
   header.appendChild(controls);
   host.replaceChildren(header);
