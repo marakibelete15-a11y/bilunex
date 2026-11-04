@@ -175,8 +175,6 @@ const createMentorApplicationSchema = z
         .number({ invalid_type_error: 'CGPA must be numeric' })
         .min(0, 'CGPA cannot be less than 0.00')
         .max(4.0, 'CGPA cannot exceed 4.00')
-        .optional()
-        .nullable()
     ),
     entrance_exam_stream: z.enum(['natural_science', 'social_science']),
     entrance_exam_result: z.preprocess(

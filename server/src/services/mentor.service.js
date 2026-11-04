@@ -105,12 +105,13 @@ const mentorService = {
       ...reportData,
     });
 
-    // Safe non-blocking notification to administrators
-    try {
-      await notificationService.notifySupportReportFiled(report, mentorName);
-    } catch (err) {
-      logger.error('Unexpected error dispatching support report notification:', err.message);
-    }
+    // Notification delivery and logging happen independently of the report response.
+    // Deferring invocation also keeps synchronous notifier errors out of this request.
+    Promise.resolve()
+      .then(() => notificationService.notifySupportReportFiled(report, mentorName))
+      .catch(err => {
+        logger.error('Unexpected error dispatching support report notification:', err.message);
+      });
 
     return report;
   },

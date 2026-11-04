@@ -111,6 +111,7 @@ function renderLayout() {
     context
   );
   context.renderHeader('home');
+  context.renderBrandBanner(bannerHost);
   context.renderFooter();
   return {
     header: host.children[0],
@@ -130,6 +131,12 @@ function byClass(node, className) {
 
 test('shared header has one registration CTA after the seven-item nav list', () => {
   const { header, navItems } = renderLayout();
+  const brand = byClass(header, 'header-brand-lockup');
+  assert.ok(brand, 'public header includes the Bilunex brand lockup');
+  assert.equal(byClass(brand, 'brand-wordmark').textContent, 'Bilunex');
+  assert.equal(brand.children[0].tagName, 'img');
+  assert.equal(brand.children[0].src, '../assets/images/bilunex-brand-logo.png');
+  assert.equal(byClass(brand, 'brand-tagline').textContent, 'EDUCATION · GROWTH · OPPORTUNITY');
   const nav = header.children.find(child => child.id === 'primary-nav');
   const navList = nav.children.find(child => child.className === 'nav-list');
   const ctas = nav.children.filter(child => child.textContent.trim() === 'Register Your Student');
@@ -220,17 +227,13 @@ test('shared banner is one accessible code-built SVG lockup with no raster image
   );
 });
 
-test('every public HTML page mounts the single shared banner above its sticky navigation', () => {
+test('public pages do not add a second brand banner above the shared navigation', () => {
   const publicPages = globSync('client/public/*.html', { cwd: repoRoot });
 
   assert.equal(publicPages.length, 9);
   publicPages.forEach(page => {
     const html = fs.readFileSync(path.join(repoRoot, page), 'utf8');
-    assert.equal((html.match(/id="site-brand-banner"/g) || []).length, 1, page);
-    assert.ok(
-      html.indexOf('id="site-brand-banner"') < html.indexOf('id="site-header"'),
-      `${page} places the brand banner before sticky navigation`
-    );
+    assert.equal((html.match(/id="site-brand-banner"/g) || []).length, 0, page);
   });
   for (const page of ['client/admin/login.html', 'client/mentor/login.html']) {
     const html = fs.readFileSync(path.join(repoRoot, page), 'utf8');

@@ -127,9 +127,20 @@ const validateStep = index => {
   return errors.length === 0;
 };
 
+const syncCustomTitle = () => {
+  const otherSelected = document.getElementById('title-other-check').checked;
+  titleOther.disabled = !otherSelected;
+  if (!otherSelected) titleOther.value = '';
+};
+
 form.querySelectorAll('[name="title-choice"]').forEach(checkbox => {
   checkbox.addEventListener('change', () => {
-    titleOther.disabled = document.getElementById('title-other-check').checked === false;
+    if (checkbox.checked) {
+      form.querySelectorAll('[name="title-choice"]').forEach(otherChoice => {
+        if (otherChoice !== checkbox) otherChoice.checked = false;
+      });
+    }
+    syncCustomTitle();
     if (checkbox.value === 'Other' && checkbox.checked) titleOther.focus();
   });
 });
@@ -204,3 +215,4 @@ form.addEventListener('submit', async event => {
 });
 
 setStep(0);
+syncCustomTitle();

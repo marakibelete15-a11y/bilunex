@@ -32,6 +32,30 @@ const makeBrandMark = className => {
 };
 
 const svgNamespace = 'http://www.w3.org/2000/svg';
+const makeHeaderBrand = () => {
+  const link = document.createElement('a');
+  link.href = 'index.html';
+  link.className = 'header-brand-lockup';
+  link.setAttribute('aria-label', 'Bilunex home');
+  const logo = document.createElement('img');
+  logo.src = '../assets/images/bilunex-brand-logo.png';
+  logo.alt = '';
+  logo.width = 56;
+  logo.height = 56;
+  logo.setAttribute('aria-hidden', 'true');
+  const text = document.createElement('span');
+  text.className = 'brand-lockup-text';
+  const wordmark = document.createElement('span');
+  wordmark.className = 'brand-wordmark';
+  wordmark.textContent = 'Bilunex';
+  const tagline = document.createElement('span');
+  tagline.className = 'brand-tagline';
+  tagline.textContent = 'EDUCATION · GROWTH · OPPORTUNITY';
+  text.append(wordmark, tagline);
+  link.append(logo, text);
+  return link;
+};
+
 const makeBrandLockup = className => {
   const link = makeBrandMark(className);
   const wordmark = document.createElement('span');
@@ -193,9 +217,9 @@ export function renderHeader(activeKey = '') {
   if (!host) return;
   const header = document.createElement('div');
   header.className = 'container header-inner';
-  const compactMark = makeBrandMark('nav-brand-mark');
-  compactMark.href = 'index.html';
-  header.appendChild(compactMark);
+  const headerBrand = makeHeaderBrand();
+  headerBrand.href = 'index.html';
+  header.appendChild(headerBrand);
 
   const toggle = document.createElement('button');
   toggle.type = 'button';
@@ -242,14 +266,6 @@ export function renderHeader(activeKey = '') {
   header.appendChild(toggle);
   header.appendChild(nav);
   host.replaceChildren(header);
-  const bannerHost = document.getElementById('site-brand-banner');
-  renderBrandBanner(bannerHost);
-  if (bannerHost && 'IntersectionObserver' in window) {
-    const observer = new IntersectionObserver(([entry]) => {
-      host.classList.toggle('is-brand-visible', !entry.isIntersecting);
-    });
-    observer.observe(bannerHost);
-  }
   ui.initMobileNav();
 }
 
