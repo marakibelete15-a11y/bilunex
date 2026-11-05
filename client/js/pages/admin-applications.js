@@ -167,76 +167,120 @@ if (setupAdmin()) {
     }
 
     // Status transition controls
+    // Status transition controls with immediate saving
     const statusSection = el('div', null, 'portal-status-section');
-    statusSection.append(el('h3', 'Advance Recruitment Pipeline Stage', 'portal-section-title'));
+    statusSection.append(el('h3', 'Recruitment Pipeline Status', 'portal-section-title'));
 
-    const btnGroup = el('div', null, 'portal-btn-group');
+    const statusFormGroup = el('div', null, 'status-form-group');
+    statusFormGroup.style.display = 'flex';
+    statusFormGroup.style.alignItems = 'center';
+    statusFormGroup.style.gap = '0.75rem';
+    statusFormGroup.style.marginTop = '0.5rem';
 
-    const pipelineStages = [
-      ['application_received', 'Received'],
-      ['under_review', 'Under Review'],
-      ['interview_stage', 'Interview Stage'],
-      ['accepted', 'Accept Candidate'],
-      ['rejected', 'Reject Candidate'],
+    const statusSelect = el('select', null, 'form-control');
+    const stages = [
+      ['application_received', 'Application received'],
+      ['under_review', 'Under review'],
+      ['interview_stage', 'Interview stage'],
+      ['accepted', 'Accepted'],
+      ['rejected', 'Rejected'],
+      ['onboarding', 'Onboarding'],
     ];
 
-    pipelineStages.forEach(([st, label]) => {
-      const btn = el('button', label, 'btn btn-sm');
-      if (item.status === st) {
-        btn.classList.add('btn-primary');
-        btn.disabled = true;
-      } else {
-        btn.classList.add('btn-outline');
-        btn.addEventListener('click', async () => {
-          btn.disabled = true;
-          try {
-            await api.patch(`/admin/mentor-applications/${item.id}/status`, { status: st });
-            closeModal();
-            refresh();
-            loadMetrics();
-          } catch (err) {
-            message(listStateHost, err.message, 'error');
-            btn.disabled = false;
-          }
-        });
-      }
-      btnGroup.append(btn);
+    stages.forEach(([val, label]) => {
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = label;
+      if (item.status === val) opt.selected = true;
+      statusSelect.append(opt);
     });
 
-    statusSection.append(btnGroup);
+    const statusFeedback = el('span', '', 'text-sm text-subtle');
+
+    statusSelect.addEventListener('change', async e => {
+      const newStatus = e.target.value;
+      statusFeedback.textContent = 'Saving…';
+      try {
+        await api.patch(`/admin/mentor-applications/${item.id}/status`, { status: newStatus });
+        item.status = newStatus;
+        statusFeedback.textContent = 'Saved immediately.';
+        refresh();
+        loadMetrics();
+        // Update modal activation section visibility dynamically
+        if (activationContainer) {
+          activationContainer.replaceChildren();
+          if (newStatus === 'accepted') {
+            activationContainer.append(buildActivationSection());
+          }
+        }
+      } catch (err) {
+        statusFeedback.textContent = err.message || 'Failed to update status';
+        statusSelect.value = item.status;
+      }
+    });
+
+    statusFormGroup.append(statusSelect, statusFeedback);
+    statusSection.append(statusFormGroup);
 
     // If accepted, show Account Activation section
-    let activationSection = null;
-    if (item.status === 'accepted' || item.status === 'onboarding') {
-      activationSection = el('div', null, 'portal-activation-card');
-      activationSection.append(
-        el('h3', 'Mentor Account Activation (ACID Transaction)', 'portal-activation-title'),
+    const activationContainer = el('div');
+    const buildActivationSection = () => {
+      const section = el('div', null, 'portal-activation-card card');
+      section.style.background = '#f0fdf4';
+      section.style.borderColor = '#86efac';
+      section.style.marginTop = '1rem';
+      section.style.padding = '1rem';
+
+      section.append(
+        el('h3', 'Activate Mentor Account', 'portal-activation-title'),
         el(
           'p',
-          'Activate this screened mentor account to grant login access to the Mentor Portal.',
+          'Candidate has been accepted. Provision their mentor login credentials to grant portal access.',
           'portal-activation-sub'
         )
       );
 
-      const activateBtn = el('button', 'Activate Mentor Account Now', 'btn btn-primary btn-sm');
+      const activateBtn = el('button', 'Activate mentor account', 'btn btn-primary btn-sm');
       activateBtn.style.marginTop = '0.5rem';
+      const activateMsg = el('p', '', 'text-sm');
+      activateMsg.style.marginTop = '0.5rem';
+
       activateBtn.addEventListener('click', async () => {
         activateBtn.disabled = true;
+        activateMsg.textContent = 'Provisioning credentials…';
         try {
-          await api.post(`/admin/mentor-applications/${item.id}/activate`, {});
-          closeModal();
+          const res = await api.post(`/admin/mentor-applications/${item.id}/activate`, {});
+          activateMsg.style.color = '#15803d';
+          activateMsg.textContent = `Mentor account activated! Status is now Onboarding. Email: ${item.email}`;
+          item.status = 'onboarding';
+          statusSelect.value = 'onboarding';
           refresh();
           loadMetrics();
+          setTimeout(() => {
+            activationContainer.replaceChildren();
+          }, 3000);
         } catch (err) {
-          message(listStateHost, err.message, 'error');
+          activateMsg.style.color = '#b91c1c';
+          activateMsg.textContent = err.message || 'Failed to activate mentor account';
           activateBtn.disabled = false;
         }
       });
-      activationSection.append(activateBtn);
+      section.append(activateBtn, activateMsg);
+      return section;
+    };
+
+    if (item.status === 'accepted') {
+      activationContainer.append(buildActivationSection());
     }
 
-    modalBody.append(dl, expSection, motivationSection, docsSection, statusSection);
-    if (activationSection) modalBody.append(activationSection);
+    modalBody.append(
+      dl,
+      expSection,
+      motivationSection,
+      docsSection,
+      statusSection,
+      activationContainer
+    );
 
     modal.classList.add('is-active');
     modal.setAttribute('aria-hidden', 'false');
@@ -274,33 +318,27 @@ if (setupAdmin()) {
 
         const rows = items.map(item => {
           const row = document.createElement('tr');
+          row.style.cursor = 'pointer';
+          row.addEventListener('click', e => {
+            if (e.target.closest('button') || e.target.closest('select')) return;
+            openDetailsModal(item);
+          });
 
-          // 1. ID
-          row.append(cell(item.id));
-
-          // 2. Candidate Name (+ email below)
+          // 1. Full name
           const nameTd = document.createElement('td');
-          nameTd.append(el('div', item.full_name || '—', 'font-semibold'));
-          if (item.email) {
-            nameTd.append(el('div', item.email, 'text-xs text-subtle'));
-          }
+          nameTd.append(el('span', item.full_name || '—', 'font-semibold'));
           row.append(nameTd);
 
-          // 3. University & Campus
-          const uniTd = document.createElement('td');
-          uniTd.append(el('div', item.university || '—', 'font-medium'));
-          if (item.campus) {
-            uniTd.append(el('div', item.campus, 'text-xs text-subtle'));
-          }
-          row.append(uniTd);
+          // 2. University
+          row.append(cell(item.university || '—'));
 
-          // 4. Field & Year
-          const fieldTd = document.createElement('td');
-          fieldTd.append(el('div', item.field_of_study || '—', 'font-medium'));
-          fieldTd.append(el('div', `Year: ${item.academic_year || '—'}`, 'text-xs text-subtle'));
-          row.append(fieldTd);
+          // 3. Field of study
+          row.append(cell(item.field_of_study || '—'));
 
-          // 5. Subjects Offered (badges)
+          // 4. Year
+          row.append(cell(item.academic_year || item.year || '—'));
+
+          // 5. Subjects
           const subjectsTd = document.createElement('td');
           const subs = Array.isArray(item.subjects) ? item.subjects : [];
           if (subs.length) {
@@ -312,62 +350,55 @@ if (setupAdmin()) {
           }
           row.append(subjectsTd);
 
-          // 6. Academic Score (CGPA & Exam Result)
-          const scoreTd = document.createElement('td');
-          if (item.cgpa) {
-            scoreTd.append(el('div', `CGPA: ${item.cgpa}`, 'font-medium'));
-          }
-          if (item.entrance_exam_result) {
-            scoreTd.append(el('div', `Exam: ${item.entrance_exam_result}`, 'text-xs text-subtle'));
-          }
-          if (!item.cgpa && !item.entrance_exam_result) {
-            scoreTd.append(el('span', '—', 'text-subtle'));
-          }
-          row.append(scoreTd);
-
-          // 7. Availability
-          const availTd = document.createElement('td');
-          const availText =
-            item.availability ||
-            (Array.isArray(item.available_days) && item.available_days.length
-              ? item.available_days.join(', ')
-              : 'Flexible');
-          availTd.append(el('span', availText));
-          row.append(availTd);
-
-          // 8. Phone / Telegram
-          const contactTd = document.createElement('td');
-          contactTd.append(el('div', item.phone || '—', 'font-medium'));
-          if (item.telegram_handle) {
-            const handle = item.telegram_handle.startsWith('@')
-              ? item.telegram_handle
-              : `@${item.telegram_handle}`;
-            contactTd.append(el('div', handle, 'text-xs text-subtle'));
-          }
-          row.append(contactTd);
-
-          // 9. Teaching Experience
-          const expTd = document.createElement('td');
-          if (item.has_teaching_experience) {
-            expTd.append(
-              el('span', item.teaching_experience_duration || 'Yes', 'status-badge status-active')
-            );
-          } else {
-            expTd.append(el('span', 'None', 'text-subtle'));
-          }
-          row.append(expTd);
-
-          // 10. Pipeline Status
+          // 6. Status (dropdown with 6 statuses saving immediately)
           const statusTd = document.createElement('td');
-          statusTd.append(statusBadge(item.status));
+          const rowSelect = el('select', null, 'status-select');
+          rowSelect.style.padding = '0.25rem 0.5rem';
+          rowSelect.style.fontSize = '0.85rem';
+          rowSelect.style.borderRadius = '0.375rem';
+          rowSelect.style.border = '1px solid #cbd5e1';
+
+          const stageOptions = [
+            ['application_received', 'Application received'],
+            ['under_review', 'Under review'],
+            ['interview_stage', 'Interview stage'],
+            ['accepted', 'Accepted'],
+            ['rejected', 'Rejected'],
+            ['onboarding', 'Onboarding'],
+          ];
+
+          stageOptions.forEach(([val, label]) => {
+            const opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = label;
+            if (item.status === val) opt.selected = true;
+            rowSelect.append(opt);
+          });
+
+          rowSelect.addEventListener('change', async e => {
+            const newStatus = e.target.value;
+            try {
+              await api.patch(`/admin/mentor-applications/${item.id}/status`, {
+                status: newStatus,
+              });
+              item.status = newStatus;
+              refresh();
+              loadMetrics();
+            } catch (err) {
+              message(listStateHost, err.message, 'error');
+              rowSelect.value = item.status;
+            }
+          });
+
+          statusTd.append(rowSelect);
           row.append(statusTd);
 
-          // 11. Applied Date
+          // 7. Date submitted
           row.append(cell(dateText(item.created_at)));
 
-          // 12. Actions
+          // 8. Actions
           const actionTd = document.createElement('td');
-          const reviewBtn = el('button', 'Review Credentials', 'btn btn-outline btn-sm');
+          const reviewBtn = el('button', 'Review', 'btn btn-outline btn-sm');
           reviewBtn.type = 'button';
           reviewBtn.addEventListener('click', () => openDetailsModal(item));
           actionTd.append(reviewBtn);
@@ -379,17 +410,13 @@ if (setupAdmin()) {
         table(
           tableHost,
           [
-            'ID',
-            'Candidate Name',
-            'University & Campus',
-            'Field & Year',
-            'Subjects Offered',
-            'Academic Score',
-            'Availability',
-            'Phone / Telegram',
-            'Teaching Exp.',
-            'Pipeline Status',
-            'Applied',
+            'Full name',
+            'University',
+            'Field of study',
+            'Year',
+            'Subjects',
+            'Status',
+            'Date submitted',
             'Actions',
           ],
           rows,

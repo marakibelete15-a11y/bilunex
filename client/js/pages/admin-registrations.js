@@ -158,37 +158,56 @@ if (setupAdmin()) {
     modal.setAttribute('aria-hidden', 'false');
   }
 
-  const refresh = () =>
+  const refresh = () => {
+    const formData = Object.fromEntries(new FormData(form));
+    const params = { page, limit: 20, ...formData };
+    if (formData.date) {
+      params.from_date = `${formData.date}T00:00:00.000Z`;
+      params.to_date = `${formData.date}T23:59:59.999Z`;
+      delete params.date;
+    }
+
     loadList({
       endpoint: '/admin/parent-registrations',
-      params: { page, limit: 20, ...Object.fromEntries(new FormData(form)) },
+      params,
       key: 'registrations',
       statusHost: listStateHost,
       render: (items, p) => {
         const rows = items.map(item => {
           const row = document.createElement('tr');
+          row.style.cursor = 'pointer';
+          row.addEventListener('click', e => {
+            if (e.target.closest('button')) return;
+            openDetailsModal(item);
+          });
 
-          // 1. ID
-          row.append(cell(item.id));
-
-          // 2. Parent Name (+ preferred title, email below)
+          // 1. Parent name
           const parentTd = document.createElement('td');
           const title = item.preferred_title ? `${item.preferred_title} ` : '';
-          parentTd.append(el('div', `${title}${item.parent_name}`, 'font-semibold'));
-          if (item.email) {
-            parentTd.append(el('div', item.email, 'text-xs text-subtle'));
-          }
+          parentTd.append(el('span', `${title}${item.parent_name}`, 'font-semibold'));
           row.append(parentTd);
 
-          // 3. Student Name
-          const studentTd = document.createElement('td');
-          studentTd.append(el('span', item.child_name || '—', 'font-medium'));
-          row.append(studentTd);
+          // 2. Phone / Telegram
+          const contactTd = document.createElement('td');
+          contactTd.append(el('div', item.phone || item.phone_or_telegram || '—', 'font-medium'));
+          if (item.telegram_handle) {
+            const handle = item.telegram_handle.startsWith('@')
+              ? item.telegram_handle
+              : `@${item.telegram_handle}`;
+            contactTd.append(el('div', handle, 'text-xs text-subtle'));
+          }
+          row.append(contactTd);
 
-          // 4. Grade Level
+          // 3. Email
+          row.append(cell(item.email));
+
+          // 4. Child name
+          row.append(cell(item.child_name || item.student_name || '—'));
+
+          // 5. Grade level
           row.append(cell(item.grade_level || '—'));
 
-          // 5. Requested Subjects (badges)
+          // 6. Subjects
           const subjectsTd = document.createElement('td');
           const subs = Array.isArray(item.subjects) ? item.subjects : [];
           if (subs.length) {
@@ -200,57 +219,15 @@ if (setupAdmin()) {
           }
           row.append(subjectsTd);
 
-          // 6. Support Category
-          row.append(cell(item.support_category || 'Combined Support'));
-
-          // 7. Phone / Telegram
-          const contactTd = document.createElement('td');
-          contactTd.append(el('div', item.phone || '—', 'font-medium'));
-          if (item.telegram_handle) {
-            const handle = item.telegram_handle.startsWith('@')
-              ? item.telegram_handle
-              : `@${item.telegram_handle}`;
-            contactTd.append(el('div', handle, 'text-xs text-subtle'));
-          }
-          if (item.secondary_phone) {
-            contactTd.append(el('div', `Alt: ${item.secondary_phone}`, 'text-xs text-subtle'));
-          }
-          row.append(contactTd);
-
-          // 8. Review Status (Image 1 style: Reviewed / Pending)
-          const reviewTd = document.createElement('td');
-          const isPending = item.status === 'new';
-          const isArchived = item.status === 'archived';
-          const reviewLabel = isPending ? 'Pending' : isArchived ? 'Archived' : 'Reviewed';
-          const reviewClass = isPending
-            ? 'status-pending'
-            : isArchived
-              ? 'status-archived'
-              : 'status-reviewed';
-          reviewTd.append(el('span', reviewLabel, `status-badge ${reviewClass}`));
-          row.append(reviewTd);
-
-          // 9. Contact Status (Image 1 style: Contacted / Not Contacted / Enrolled)
-          const contactStatusTd = document.createElement('td');
-          let contactLabel = 'Not Contacted';
-          let contactClass = 'status-not-contacted';
-          if (item.status === 'contacted') {
-            contactLabel = 'Contacted';
-            contactClass = 'status-contacted';
-          } else if (item.status === 'enrolled') {
-            contactLabel = 'Enrolled';
-            contactClass = 'status-enrolled';
-          } else if (item.status === 'archived') {
-            contactLabel = 'Archived';
-            contactClass = 'status-archived';
-          }
-          contactStatusTd.append(el('span', contactLabel, `status-badge ${contactClass}`));
-          row.append(contactStatusTd);
-
-          // 10. Registered Date
+          // 7. Date submitted
           row.append(cell(dateText(item.created_at)));
 
-          // 11. Actions
+          // 8. Status
+          const statusTd = document.createElement('td');
+          statusTd.append(statusBadge(item.status));
+          row.append(statusTd);
+
+          // 9. Actions
           const actionTd = document.createElement('td');
           const viewBtn = el('button', 'View & Manage', 'btn btn-outline btn-sm');
           viewBtn.type = 'button';
@@ -264,16 +241,14 @@ if (setupAdmin()) {
         table(
           tableHost,
           [
-            'ID',
-            'Parent Name',
-            'Student Name',
-            'Grade Level',
-            'Requested Subjects',
-            'Support Category',
-            'Phone / Telegram',
-            'Review Status',
-            'Contact Status',
-            'Registered',
+            'Parent name',
+            'Phone/Telegram',
+            'Email',
+            'Child name',
+            'Grade level',
+            'Subjects',
+            'Date submitted',
+            'Status',
             'Actions',
           ],
           rows,
@@ -286,6 +261,7 @@ if (setupAdmin()) {
         });
       },
     });
+  };
 
   form.addEventListener('submit', e => {
     e.preventDefault();

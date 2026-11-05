@@ -32,19 +32,32 @@ if (setupAdmin()) {
 
       const mentorList = data.mentor_applications || [];
       const mentorTotal = mentorList.reduce((acc, cur) => acc + Number(cur.count || 0), 0);
-      const activeMentors = data.active_mentors || 0;
-      const mentorBreakdown =
-        mentorList.map(item => `${item.status.replace(/_/g, ' ')}: ${item.count}`).join(' · ') ||
-        'No applications';
+      const MENTOR_STATUSES = [
+        'Application received',
+        'Under review',
+        'Interview stage',
+        'Accepted',
+        'Rejected',
+        'Onboarding',
+      ];
+      const mentorCounts = Object.fromEntries(MENTOR_STATUSES.map(s => [s, 0]));
+      mentorList.forEach(item => {
+        const norm = String(item.status || '')
+          .replace(/_/g, ' ')
+          .toLowerCase();
+        const match = MENTOR_STATUSES.find(s => s.toLowerCase() === norm);
+        if (match) {
+          mentorCounts[match] = Number(item.count || 0);
+        } else {
+          mentorCounts[item.status] = Number(item.count || 0);
+        }
+      });
+      const mentorBreakdown = MENTOR_STATUSES.map(s => `${s}: ${mentorCounts[s]}`).join(' · ');
 
       const inquiryList = data.inquiries || [];
       const inquiryTotal = inquiryList.reduce((acc, cur) => acc + Number(cur.count || 0), 0);
       const inquiryBreakdown =
         inquiryList.map(item => `${item.status}: ${item.count}`).join(' · ') || 'No inquiries';
-
-      const storyList = data.stories || [];
-      const storyTotal = storyList.reduce((acc, cur) => acc + Number(cur.count || 0), 0);
-      const pendingStories = data.pending_stories ?? 0;
 
       const supportReportsTotal = data.support_reports_count ?? 0;
 
@@ -68,7 +81,7 @@ if (setupAdmin()) {
 
       grid.append(
         createMetricCard(
-          'Parent Registrations',
+          'Parents',
           parentTotal,
           parentBreakdown,
           'registrations.html',
@@ -77,26 +90,19 @@ if (setupAdmin()) {
         createMetricCard(
           'Mentor Applications',
           mentorTotal,
-          `${mentorBreakdown} | Active Mentors: ${activeMentors}`,
+          mentorBreakdown,
           'applications.html',
           'View all →'
         ),
         createMetricCard(
-          'Stories & Resources',
-          storyTotal,
-          `Pending review: ${pendingStories} | Total: ${storyTotal}`,
-          'stories.html',
-          'View all →'
-        ),
-        createMetricCard(
-          'Inquiries & Contact',
+          'Inquiries',
           inquiryTotal,
           inquiryBreakdown,
           'inquiries.html',
           'View all →'
         ),
         createMetricCard(
-          'Student Support Reports',
+          'Support Reports',
           supportReportsTotal,
           'Confidential reports submitted by mentors',
           'reports.html',

@@ -206,18 +206,46 @@ if (setupAdmin()) {
 
         const rows = filtered.map(item => {
           const row = document.createElement('tr');
-          row.append(
-            cell(item.id),
-            cell(item.name),
-            cell(item.email),
-            cell(item.phone || '—'),
-            cell(formatInquiryType(item.inquiry_type))
-          );
+          row.style.cursor = 'pointer';
+          row.addEventListener('click', e => {
+            if (e.target.closest('button')) return;
+            openDetailsModal(item);
+          });
 
+          // 1. Name
+          const nameTd = document.createElement('td');
+          nameTd.append(el('span', item.name || '—', 'font-semibold'));
+          row.append(nameTd);
+
+          // 2. Contact (Email + Phone)
+          const contactTd = document.createElement('td');
+          if (item.email) contactTd.append(el('div', item.email, 'font-medium'));
+          if (item.phone) contactTd.append(el('div', item.phone, 'text-xs text-subtle'));
+          if (!item.email && !item.phone) contactTd.append(el('span', '—', 'text-subtle'));
+          row.append(contactTd);
+
+          // 3. Inquiry type
+          row.append(cell(formatInquiryType(item.inquiry_type)));
+
+          // 4. Message (snippet)
+          const msgTd = document.createElement('td');
+          const snippet =
+            item.message && item.message.length > 60
+              ? `${item.message.slice(0, 60)}…`
+              : item.message || '—';
+          msgTd.append(el('span', snippet, 'text-subtle'));
+          msgTd.title = item.message || '';
+          row.append(msgTd);
+
+          // 5. Date
+          row.append(cell(dateText(item.created_at)));
+
+          // 6. Status
           const state = document.createElement('td');
           state.append(statusBadge(item.status));
-          row.append(state, cell(dateText(item.created_at)));
+          row.append(state);
 
+          // 7. Actions
           const actionTd = document.createElement('td');
           const viewBtn = el('button', 'Review', 'btn btn-outline btn-sm');
           viewBtn.type = 'button';
@@ -230,7 +258,7 @@ if (setupAdmin()) {
 
         table(
           tableHost,
-          ['ID', 'Name', 'Email', 'Phone', 'Type', 'Status', 'Received', 'Actions'],
+          ['Name', 'Contact', 'Inquiry type', 'Message', 'Date', 'Status', 'Actions'],
           rows,
           'No inquiries found matching your filters.'
         );

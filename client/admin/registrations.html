@@ -39,20 +39,21 @@
                 >Search<input
                   name="search"
                   type="search"
-                  placeholder="Search parent, child, or email..."
+                  placeholder="Search name, email, phone..."
               /></label>
               <label>
                 Status
                 <select name="status">
                   <option value="">All statuses</option>
-                  <option value="new">Pending Review</option>
+                  <option value="new">New</option>
                   <option value="contacted">Contacted</option>
-                  <option value="enrolled">Enrolled</option>
-                  <option value="archived">Archived</option>
+                  <option value="enrolled">Registered / Enrolled</option>
+                  <option value="archived">Closed / Archived</option>
                 </select>
               </label>
               <label>Grade<input name="grade_level" placeholder="e.g. Grade 8" /></label>
               <label>Subject<input name="subject" placeholder="e.g. Mathematics" /></label>
+              <label>Date<input name="date" type="date" /></label>
               <button class="btn btn-primary" type="submit">Apply filters</button>
               <button class="btn btn-outline" type="button" id="reset-filters">Reset</button>
             </form>
