@@ -440,19 +440,39 @@ export function initPortalLayout() {
 
     const userFooter = document.createElement('div');
     userFooter.className = 'sidebar-user-footer';
-    userFooter.innerHTML = `
-      <div class="sidebar-user-info">
-        <div class="sidebar-avatar" aria-hidden="true">${initial}</div>
-        <div class="sidebar-user-meta">
-          <span class="sidebar-user-name" title="${userEmail}">${userEmail}</span>
-          <span class="sidebar-user-role">${role}</span>
-        </div>
-      </div>
-      <button type="button" class="sidebar-logout-btn">Log out</button>
-    `;
-    userFooter.querySelector('.sidebar-logout-btn').addEventListener('click', () => {
+
+    const userInfo = document.createElement('div');
+    userInfo.className = 'sidebar-user-info';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'sidebar-avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    avatar.textContent = initial;
+
+    const userMeta = document.createElement('div');
+    userMeta.className = 'sidebar-user-meta';
+
+    const userNameSpan = document.createElement('span');
+    userNameSpan.className = 'sidebar-user-name';
+    userNameSpan.title = userEmail;
+    userNameSpan.textContent = userEmail;
+
+    const userRoleSpan = document.createElement('span');
+    userRoleSpan.className = 'sidebar-user-role';
+    userRoleSpan.textContent = role;
+
+    userMeta.append(userNameSpan, userRoleSpan);
+    userInfo.append(avatar, userMeta);
+
+    const logoutBtn = document.createElement('button');
+    logoutBtn.type = 'button';
+    logoutBtn.className = 'sidebar-logout-btn';
+    logoutBtn.textContent = 'Log out';
+    logoutBtn.addEventListener('click', () => {
       auth.logout(role === 'Admin' ? '/admin/login.html' : '/mentor/login.html');
     });
+
+    userFooter.append(userInfo, logoutBtn);
     aside.appendChild(userFooter);
 
     layout.querySelector('.portal-sidebar')?.remove();
