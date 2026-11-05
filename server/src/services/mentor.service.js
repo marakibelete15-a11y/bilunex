@@ -81,8 +81,14 @@ const mentorService = {
    * Update own mentor profile (availability, phone, subject_specializations)
    * Requirement 15: PATCH /mentor/profile
    */
-  async updateProfile(mentorId, { availability, phone, subject_specializations }) {
+  async updateProfile(
+    mentorId,
+    { name, university, field_of_study, availability, phone, subject_specializations }
+  ) {
     const updated = await mentorRepository.updateProfile(mentorId, {
+      name,
+      university,
+      field_of_study,
       availability,
       phone,
       subject_specializations,
