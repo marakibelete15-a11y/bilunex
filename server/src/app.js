@@ -5,6 +5,7 @@
 
 const express = require('express');
 const path = require('path');
+const { URL } = require('url');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -14,6 +15,7 @@ const logger = require('./utils/logger');
 const routes = require('./routes');
 const { generalLimiter } = require('./middleware/rateLimit.middleware');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler.middleware');
+const portalPageAuth = require('./middleware/portalPageAuth.middleware');
 
 const app = express();
 
@@ -44,6 +46,22 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // HTTP Request logging with Morgan (piped to Winston)
 if (env.NODE_ENV !== 'test') {
+  const redactCredentialQuery = value => {
+    if (!value || value === '-') return value;
+    try {
+      const requestUrl = new URL(value, 'http://localhost');
+      for (const key of requestUrl.searchParams.keys()) {
+        if (['email', 'password'].includes(key.toLowerCase())) {
+          requestUrl.searchParams.set(key, '[REDACTED]');
+        }
+      }
+      return `${requestUrl.pathname}${requestUrl.search}`;
+    } catch {
+      return '[invalid-url]';
+    }
+  };
+  morgan.token('url', req => redactCredentialQuery(req.originalUrl));
+  morgan.token('referrer', req => redactCredentialQuery(req.headers.referer));
   app.use(morgan('combined', { stream: logger.stream }));
 }
 
@@ -66,6 +84,8 @@ app.use('/api', routes);
 // Static Client Serving in Development & Testing
 if (env.NODE_ENV !== 'production') {
   const clientPath = path.join(__dirname, '../../client');
+  app.use('/admin', portalPageAuth('admin'));
+  app.use('/mentor', portalPageAuth('mentor'));
   app.use(express.static(clientPath));
 
   // Convenience root redirect to public landing page

@@ -14,6 +14,20 @@ if (setupMentor()) {
     document.getElementById('profile-email').textContent = profile.email;
     document.getElementById('profile-university').textContent = profile.university || '—';
     document.getElementById('profile-field').textContent = profile.field_of_study || '—';
+
+    const phoneDisp = document.getElementById('profile-phone-display');
+    if (phoneDisp) phoneDisp.textContent = profile.phone || 'Not provided';
+    const availDisp = document.getElementById('profile-avail-display');
+    if (availDisp) availDisp.textContent = profile.availability || 'Flexible';
+    const subjDisp = document.getElementById('profile-subjects-display');
+    if (subjDisp) {
+      subjDisp.textContent = (profile.subject_specializations || []).join(', ') || 'General';
+    }
+    const statusDisp = document.getElementById('profile-status');
+    if (statusDisp && profile.account_status) {
+      statusDisp.innerHTML = `<span class="status-badge status-${profile.account_status}">${profile.account_status}</span>`;
+    }
+
     form.elements.phone.value = profile.phone || '';
     form.elements.availability.value = profile.availability || '';
     form.elements.subject_specializations.value = (profile.subject_specializations || []).join(
@@ -46,7 +60,18 @@ if (setupMentor()) {
       form.elements.subject_specializations.value = (
         response.data.subject_specializations || []
       ).join(', ');
-      showMessage(feedback, 'Profile updated.', 'success');
+
+      const phoneDisp = document.getElementById('profile-phone-display');
+      if (phoneDisp) phoneDisp.textContent = response.data.phone || 'Not provided';
+      const availDisp = document.getElementById('profile-avail-display');
+      if (availDisp) availDisp.textContent = response.data.availability || 'Flexible';
+      const subjDisp = document.getElementById('profile-subjects-display');
+      if (subjDisp) {
+        subjDisp.textContent =
+          (response.data.subject_specializations || []).join(', ') || 'General';
+      }
+
+      showMessage(feedback, 'Profile updated successfully.', 'success');
     } catch (error) {
       showMessage(feedback, error.message, 'error');
     } finally {

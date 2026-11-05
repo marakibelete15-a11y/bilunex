@@ -21,6 +21,12 @@ const adminController = {
         password,
         ip: req.ip,
       });
+      res.cookie('bilunex_portal_token', result.token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+      });
       return sendSuccess(res, result, 'Admin authenticated successfully', 200);
     } catch (err) {
       next(err);
@@ -52,6 +58,26 @@ const adminController = {
         ip: req.ip,
       });
       return sendSuccess(res, result, 'Parent registrations retrieved successfully', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Update Parent Registration Status
+   * PATCH /api/v1/admin/parent-registrations/:id/status
+   */
+  async updateParentRegistrationStatus(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const updated = await adminService.updateParentRegistrationStatus({
+        id,
+        status,
+        adminUser: req.user,
+        ip: req.ip,
+      });
+      return sendSuccess(res, updated, `Parent registration status updated to ${status}`, 200);
     } catch (err) {
       next(err);
     }
@@ -132,6 +158,26 @@ const adminController = {
   },
 
   /**
+   * Update Inquiry Status
+   * PATCH /api/v1/admin/inquiries/:id/status
+   */
+  async updateInquiryStatus(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const updated = await adminService.updateInquiryStatus({
+        id,
+        status,
+        adminUser: req.user,
+        ip: req.ip,
+      });
+      return sendSuccess(res, { inquiry: updated }, 'Inquiry status updated successfully', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
    * Summary Counts Across Intakes & Applications
    * GET /api/v1/admin/reports/summary
    */
@@ -139,6 +185,19 @@ const adminController = {
     try {
       const summary = await adminService.getReportsSummary();
       return sendSuccess(res, summary, 'Operational summary metrics retrieved', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Consolidated All-Events Activity Feed across all system operations
+   * GET /api/v1/admin/events
+   */
+  async getAllEvents(req, res, next) {
+    try {
+      const result = await adminService.getAllEvents(req.query);
+      return sendSuccess(res, result, 'System events retrieved successfully', 200);
     } catch (err) {
       next(err);
     }

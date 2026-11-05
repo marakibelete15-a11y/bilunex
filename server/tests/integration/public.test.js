@@ -406,6 +406,7 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
       expect(Number(res.body.data.cgpa)).toBe(3.85);
       expect(Number(res.body.data.entrance_exam_result)).toBe(615.5);
       expect(res.body.data.commitment_agreement).toBe(true);
+      expect(res.body.data.commitment_agreement_at).toBeTruthy();
       expect(res.body.data.referral_source).toBe('University Club');
     });
 

@@ -21,7 +21,12 @@ export const auth = {
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(USER_KEY);
   },
-  logout(redirectUrl) {
+  async logout(redirectUrl) {
+    try {
+      await window.apiClient?.post('/auth/logout');
+    } catch {
+      // Local state is cleared even when the server cannot be reached.
+    }
     this.clearSession();
     window.location.assign(redirectUrl);
   },

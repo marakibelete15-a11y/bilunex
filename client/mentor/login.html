@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/portal.css" />
   </head>
   <body>
     <header id="portal-header" class="site-header"></header>
@@ -21,7 +22,7 @@
         <section class="card admin-login-card">
           <h1>Mentor sign in</h1>
           <p>Sign in to view and update your profile and support reports.</p>
-          <form id="mentor-login-form">
+          <form id="mentor-login-form" method="post" action="/api/v1/mentor/auth/login">
             <label>Email<input name="email" type="email" autocomplete="username" required /></label
             ><label
               >Password<input

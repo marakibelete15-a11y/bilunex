@@ -33,7 +33,7 @@ if (setupMentor()) {
     event.preventDefault();
     if (!form.reportValidity()) return;
     const button = form.querySelector('button[type="submit"]');
-    const originalLabel = 'File support report';
+    const originalLabel = 'Send Support Inquiry to Admin';
     const fields = Object.fromEntries(new FormData(form));
 
     // A timed out POST is ambiguous: the server may have saved it before the
@@ -45,7 +45,11 @@ if (setupMentor()) {
         const reports = await refreshReports();
         if (reports.some(report => matchesSubmission(report, fields))) {
           submissionUncertain = false;
-          showMessage(feedback, 'Support report filed successfully.', 'success');
+          showMessage(
+            feedback,
+            'Student support inquiry sent to administrators successfully.',
+            'success'
+          );
           form.reset();
           button.textContent = originalLabel;
           return;
@@ -69,7 +73,11 @@ if (setupMentor()) {
     submissionStartedAt = Date.now();
     try {
       await api.post('/mentor/reports', fields);
-      showMessage(feedback, 'Support report filed successfully.', 'success');
+      showMessage(
+        feedback,
+        'Student support inquiry sent to administrators successfully.',
+        'success'
+      );
       form.reset();
       try {
         await refreshReports();

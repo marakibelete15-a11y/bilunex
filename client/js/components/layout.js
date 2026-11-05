@@ -299,6 +299,21 @@ export function renderFooter() {
   mentors.append(mentorsTitle, mentorList);
   grid.appendChild(mentors);
 
+  const admin = document.createElement('div');
+  admin.className = 'footer-col footer-admin';
+  const adminTitle = document.createElement('h2');
+  adminTitle.textContent = 'For administrators';
+  const adminList = document.createElement('ul');
+  adminList.className = 'footer-nav-list';
+  const adminEntry = document.createElement('li');
+  const adminLogin = document.createElement('a');
+  adminLogin.href = '../admin/login.html';
+  adminLogin.textContent = 'Admin portal login';
+  adminEntry.appendChild(adminLogin);
+  adminList.appendChild(adminEntry);
+  admin.append(adminTitle, adminList);
+  grid.appendChild(admin);
+
   const bottom = document.createElement('div');
   bottom.className = 'footer-bottom';
   const copyright = document.createElement('p');
@@ -323,44 +338,102 @@ export function initPortalLayout() {
   const identityText = role === 'Admin' ? 'Admin' : 'Mentor';
   const header = document.createElement('div');
   header.className = 'container header-inner portal-header-inner';
-<<<<<<< HEAD
-  const logo = makeLogo('brand-logo', '../public/index.html');
-=======
   const logo = makeBrandMark('brand-logo');
   logo.href = '/public/index.html';
->>>>>>> 23a8f84 (Change the layout js)
   header.appendChild(logo);
   const layout = document.querySelector('.portal-layout');
   const navItems =
     role === 'Admin'
       ? [
-          ['/admin/index.html', 'Dashboard'],
-          ['/admin/registrations.html', 'Parent Registrations'],
-          ['/admin/applications.html', 'Mentor Applications'],
-          ['/admin/mentors.html', 'Active Mentors'],
-          ['/admin/inquiries.html', 'Inquiries'],
-          ['/admin/stories.html', 'Stories'],
-          ['/admin/reports.html', 'Support Reports'],
+          [
+            '/admin/index.html',
+            'Dashboard',
+            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>',
+          ],
+          [
+            '/admin/registrations.html',
+            'Parent Registrations',
+            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>',
+          ],
+          [
+            '/admin/applications.html',
+            'Mentor Applications',
+            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M22 10v6M2 10l10-5 10 5-10 5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>',
+          ],
+          [
+            '/admin/stories.html',
+            'Stories & Resources',
+            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>',
+          ],
+          [
+            '/admin/inquiries.html',
+            'Inquiries & Contact',
+            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-4a2 2 0 00-2 2v1a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1a2 2 0 00-2-2H4"/></svg>',
+          ],
+          [
+            '/admin/reports.html',
+            'Student Support Reports',
+            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>',
+          ],
+          [
+            '/admin/mentors.html',
+            'Active Mentors',
+            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>',
+          ],
         ]
       : [
-          ['/mentor/profile.html', 'My Profile'],
-          ['/mentor/report.html', 'Support Reports'],
+          [
+            '/mentor/index.html',
+            'Dashboard',
+            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>',
+          ],
+          [
+            '/mentor/profile.html',
+            'My Profile',
+            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>',
+          ],
+          [
+            '/mentor/report.html',
+            'Student Support Reports',
+            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>',
+          ],
         ];
+
   if (layout) {
     const currentPage = window.location.pathname;
     const aside = document.createElement('aside');
     aside.className = 'portal-sidebar';
     aside.id = 'portal-navigation';
+
+    // Top section: Brand / Dashboard title (Matching Image 2 ADMIN PANEL header)
+    const brandDiv = document.createElement('div');
+    brandDiv.className = 'sidebar-brand';
+    brandDiv.innerHTML = `
+      <svg class="portal-brand-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+      </svg>
+      <span class="sidebar-title">${role === 'Admin' ? 'ADMIN PANEL' : 'MENTOR PORTAL'}</span>
+    `;
+    aside.appendChild(brandDiv);
+
+    // Nav list with icons
     const nav = document.createElement('nav');
     nav.setAttribute('aria-label', `${role} navigation`);
     const list = document.createElement('ul');
     list.className = 'portal-nav';
-    navItems.forEach(([href, label]) => {
+    navItems.forEach(([href, label, iconSvg]) => {
       const item = document.createElement('li');
       const link = document.createElement('a');
       link.href = href;
-      link.textContent = label;
-      if (href === currentPage) {
+      link.innerHTML = `${iconSvg}<span>${label}</span>`;
+      if (
+        href === currentPage ||
+        (href.endsWith('/index.html') &&
+          (currentPage.endsWith('/admin/') || currentPage.endsWith('/mentor/')))
+      ) {
         link.classList.add('active');
         link.setAttribute('aria-current', 'page');
       }
@@ -369,8 +442,33 @@ export function initPortalLayout() {
     });
     nav.appendChild(list);
     aside.appendChild(nav);
+
+    // Bottom section: User Info & Logout
+    const user = auth.getUser();
+    const userEmail = user?.email || identityText;
+    const initial = (user?.name || userEmail)[0]?.toUpperCase() || 'U';
+
+    const userFooter = document.createElement('div');
+    userFooter.className = 'sidebar-user-footer';
+    userFooter.innerHTML = `
+      <div class="sidebar-user-info">
+        <div class="sidebar-avatar" aria-hidden="true">${initial}</div>
+        <div class="sidebar-user-meta">
+          <span class="sidebar-user-name" title="${userEmail}">${userEmail}</span>
+          <span class="sidebar-user-role">${role}</span>
+        </div>
+      </div>
+      <button type="button" class="sidebar-logout-btn">Log out</button>
+    `;
+    userFooter.querySelector('.sidebar-logout-btn').addEventListener('click', () => {
+      auth.logout(role === 'Admin' ? '/admin/login.html' : '/mentor/login.html');
+    });
+    aside.appendChild(userFooter);
+
     layout.querySelector('.portal-sidebar')?.remove();
     layout.insertBefore(aside, layout.querySelector('.portal-main'));
+
+    // Mobile Hamburger
     const menu = document.createElement('button');
     menu.type = 'button';
     menu.className = 'portal-menu-toggle';
@@ -383,6 +481,7 @@ export function initPortalLayout() {
       aside.classList.toggle('is-open', open);
     });
     header.appendChild(menu);
+
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && aside.classList.contains('is-open')) {
         aside.classList.remove('is-open');
@@ -390,6 +489,7 @@ export function initPortalLayout() {
         menu.focus();
       }
     });
+
     document.addEventListener('click', event => {
       if (
         aside.classList.contains('is-open') &&
@@ -401,6 +501,7 @@ export function initPortalLayout() {
       }
     });
   }
+
   const controls = document.createElement('div');
   controls.className = 'portal-header-controls';
   const badge = document.createElement('span');

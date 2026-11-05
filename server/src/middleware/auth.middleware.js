@@ -20,7 +20,7 @@ const authenticateToken = (req, res, next) => {
     req.user = decoded; // Contains { id, email, role, mentorId?, etc. }
     next();
   } catch {
-    return sendError(res, 'Invalid or expired authentication token.', 403);
+    return sendError(res, 'Invalid or expired authentication token.', 401);
   }
 };
 

@@ -35,7 +35,7 @@ const mentorRepository = {
     available_hours = null,
     availability = null,
     motivation,
-    commitment_agreement = true,
+    commitment_agreement = false,
     referral_source = null,
     expertise, // Fallback
     bio, // Fallback
@@ -65,11 +65,11 @@ const mentorRepository = {
         field_of_study, academic_year, subjects, has_teaching_experience,
         teaching_experience_duration, experience_details, cgpa, entrance_exam_stream, entrance_exam_result,
         available_days, available_hours, availability, motivation,
-        commitment_agreement, referral_source, status
+        commitment_agreement, commitment_agreement_at, referral_source, status
       )
       VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, 'application_received'
+        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, CURRENT_TIMESTAMP, $21, 'application_received'
       )
       RETURNING *;
     `;
@@ -170,6 +170,15 @@ const mentorRepository = {
     `;
     const res = await db.query(text);
     return res.rows;
+  },
+
+  /**
+   * Count active mentor accounts
+   */
+  async countActiveMentors() {
+    const text = `SELECT COUNT(*)::int AS count FROM mentor_profiles WHERE account_status = 'active';`;
+    const res = await db.query(text);
+    return res.rows[0]?.count || 0;
   },
 
   /**

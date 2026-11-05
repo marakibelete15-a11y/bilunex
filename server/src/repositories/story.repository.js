@@ -54,6 +54,12 @@ const storyRepository = {
     );
     return result.rows[0].count;
   },
+  async countByStatus() {
+    const result = await db.query(
+      'SELECT status, COUNT(*)::int AS count FROM stories WHERE deleted_at IS NULL GROUP BY status'
+    );
+    return result.rows;
+  },
   async findById(id) {
     const result = await db.query('SELECT * FROM stories WHERE id=$1 AND deleted_at IS NULL', [id]);
     return result.rows[0] || null;

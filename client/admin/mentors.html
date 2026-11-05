@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/portal.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-heading">Skip to content</a>
@@ -21,18 +22,57 @@
       <div class="container portal-layout">
         <section class="portal-main">
           <header class="page-header">
-            <h1 id="main-heading">Active mentors</h1>
+            <h1 id="main-heading">Active Mentors</h1>
             <p>
-              This list uses applications in the onboarding status because the API does not provide
-              a separate mentor profile list.
+              Verified university mentors active or currently onboarding in the Bilunex peer
+              tutoring network.
             </p>
           </header>
+
+          <div id="mentors-metrics" class="portal-metrics-grid"></div>
+
           <form id="filters" class="admin-filters">
-            <label>Search this page<input name="search" type="search" /></label>
+            <label
+              >Search mentors<input
+                name="search"
+                type="search"
+                placeholder="Search by name, email, university, department..."
+            /></label>
+            <button class="btn btn-primary" type="submit">Filter</button>
+            <button class="btn btn-outline" type="button" id="reset-filters">Reset</button>
           </form>
+
           <div id="list-state" role="status" aria-live="polite"></div>
-          <div id="mentors-table"></div>
+          <div id="mentors-table" class="table-responsive"></div>
           <nav id="pagination" class="admin-pagination" aria-label="Mentor pages"></nav>
+
+          <!-- Modal for Active Mentor Profile Inspection -->
+          <div id="mentor-details-modal" class="portal-modal-backdrop" aria-hidden="true">
+            <div
+              class="portal-modal-card"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="mentor-details-modal-title"
+            >
+              <header class="portal-modal-header">
+                <h2 id="mentor-details-modal-title">Mentor Profile</h2>
+                <button
+                  type="button"
+                  class="portal-modal-close"
+                  id="mentor-details-modal-close-btn"
+                  aria-label="Close dialog"
+                >
+                  &times;
+                </button>
+              </header>
+              <div class="portal-modal-body" id="mentor-details-modal-body-content"></div>
+              <footer class="portal-modal-footer">
+                <button type="button" class="btn btn-outline" id="mentor-details-modal-cancel-btn">
+                  Close
+                </button>
+              </footer>
+            </div>
+          </div>
         </section>
       </div>
     </main>

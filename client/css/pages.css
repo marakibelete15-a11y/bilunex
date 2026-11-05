@@ -983,8 +983,21 @@ fieldset .form-label {
 }
 .commitment-detail {
   margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-subtle);
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+}
+.commitment-detail ol {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding-left: 1.35rem;
+}
+.commitment-detail li {
+  padding-left: var(--space-1);
 }
 @media (min-width: 900px) {
   .contact-layout {
@@ -1313,9 +1326,31 @@ fieldset .form-label {
 /* Mentor portal */
 .mentor-identity,
 .mentor-edit-card,
-.mentor-reports-card {
+.mentor-reports-card,
+.mentor-support-callout,
+.mentor-guidance-card {
   margin-bottom: var(--space-5);
   padding: var(--space-6);
+}
+
+.mentor-support-callout {
+  border-left: 4px solid var(--color-primary);
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.mentor-guidance-card {
+  border-left: 4px solid var(--color-accent, #b45309);
+  background: #fffbeb;
+}
+
+.mentor-guidance-card h2 {
+  color: #92400e;
+  font-size: var(--font-size-base);
+  margin-bottom: var(--space-2);
 }
 .mentor-identity dl {
   display: grid;
@@ -1452,4 +1487,155 @@ fieldset .form-label {
   .form-progress li {
     flex-wrap: wrap;
   }
+}
+
+/* Admin Dashboard Intake Hub & All Events Stream */
+.admin-quick-nav-card {
+  margin-bottom: var(--space-6);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.admin-quick-nav-card h2 {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-4);
+  color: var(--color-primary);
+}
+
+.admin-quick-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-4);
+}
+
+.quick-nav-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #f8fafc;
+  text-decoration: none;
+  color: var(--color-text-main);
+  transition: all var(--transition-base);
+}
+
+.quick-nav-item:hover,
+.quick-nav-item:focus-visible {
+  background: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(19, 41, 75, 0.08);
+  transform: translateY(-2px);
+}
+
+.quick-nav-title {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  color: var(--color-primary);
+  margin-bottom: var(--space-1);
+}
+
+.quick-nav-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-normal);
+  margin-bottom: var(--space-3);
+  flex-grow: 1;
+}
+
+.quick-nav-action {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent, #b45309);
+}
+
+.dashboard-section {
+  margin-bottom: var(--space-6);
+}
+
+.dashboard-section .section-title {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-3);
+  color: var(--color-text-main);
+}
+
+.admin-events-card {
+  padding: var(--space-5);
+  margin-top: var(--space-6);
+}
+
+.events-header {
+  margin-bottom: var(--space-4);
+}
+
+.events-header h2 {
+  font-size: var(--font-size-xl);
+  color: var(--color-primary);
+  margin-bottom: var(--space-1);
+}
+
+.events-header p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.event-type-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: capitalize;
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.event-type-badge[data-event-type='parent_registration'] {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.event-type-badge[data-event-type='mentor_application'] {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.event-type-badge[data-event-type='inquiry'] {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.event-type-badge[data-event-type='story'] {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.event-type-badge[data-event-type='student_support'] {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.event-type-badge[data-event-type='notification'] {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.event-desc-snippet {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-normal);
+}
+
+.event-actor-name {
+  font-weight: var(--font-weight-medium);
+}
+
+.event-contact-sub {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
 }

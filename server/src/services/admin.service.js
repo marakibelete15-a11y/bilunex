@@ -151,6 +151,43 @@ const adminService = {
   },
 
   /**
+   * Update status of parent registration with audit logging
+   */
+  async updateParentRegistrationStatus({ id, status, adminUser, ip = null }) {
+    const existing = await parentRepository.findById(id);
+    if (!existing) {
+      const error = new Error(`Parent registration with ID ${id} not found`);
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const updated = await parentRepository.updateStatus(id, status);
+
+    try {
+      await auditLogRepository.create({
+        actor_type: 'admin',
+        actor_id: adminUser ? parseInt(adminUser.id, 10) : null,
+        actor_email: adminUser ? adminUser.email : null,
+        action: 'update',
+        target_table: 'parent_registrations',
+        target_id: id,
+        metadata: {
+          previous_status: existing.status,
+          new_status: status,
+          ip,
+        },
+      });
+    } catch (auditErr) {
+      logger.error(
+        'Failed to create audit log for parent registration status update:',
+        auditErr.message
+      );
+    }
+
+    return updated;
+  },
+
+  /**
    * List candidate mentor applications with filtering and pagination
    */
   async getMentorApplications({ filters }) {
@@ -249,24 +286,214 @@ const adminService = {
   },
 
   /**
-   * Aggregate operational summary metrics across registrations, applications, inquiries
+   * Update inquiry status with audit logging
+   */
+  async updateInquiryStatus({ id, status, adminUser, ip = null }) {
+    const existing = await inquiryRepository.findById(id);
+    if (!existing) {
+      const err = new Error('Inquiry not found');
+      err.status = 404;
+      throw err;
+    }
+
+    const updated = await inquiryRepository.updateStatus(id, status);
+
+    await auditLogRepository.create({
+      actor_id: adminUser?.id || null,
+      actor_role: 'admin',
+      action: 'UPDATE_INQUIRY_STATUS',
+      entity_type: 'inquiries',
+      entity_id: id,
+      metadata: {
+        previous_status: existing.status,
+        new_status: status,
+      },
+      ip_address: ip,
+    });
+
+    return updated;
+  },
+
+  /**
+   * Aggregate operational summary metrics across registrations, applications, inquiries, stories, reports
    */
   async getReportsSummary() {
-    const [parentCounts, mentorCounts, inquiryCounts, failedNotificationsCount, pendingStories] =
-      await Promise.all([
-        parentRepository.countByStatus(),
-        mentorRepository.countApplicationsByStatus(),
-        inquiryRepository.countByStatus(),
-        notificationLogRepository.countFailuresLast7Days(),
-        storyRepository.countPending(),
-      ]);
+    const [
+      parentCounts,
+      mentorCounts,
+      activeMentorsCount,
+      inquiryCounts,
+      storyCounts,
+      supportReportsCount,
+      failedNotificationsCount,
+      pendingStories,
+    ] = await Promise.all([
+      parentRepository.countByStatus().catch(() => []),
+      mentorRepository.countApplicationsByStatus().catch(() => []),
+      mentorRepository.countActiveMentors().catch(() => 0),
+      inquiryRepository.countByStatus().catch(() => []),
+      storyRepository.countByStatus().catch(() => []),
+      reportRepository.countAll().catch(() => 0),
+      notificationLogRepository.countFailuresLast7Days().catch(() => 0),
+      storyRepository.countPending().catch(() => 0),
+    ]);
 
     return {
       parent_registrations: parentCounts,
       mentor_applications: mentorCounts,
+      active_mentors: activeMentorsCount,
       inquiries: inquiryCounts,
+      stories: storyCounts,
+      support_reports_count: supportReportsCount,
       failed_notifications_last_7_days: failedNotificationsCount,
       pending_stories: pendingStories,
+    };
+  },
+
+  /**
+   * Consolidated All-Events Activity Feed across all intake channels and system operations
+   */
+  async getAllEvents({ event_type = null, search = null, page = 1, limit = 50 } = {}) {
+    const fetchLimit = 100;
+    const [parents, mentors, inquiries, stories, reports, notifications] = await Promise.all([
+      parentRepository.findWithFilters({ limit: fetchLimit }).catch(() => []),
+      mentorRepository.findAllApplications({ limit: fetchLimit }).catch(() => []),
+      inquiryRepository.findWithFilters({ limit: fetchLimit }).catch(() => []),
+      storyRepository.findAll({ limit: fetchLimit }).catch(() => []),
+      reportRepository.findAll({ limit: fetchLimit }).catch(() => []),
+      notificationLogRepository.findAll(fetchLimit).catch(() => []),
+    ]);
+
+    const events = [];
+
+    (parents || []).forEach(p => {
+      events.push({
+        id: `parent_${p.id}`,
+        event_type: 'parent_registration',
+        type_label: 'Parent Registration',
+        title: `Parent Registration: ${p.parent_name}`,
+        description: `Student: ${p.child_name || 'N/A'} (Grade ${p.grade_level || 'N/A'}) - Subjects: ${(p.subjects || []).join(', ') || 'General'}`,
+        actor: p.parent_name,
+        contact: p.email || p.phone,
+        status: p.status,
+        created_at: p.created_at,
+        link: '/admin/registrations.html',
+      });
+    });
+
+    (mentors || []).forEach(m => {
+      events.push({
+        id: `mentor_${m.id}`,
+        event_type: 'mentor_application',
+        type_label: 'Mentor Application',
+        title: `Mentor Application: ${m.full_name}`,
+        description: `${m.university || 'University'} (${m.field_of_study || 'General'}) - Year ${m.academic_year || 'N/A'}`,
+        actor: m.full_name,
+        contact: m.email || m.phone,
+        status: m.status,
+        created_at: m.created_at,
+        link: '/admin/applications.html',
+      });
+    });
+
+    (inquiries || []).forEach(i => {
+      events.push({
+        id: `inquiry_${i.id}`,
+        event_type: 'inquiry',
+        type_label: 'Inquiry',
+        title: `${(i.inquiry_type || 'General').replace(/_/g, ' ')} Inquiry: ${i.name}`,
+        description: i.message
+          ? i.message.length > 120
+            ? `${i.message.slice(0, 120)}…`
+            : i.message
+          : 'No message body',
+        actor: i.name,
+        contact: i.email || i.phone,
+        status: i.status,
+        created_at: i.created_at,
+        link: '/admin/inquiries.html',
+      });
+    });
+
+    (stories || []).forEach(s => {
+      events.push({
+        id: `story_${s.id}`,
+        event_type: 'story',
+        type_label: 'Story Submission',
+        title: `Story: ${s.title}`,
+        description: s.body
+          ? s.body.length > 120
+            ? `${s.body.slice(0, 120)}…`
+            : s.body
+          : 'No body',
+        actor: s.full_name,
+        contact: s.email || s.phone,
+        status: s.status,
+        created_at: s.created_at,
+        link: '/admin/stories.html',
+      });
+    });
+
+    (reports || []).forEach(r => {
+      events.push({
+        id: `report_${r.id || r.report_id}`,
+        event_type: 'student_support',
+        type_label: 'Student Support Report',
+        title: `Student Support: ${r.student_name}`,
+        description: `Need: ${r.support_need_observed} | Observations: ${r.observations ? r.observations.slice(0, 80) : ''}…`,
+        actor: r.mentor_name || 'Mentor',
+        contact: r.mentor_email,
+        status: 'submitted',
+        created_at: r.created_at,
+        link: '/admin/reports.html',
+      });
+    });
+
+    (notifications || []).forEach(n => {
+      events.push({
+        id: `notif_${n.id}`,
+        event_type: 'notification',
+        type_label: 'Notification',
+        title: `Notification: ${n.notification_type}`,
+        description: `Recipient: ${n.recipient} ${n.error_message ? `| Error: ${n.error_message}` : ''}`,
+        actor: n.recipient,
+        contact: n.recipient,
+        status: n.status,
+        created_at: n.created_at,
+        link: '/admin/index.html',
+      });
+    });
+
+    events.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    let filtered = events;
+    if (event_type && event_type !== 'all') {
+      filtered = filtered.filter(e => e.event_type === event_type);
+    }
+
+    if (search && search.trim()) {
+      const q = search.trim().toLowerCase();
+      filtered = filtered.filter(
+        e =>
+          (e.title && e.title.toLowerCase().includes(q)) ||
+          (e.description && e.description.toLowerCase().includes(q)) ||
+          (e.actor && e.actor.toLowerCase().includes(q)) ||
+          (e.contact && e.contact.toLowerCase().includes(q)) ||
+          (e.status && e.status.toLowerCase().includes(q))
+      );
+    }
+
+    const total = filtered.length;
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, parseInt(limit, 10) || 50);
+    const offset = (pageNum - 1) * limitNum;
+    const paginatedEvents = filtered.slice(offset, offset + limitNum);
+
+    return {
+      events: paginatedEvents,
+      total,
+      page: pageNum,
+      totalPages: Math.ceil(total / limitNum) || 1,
     };
   },
 

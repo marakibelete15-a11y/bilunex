@@ -17,6 +17,12 @@ const mentorController = {
     try {
       const { email, password } = req.body;
       const result = await mentorService.login({ email, password });
+      res.cookie('bilunex_portal_token', result.token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+      });
       return sendSuccess(res, result, 'Mentor authenticated successfully', 200);
     } catch (err) {
       next(err);

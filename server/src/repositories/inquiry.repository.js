@@ -51,6 +51,13 @@ const inquiryRepository = {
   },
 
   /**
+   * Alias for findAll for repository interface consistency
+   */
+  async findWithFilters(filters = {}) {
+    return this.findAll(filters);
+  },
+
+  /**
    * Count inquiries matching filters
    */
   async countAll({ type = null, status = null } = {}) {

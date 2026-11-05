@@ -11,6 +11,7 @@ const authenticateToken = require('../../middleware/auth.middleware');
 const requireMentor = require('../../middleware/requireMentor.middleware');
 const validate = require('../../middleware/validate.middleware');
 const { strictLimiter } = require('../../middleware/rateLimit.middleware');
+const rejectQueryCredentials = require('../../middleware/rejectQueryCredentials.middleware');
 const {
   mentorLoginSchema,
   updateProfileSchema,
@@ -18,7 +19,8 @@ const {
 } = require('../../validators/mentor.validator');
 
 // 1. Mentor Login (Public with strict rate limiting)
-router.post('/auth/login', strictLimiter, validate(mentorLoginSchema), mentorController.login);
+router.all('/auth/login', strictLimiter, rejectQueryCredentials);
+router.post('/auth/login', validate(mentorLoginSchema), mentorController.login);
 
 // All subsequent routes require valid JWT with mentor role
 router.use(authenticateToken, requireMentor);

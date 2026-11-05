@@ -1,10 +1,14 @@
 import { api } from '../api.js';
 import { auth } from '../auth.js';
 import { initPortalLayout } from '../components/layout.js';
-initPortalLayout();
+try {
+  initPortalLayout();
+} catch (error) {
+  console.error('[mentor-login] Portal shell could not be initialized:', error);
+}
 const form = document.getElementById('mentor-login-form');
 const feedback = document.getElementById('login-feedback');
-if (auth.getToken() && auth.getUser()?.role === 'mentor') window.location.replace('profile.html');
+if (!form || !feedback) throw new Error('Mentor login form is unavailable.');
 form.addEventListener('submit', async event => {
   event.preventDefault();
   if (!form.reportValidity()) return;
@@ -14,7 +18,7 @@ form.addEventListener('submit', async event => {
   try {
     const response = await api.post('/mentor/auth/login', Object.fromEntries(new FormData(form)));
     auth.setSession(response.data.token, response.data.user);
-    window.location.assign('profile.html');
+    window.location.assign('/mentor/index.html');
   } catch (error) {
     feedback.textContent = error.message;
   } finally {

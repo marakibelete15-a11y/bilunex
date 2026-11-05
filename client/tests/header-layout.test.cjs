@@ -195,6 +195,10 @@ test('footer links render as separate list items with dedicated story and mentor
   assert.equal(quickList.children.at(-1).children[0].textContent, 'Share Your Story');
   assert.equal(mentorList.children.length, 1);
   assert.equal(mentorList.children[0].children[0].textContent, 'Mentor portal login');
+  const adminGroup = footer.children[0].children.find(child => child.className === 'footer-col footer-admin');
+  const adminList = adminGroup.children.find(child => child.className === 'footer-nav-list');
+  assert.equal(adminList.children.length, 1);
+  assert.equal(adminList.children[0].children[0].textContent, 'Admin portal login');
   const listLinks = [];
   const collectListItems = node => {
     if (node.tagName === 'li') {
@@ -212,6 +216,7 @@ test('footer links render as separate list items with dedicated story and mentor
   );
   assert.equal(all.filter(link => link.textContent === 'Share Your Story').length, 1);
   assert.equal(all.filter(link => link.textContent === 'Mentor portal login').length, 1);
+  assert.equal(all.filter(link => link.textContent === 'Admin portal login').length, 1);
 });
 
 test('logo uses one inline SVG source and shared size tokens without per-page overrides', () => {

@@ -3,7 +3,7 @@ import { api } from '../api.js';
 import { initPortalLayout } from '../components/layout.js';
 
 export function setupAdmin() {
-  if (!auth.protectPage('admin', 'login.html')) return false;
+  if (!auth.protectPage('admin', '/admin/login.html')) return false;
   initPortalLayout();
   const user = auth.getUser();
   const identity = document.getElementById('admin-user-display');

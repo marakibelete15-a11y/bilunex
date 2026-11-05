@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Bilunex mentor portal — mentor dashboard overview and student inquiries."
+    />
+    <title>Mentor Dashboard | Bilunex</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="../assets/images/favicon.ico" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/portal.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-heading">Skip to content</a>
+    <header id="portal-header" class="site-header"></header>
+    <main class="main-content">
+      <div class="container portal-layout">
+        <section class="portal-main">
+          <header class="page-header">
+            <h1 id="main-heading">Mentor Dashboard</h1>
+            <p id="mentor-welcome-sub">Welcome back to the Bilunex Peer Mentorship Network.</p>
+          </header>
+
+          <div id="mentor-metrics" class="portal-metrics-grid"></div>
+
+          <!-- Quick Navigation Action Cards -->
+          <div class="portal-intakes-grid" style="margin-bottom: 2rem">
+            <a href="report.html" class="portal-intake-card">
+              <div class="intake-card-badge intake-badge-support">Student Support</div>
+              <h3>Send Support Inquiry to Admin</h3>
+              <p>
+                Alert administrators about a student who needs dedicated help, autism support, or
+                academic intervention.
+              </p>
+              <div class="intake-link-action">Submit Student Report &rarr;</div>
+            </a>
+
+            <a href="profile.html" class="portal-intake-card">
+              <div class="intake-card-badge intake-badge-profile">Account & Profile</div>
+              <h3>My Profile & Availability</h3>
+              <p>
+                View your verified academic credentials and update your contact phone, subjects, and
+                weekly tutoring schedule.
+              </p>
+              <div class="intake-link-action">Manage Profile &rarr;</div>
+            </a>
+          </div>
+
+          <!-- Recent Support Reports / Inquiries (Matching Image 1 records card) -->
+          <div class="admin-records-card card">
+            <div
+              class="records-header"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+              "
+            >
+              <div>
+                <h2 id="records-title">My Student Support Reports</h2>
+                <p>
+                  Tracking confidential notifications submitted to administrators regarding students
+                  requiring specialized care or guidance.
+                </p>
+              </div>
+              <a href="report.html" class="btn btn-primary btn-sm">+ New Support Inquiry</a>
+            </div>
+            <div id="dashboard-reports-state" role="status" aria-live="polite"></div>
+            <div id="recent-reports-table" class="table-responsive"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="../js/pages/mentor-dashboard.js"></script>
+  </body>
+</html>

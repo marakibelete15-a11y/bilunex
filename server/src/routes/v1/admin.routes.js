@@ -12,15 +12,19 @@ const authenticateToken = require('../../middleware/auth.middleware');
 const requireAdmin = require('../../middleware/requireAdmin.middleware');
 const validate = require('../../middleware/validate.middleware');
 const { strictLimiter } = require('../../middleware/rateLimit.middleware');
+const rejectQueryCredentials = require('../../middleware/rejectQueryCredentials.middleware');
 const {
   adminLoginSchema,
   parentRegistrationFilterSchema,
+  updateParentRegistrationStatusSchema,
   mentorApplicationFilterSchema,
   updateApplicationStatusSchema,
   activateMentorSchema,
   inquiryFilterSchema,
+  updateInquiryStatusSchema,
   supportReportFilterSchema,
   idParamSchema,
+  eventFilterSchema,
 } = require('../../validators/admin.validator');
 const {
   adminStoryQuerySchema,
@@ -29,7 +33,8 @@ const {
 } = require('../../validators/story.validator');
 
 // 1. Admin Login (Public endpoint with strict rate limiting)
-router.post('/auth/login', strictLimiter, validate(adminLoginSchema), adminController.login);
+router.all('/auth/login', strictLimiter, rejectQueryCredentials);
+router.post('/auth/login', validate(adminLoginSchema), adminController.login);
 
 // All subsequent routes require valid JWT and administrator role
 router.use(authenticateToken, requireAdmin);
@@ -50,6 +55,11 @@ router.get(
   '/parent-registrations',
   validate({ query: parentRegistrationFilterSchema }),
   adminController.getParentRegistrations
+);
+router.patch(
+  '/parent-registrations/:id/status',
+  validate({ params: idParamSchema, body: updateParentRegistrationStatusSchema }),
+  adminController.updateParentRegistrationStatus
 );
 
 // 4. Candidate mentor applications list
@@ -75,9 +85,15 @@ router.post(
 
 // 7. Contact and counseling inquiries
 router.get('/inquiries', validate({ query: inquiryFilterSchema }), adminController.getInquiries);
+router.patch(
+  '/inquiries/:id/status',
+  validate({ params: idParamSchema, body: updateInquiryStatusSchema }),
+  adminController.updateInquiryStatus
+);
 
 // 8. Operational summary reports
 router.get('/reports/summary', adminController.getReportsSummary);
+router.get('/events', validate({ query: eventFilterSchema }), adminController.getAllEvents);
 
 // 9. Student support reports list
 router.get(

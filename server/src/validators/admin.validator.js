@@ -23,6 +23,16 @@ const parentRegistrationFilterSchema = z.object({
   limit: z.coerce.number().int().positive().max(100).default(50),
 });
 
+const updateParentRegistrationStatusSchema = z
+  .object({
+    status: z.enum(['new', 'contacted', 'enrolled', 'archived'], {
+      errorMap: () => ({
+        message: 'Status must be one of: new, contacted, enrolled, archived',
+      }),
+    }),
+  })
+  .strict();
+
 const mentorApplicationFilterSchema = z.object({
   status: z
     .enum([
@@ -77,6 +87,16 @@ const inquiryFilterSchema = z.object({
   limit: z.coerce.number().int().positive().max(100).default(50),
 });
 
+const updateInquiryStatusSchema = z
+  .object({
+    status: z.enum(['new', 'in_progress', 'resolved', 'archived'], {
+      errorMap: () => ({
+        message: 'Status must be one of: new, in_progress, resolved, archived',
+      }),
+    }),
+  })
+  .strict();
+
 const supportReportFilterSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(50),
@@ -86,13 +106,23 @@ const idParamSchema = z.object({
   id: z.coerce.number().int().positive('ID must be a positive integer'),
 });
 
+const eventFilterSchema = z.object({
+  event_type: z.string().trim().optional(),
+  search: z.string().trim().optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(50),
+});
+
 module.exports = {
   adminLoginSchema,
   parentRegistrationFilterSchema,
+  updateParentRegistrationStatusSchema,
   mentorApplicationFilterSchema,
   updateApplicationStatusSchema,
   activateMentorSchema,
   inquiryFilterSchema,
+  updateInquiryStatusSchema,
   supportReportFilterSchema,
   idParamSchema,
+  eventFilterSchema,
 };

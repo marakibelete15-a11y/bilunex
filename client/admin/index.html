@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/portal.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-heading">Skip to content</a>
@@ -21,17 +22,104 @@
       <div class="container portal-layout">
         <section class="portal-main">
           <header class="page-header">
-            <h1 id="main-heading">Operations summary</h1>
-            <p>Registration, recruitment and student support activity.</p>
-          </header>
-          <div id="dashboard-state" role="status" aria-live="polite"></div>
-          <div id="summary-cards" class="admin-summary-grid"></div>
-          <section class="card admin-failure-card">
-            <h2>Failed notifications</h2>
+            <h1 id="main-heading">Admin Dashboard</h1>
             <p>
-              Recorded delivery failures in the last 7 days:
-              <strong id="failed-notifications">—</strong>
+              Real-time intake monitoring, operational metrics, and complete system event stream.
             </p>
+          </header>
+
+          <section class="card admin-quick-nav-card" aria-label="Intake Channels">
+            <h2>Intake & Record Management</h2>
+            <div class="admin-quick-nav-grid">
+              <a class="quick-nav-item" href="registrations.html">
+                <span class="quick-nav-title">Parent Registrations</span>
+                <span class="quick-nav-desc">View, search, and filter student registrations</span>
+                <span class="quick-nav-action">Manage registrations &rarr;</span>
+              </a>
+              <a class="quick-nav-item" href="applications.html">
+                <span class="quick-nav-title">Mentor Applications</span>
+                <span class="quick-nav-desc"
+                  >Screen applicants, review credentials, and activate accounts</span
+                >
+                <span class="quick-nav-action">Review applications &rarr;</span>
+              </a>
+              <a class="quick-nav-item" href="stories.html">
+                <span class="quick-nav-title">Stories & Resources</span>
+                <span class="quick-nav-desc"
+                  >Moderate community testimonials and growth stories</span
+                >
+                <span class="quick-nav-action">Moderate stories &rarr;</span>
+              </a>
+              <a class="quick-nav-item" href="inquiries.html">
+                <span class="quick-nav-title">Inquiries & Contact</span>
+                <span class="quick-nav-desc">Review general questions and counseling requests</span>
+                <span class="quick-nav-action">View inquiries &rarr;</span>
+              </a>
+              <a class="quick-nav-item" href="reports.html">
+                <span class="quick-nav-title">Student Support Reports</span>
+                <span class="quick-nav-desc">Review student help reports submitted by mentors</span>
+                <span class="quick-nav-action">View student reports &rarr;</span>
+              </a>
+            </div>
+          </section>
+
+          <section class="dashboard-section">
+            <h2 class="section-title">Operational Summary Metrics</h2>
+            <div id="dashboard-state" role="status" aria-live="polite"></div>
+            <div id="summary-cards" class="admin-summary-grid"></div>
+            <section class="card admin-failure-card">
+              <h2>Failed notifications</h2>
+              <p>
+                Recorded delivery failures in the last 7 days:
+                <strong id="failed-notifications">—</strong>
+              </p>
+            </section>
+          </section>
+
+          <section class="card admin-events-card" aria-label="System Events">
+            <header class="events-header">
+              <div>
+                <h2>All System Events & Activity Stream</h2>
+                <p>
+                  Consolidated chronological feed across parent registrations, mentor applications,
+                  inquiries, stories, and student reports.
+                </p>
+              </div>
+            </header>
+
+            <form id="events-filter-form" class="admin-filters">
+              <label>
+                Event Type
+                <select id="event-type-select" name="event_type">
+                  <option value="all">All event types</option>
+                  <option value="parent_registration">Parent Registrations</option>
+                  <option value="mentor_application">Mentor Applications</option>
+                  <option value="inquiry">Inquiries</option>
+                  <option value="story">Stories</option>
+                  <option value="student_support">Student Support Reports</option>
+                  <option value="notification">System Notifications</option>
+                </select>
+              </label>
+              <label>
+                Search Events
+                <input
+                  id="event-search-input"
+                  name="search"
+                  type="search"
+                  placeholder="Search by name, student, or detail..."
+                />
+              </label>
+              <button class="btn btn-primary" type="submit">Filter Events</button>
+              <button class="btn btn-outline" type="button" id="events-refresh-btn">Refresh</button>
+            </form>
+
+            <div id="events-state" role="status" aria-live="polite"></div>
+            <div id="events-table" class="table-responsive"></div>
+            <nav
+              id="events-pagination"
+              class="admin-pagination"
+              aria-label="Events pagination"
+            ></nav>
           </section>
         </section>
       </div>

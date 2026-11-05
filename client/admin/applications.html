@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/portal.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-heading">Skip to content</a>
@@ -21,30 +22,76 @@
       <div class="container portal-layout">
         <section class="portal-main">
           <header class="page-header">
-            <h1 id="main-heading">Mentor applications</h1>
+            <h1 id="main-heading">Mentor Applications</h1>
             <p>
-              Review application details, download submitted documents and manage application
-              status.
+              Screen candidate qualifications, review transcripts and credentials, and manage
+              recruitment pipeline stages.
             </p>
           </header>
-          <form id="filters" class="admin-filters">
-            <label>Search this page<input name="search" type="search" /></label
-            ><label
-              >Status<select name="status">
-                <option value="">All statuses</option>
-                <option value="application_received">Application received</option>
-                <option value="under_review">Under review</option>
-                <option value="interview_stage">Interview stage</option>
-                <option value="accepted">Accepted</option>
-                <option value="rejected">Rejected</option>
-                <option value="onboarding">Onboarding</option>
-              </select></label
-            ><button class="btn btn-primary" type="submit">Apply filter</button
-            ><button class="btn btn-outline" type="button" id="reset-filters">Reset</button>
-          </form>
-          <div id="list-state" role="status" aria-live="polite"></div>
-          <div id="applications-table"></div>
-          <nav id="pagination" class="admin-pagination" aria-label="Application pages"></nav>
+
+          <div id="application-metrics" class="portal-metrics-grid"></div>
+
+          <div class="admin-records-card card">
+            <div class="records-header">
+              <h2 id="records-title">Mentor Application Records</h2>
+              <p>Search, filter and evaluate mentor candidates across screening stages.</p>
+            </div>
+
+            <form id="filters" class="admin-filters">
+              <label
+                >Search<input
+                  name="search"
+                  type="search"
+                  placeholder="Search applicant, university, email..."
+              /></label>
+              <label>
+                Status
+                <select name="status">
+                  <option value="">All statuses</option>
+                  <option value="application_received">Application received</option>
+                  <option value="under_review">Under review</option>
+                  <option value="interview_stage">Interview stage</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="onboarding">Onboarding</option>
+                </select>
+              </label>
+              <button class="btn btn-primary" type="submit">Apply filter</button>
+              <button class="btn btn-outline" type="button" id="reset-filters">Reset</button>
+            </form>
+
+            <div id="list-state" role="status" aria-live="polite"></div>
+            <div id="applications-table" class="table-responsive"></div>
+            <nav id="pagination" class="admin-pagination" aria-label="Application pages"></nav>
+          </div>
+
+          <!-- Modal for Applicant Credential Review & Account Activation -->
+          <div id="application-modal" class="portal-modal-backdrop" aria-hidden="true">
+            <div
+              class="portal-modal-card"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="app-modal-title"
+            >
+              <header class="portal-modal-header">
+                <h2 id="app-modal-title">Applicant Credentials & Review</h2>
+                <button
+                  type="button"
+                  class="portal-modal-close"
+                  id="app-modal-close-btn"
+                  aria-label="Close modal"
+                >
+                  &times;
+                </button>
+              </header>
+              <div class="portal-modal-body" id="app-modal-body-content"></div>
+              <footer class="portal-modal-footer" id="app-modal-actions">
+                <button type="button" class="btn btn-outline" id="app-modal-cancel-btn">
+                  Close
+                </button>
+              </footer>
+            </div>
+          </div>
         </section>
       </div>
     </main>

@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="../css/layout.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/pages.css" />
+    <link rel="stylesheet" href="../css/portal.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-heading">Skip to content</a>
@@ -24,38 +25,89 @@
       <div class="container portal-layout">
         <section class="portal-main">
           <header class="page-header">
-            <h1 id="main-heading">Student support report</h1>
-            <p>Record the support need, observations and recommended next action.</p>
+            <h1 id="main-heading">Student Support Inquiry & Report</h1>
+            <p>
+              Send a confidential message or inquiry to Bilunex administrators about a student who
+              needs specialized help or extra support.
+            </p>
           </header>
+
+          <section class="card mentor-guidance-card">
+            <h2>Guidance for Mentors</h2>
+            <p>
+              Use this inquiry form to notify the Bilunex admin team whenever a student requires
+              dedicated assistance. This includes students showing signs of
+              <strong>autism or neurodiverse learning needs</strong>, significant academic
+              struggles, behavioral or emotional changes, or when family/counseling intervention is
+              recommended.
+            </p>
+          </section>
+
           <section class="card mentor-edit-card">
+            <h2>Send Support Inquiry to Administrators</h2>
             <div id="report-feedback" role="status" aria-live="polite"></div>
             <form id="support-report-form">
-              <label
-                >Student name<input name="student_name" type="text" minlength="2" required /></label
-              ><label
-                >Support need observed<input
+              <label>
+                Student Name
+                <input
+                  name="student_name"
+                  type="text"
+                  minlength="2"
+                  required
+                  placeholder="e.g. Samuel Bekele"
+                />
+              </label>
+              <label>
+                Support Need Observed
+                <input
                   name="support_need_observed"
                   type="text"
                   minlength="2"
-                  required /></label
-              ><label
-                >Observations<textarea
+                  list="support-need-suggestions"
+                  required
+                  placeholder="e.g. Autism / Special learning support, Academic difficulty, Emotional support"
+                />
+                <datalist id="support-need-suggestions">
+                  <option value="Autism / Neurodiversity Support" />
+                  <option value="Academic Difficulty in Subject" />
+                  <option value="Emotional / Wellbeing Support" />
+                  <option value="Focus & Attention Support (ADHD)" />
+                  <option value="Attendance & Session Participation" />
+                  <option value="Parental Consultation Needed" />
+                  <option value="Professional Counseling Referral" />
+                </datalist>
+                <span class="help-text"
+                  >Select or describe the primary challenge or need observed.</span
+                >
+              </label>
+              <label>
+                Observations / Message to Admin
+                <textarea
                   name="observations"
                   minlength="10"
                   required
-                ></textarea></label
-              ><label
-                >Recommended action<textarea
+                  placeholder="Provide detailed observations: What did you notice during sessions? What specific challenges or strengths did the student demonstrate?"
+                ></textarea>
+              </label>
+              <label>
+                Recommended Action / Requested Admin Help
+                <textarea
                   name="recommended_action"
                   minlength="2"
                   required
-                ></textarea></label
-              ><button class="btn btn-primary" type="submit">File support report</button>
+                  placeholder="What action do you recommend the Bilunex team take? (e.g. Contact parents, adjust curriculum, arrange counseling, sensory accommodations)"
+                ></textarea>
+              </label>
+              <button class="btn btn-primary" type="submit">Send Support Inquiry to Admin</button>
             </form>
           </section>
+
           <section class="card mentor-reports-card">
-            <h2>My support reports</h2>
-            <p>Only reports submitted by this mentor account are shown.</p>
+            <h2>My Submitted Inquiries & Reports</h2>
+            <p>
+              History of confidential student reports sent to Bilunex administrators from your
+              account.
+            </p>
             <div id="reports-table" role="status" aria-live="polite"></div>
           </section>
         </section>

@@ -38,12 +38,12 @@ export class ApiError extends Error {
 
 /**
  * Redirect to the login page of the current area (admin or mentor),
- * keeping whatever folder prefix the page is served under (e.g. /client/).
+ * using the role-specific root URL regardless of the current page path.
  */
 function redirectToLogin() {
   const { pathname } = window.location;
   const area = pathname.includes('/admin/') ? 'admin' : 'mentor';
-  const loginPath = pathname.replace(/\/(admin|mentor)\/[^/]*$/, `/${area}/login.html`);
+  const loginPath = `/${area}/login.html`;
   window.location.replace(loginPath);
 }
 
@@ -75,6 +75,7 @@ export const api = {
     const config = {
       ...options,
       headers,
+      credentials: 'include',
       signal: controller.signal,
     };
 
