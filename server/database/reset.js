@@ -1,6 +1,6 @@
 /**
  * Bilunex - Database Reset Script
- * Reverts all migrations, re-applies all migrations, and populates development seeds.
+ * Reverts all migrations, re-applies all migrations, and populates initial admin user.
  * Usage: npm run db:reset
  */
 
@@ -14,7 +14,7 @@ try {
 
   execSync('node database/migrate.js down', { cwd: serverDir, stdio: 'inherit' });
   execSync('node database/migrate.js up', { cwd: serverDir, stdio: 'inherit' });
-  execSync('node database/seed.js', { cwd: serverDir, stdio: 'inherit' });
+  execSync('node database/seeds/create-admin.js', { cwd: serverDir, stdio: 'inherit' });
 
   logger.info('✅ Bilunex database reset and seeded successfully!');
 } catch (err) {
