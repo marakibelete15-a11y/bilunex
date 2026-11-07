@@ -108,7 +108,22 @@ if (setupAdmin()) {
     needCard.style.marginBottom = '1.25rem';
     needCard.style.borderLeft = '4px solid #3b82f6';
     needCard.style.background = '#eff6ff';
-    needCard.innerHTML = `<span style="font-weight: 600; color: #1e40af; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">Support Need Observed</span><span style="font-size: 1.05rem; font-weight: 600; color: #1e3a8a;">${report.support_need_observed}</span>`;
+
+    const needLabel = el('span', 'Support Need Observed');
+    needLabel.style.fontWeight = '600';
+    needLabel.style.color = '#1e40af';
+    needLabel.style.fontSize = '0.85rem';
+    needLabel.style.textTransform = 'uppercase';
+    needLabel.style.letterSpacing = '0.05em';
+    needLabel.style.display = 'block';
+    needLabel.style.marginBottom = '0.25rem';
+
+    const needValue = el('span', report.support_need_observed || '—');
+    needValue.style.fontSize = '1.05rem';
+    needValue.style.fontWeight = '600';
+    needValue.style.color = '#1e3a8a';
+
+    needCard.append(needLabel, needValue);
 
     // Observations
     const obsSection = el('div');
@@ -169,21 +184,27 @@ if (setupAdmin()) {
 
         const rows = filtered.map(item => {
           const row = document.createElement('tr');
-          row.append(
-            cell(item.report_id || item.id),
-            cell(item.student_name),
-            cell(item.mentor_name),
-            cell(item.mentor_university || '—')
-          );
+          row.style.cursor = 'pointer';
+          row.addEventListener('click', e => {
+            if (e.target.closest('button')) return;
+            openDetailsModal(item);
+          });
 
-          const needTd = document.createElement('td');
-          const badge = el('span', item.support_need_observed, 'status-badge status-onboarding');
-          badge.style.fontWeight = '600';
-          needTd.append(badge);
-          row.append(needTd);
+          // 1. Mentor
+          const mentorTd = document.createElement('td');
+          mentorTd.append(el('div', item.mentor_name || '—', 'font-semibold'));
+          if (item.mentor_university) {
+            mentorTd.append(el('div', item.mentor_university, 'text-xs text-subtle'));
+          }
+          row.append(mentorTd);
 
+          // 2. Student name
+          row.append(cell(item.student_name || '—'));
+
+          // 3. Date
           row.append(cell(dateText(item.created_at)));
 
+          // 4. Actions
           const actionTd = document.createElement('td');
           const viewBtn = el('button', 'View Report', 'btn btn-outline btn-sm');
           viewBtn.type = 'button';
@@ -196,7 +217,7 @@ if (setupAdmin()) {
 
         table(
           tableHost,
-          ['ID', 'Student', 'Mentor', 'University', 'Need Observed', 'Submitted', 'Actions'],
+          ['Mentor', 'Student name', 'Date', 'Actions'],
           rows,
           'No student support reports found.'
         );

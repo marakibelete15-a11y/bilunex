@@ -7,9 +7,21 @@ const jwt = require('jsonwebtoken');
 const env = require('../config/env');
 const { sendError } = require('../utils/response');
 
+const readCookie = (header, name) => {
+  const entry = header
+    ?.split(';')
+    .map(value => value.trim())
+    .find(value => value.startsWith(`${name}=`));
+  return entry ? decodeURIComponent(entry.slice(name.length + 1)) : null;
+};
+
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  let token = authHeader && authHeader.split(' ')[1];
+
+  if (!token && req.headers.cookie) {
+    token = readCookie(req.headers.cookie, 'bilunex_portal_token');
+  }
 
   if (!token) {
     return sendError(res, 'Access denied. No authentication token provided.', 401);

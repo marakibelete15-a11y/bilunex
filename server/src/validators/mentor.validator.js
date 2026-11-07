@@ -14,6 +14,13 @@ const mentorLoginSchema = z
 
 const updateProfileSchema = z
   .object({
+    name: z.string().trim().min(2, 'Name must be at least 2 characters').optional(),
+    university: z.string().trim().min(2, 'University must be at least 2 characters').optional(),
+    field_of_study: z
+      .string()
+      .trim()
+      .min(2, 'Field of study must be at least 2 characters')
+      .optional(),
     availability: z.string().trim().min(2, 'Availability must be at least 2 characters').optional(),
     phone: z
       .string()

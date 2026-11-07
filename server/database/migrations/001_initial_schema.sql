@@ -1,5 +1,0 @@
--- ==============================================================================
--- Bilunex Migrations Archive
--- Modern migrations are organized in numbered *.up.sql and *.down.sql files.
--- See 001_extensions_and_helpers.up.sql through 010_indexes.up.sql.
--- ==============================================================================

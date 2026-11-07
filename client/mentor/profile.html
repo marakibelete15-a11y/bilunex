@@ -24,16 +24,30 @@
     <main class="main-content">
       <div class="container portal-layout">
         <section class="portal-main">
-          <header class="page-header">
-            <h1 id="main-heading">My Profile</h1>
-            <p>
-              Your verified Bilunex mentor account details, specializations, and student support
-              inquiries.
-            </p>
+          <header
+            class="page-header"
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              flex-wrap: wrap;
+              gap: 1rem;
+            "
+          >
+            <div>
+              <h1 id="main-heading">My Profile</h1>
+              <p>Your verified Bilunex mentor profile details and availability.</p>
+            </div>
+            <div class="page-header-actions" style="display: flex; gap: 0.75rem; flex-wrap: wrap">
+              <button type="button" id="edit-profile-btn" class="btn btn-outline">
+                Edit profile
+              </button>
+              <a href="report.html" class="btn btn-primary">Submit student report</a>
+            </div>
           </header>
 
           <section class="card mentor-identity">
-            <h2>Account & Mentor Details</h2>
+            <h2>Profile Details</h2>
             <dl>
               <div>
                 <dt>Name</dt>
@@ -52,59 +66,46 @@
                 <dd id="profile-field">Loading…</dd>
               </div>
               <div>
-                <dt>Account Status</dt>
-                <dd id="profile-status"><span class="status-badge status-active">Active</span></dd>
-              </div>
-              <div>
-                <dt>Active Phone</dt>
-                <dd id="profile-phone-display">—</dd>
-              </div>
-              <div>
-                <dt>Availability Schedule</dt>
-                <dd id="profile-avail-display">—</dd>
-              </div>
-              <div>
                 <dt>Subject Specializations</dt>
                 <dd id="profile-subjects-display">—</dd>
+              </div>
+              <div>
+                <dt>Availability</dt>
+                <dd id="profile-avail-display">—</dd>
               </div>
             </dl>
           </section>
 
-          <section class="card mentor-support-callout">
-            <div class="callout-header">
-              <h2>Need Help for a Student?</h2>
-              <p>
-                If you are working with a student who needs specialized attention (including
-                academic difficulties, autism or neurodiversity support, or emotional guidance),
-                send a direct inquiry or support report to the Bilunex admin team.
-              </p>
-            </div>
-            <a class="btn btn-primary" href="report.html"
-              >Send Student Support Message / Inquiry &rarr;</a
-            >
-          </section>
-
-          <section class="card mentor-edit-card">
-            <h2>Update Contact & Availability</h2>
+          <section id="edit-profile-section" class="card mentor-edit-card">
+            <h2>Edit Profile</h2>
             <div id="profile-feedback" role="status" aria-live="polite"></div>
             <form id="profile-form">
               <label
-                >Phone<input
-                  name="phone"
-                  type="tel"
-                  minlength="7"
-                  placeholder="e.g. +251 91 123 4567"
-              /></label>
-              <label
-                >Availability<input
-                  name="availability"
+                >Name<input
+                  name="name"
                   type="text"
                   minlength="2"
                   required
-                  placeholder="e.g. Weekday afternoons, Saturdays"
+                  placeholder="Your full name"
+              /></label>
+              <label
+                >University<input
+                  name="university"
+                  type="text"
+                  minlength="2"
+                  required
+                  placeholder="e.g. Addis Ababa University"
+              /></label>
+              <label
+                >Field of Study<input
+                  name="field_of_study"
+                  type="text"
+                  minlength="2"
+                  required
+                  placeholder="e.g. Computer Science"
               /></label>
               <label>
-                Subject specializations
+                Subject Specializations
                 <span class="help-text"
                   >Separate subjects with commas (e.g. Mathematics, Physics, Chemistry).</span
                 >
@@ -115,20 +116,16 @@
                   placeholder="Mathematics, English, Physics"
                 />
               </label>
+              <label
+                >Availability<input
+                  name="availability"
+                  type="text"
+                  minlength="2"
+                  required
+                  placeholder="e.g. Weekday afternoons, Saturdays"
+              /></label>
               <button class="btn btn-primary" type="submit">Save profile</button>
             </form>
-          </section>
-
-          <section class="card mentor-reports-card">
-            <h2>My Student Support Inquiries & Reports</h2>
-            <p>
-              Confidential reports and support messages submitted to Bilunex administrators from
-              your account.
-            </p>
-            <div id="reports-table" role="status" aria-live="polite"></div>
-            <div class="form-actions" style="margin-top: 1rem">
-              <a class="btn btn-accent" href="report.html">File New Student Support Inquiry</a>
-            </div>
           </section>
         </section>
       </div>

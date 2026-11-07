@@ -105,6 +105,8 @@ const parentRepository = {
             parent_name ILIKE '%' || $6 || '%'
             OR child_name ILIKE '%' || $6 || '%'
             OR email ILIKE '%' || $6 || '%'
+            OR phone ILIKE '%' || $6 || '%'
+            OR telegram_handle ILIKE '%' || $6 || '%'
         ))
       ORDER BY created_at DESC
       LIMIT $7 OFFSET $8;
@@ -146,6 +148,8 @@ const parentRepository = {
             parent_name ILIKE '%' || $6 || '%'
             OR child_name ILIKE '%' || $6 || '%'
             OR email ILIKE '%' || $6 || '%'
+            OR phone ILIKE '%' || $6 || '%'
+            OR telegram_handle ILIKE '%' || $6 || '%'
         ));
     `;
     const res = await db.query(text, [status, grade_level, subject, from_date, to_date, search]);

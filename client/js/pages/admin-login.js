@@ -19,7 +19,15 @@ form.addEventListener('submit', async event => {
     auth.setSession(response.data.token, response.data.user);
     window.location.assign('/admin/index.html');
   } catch (error) {
-    feedback.textContent = error.message;
+    if (
+      error.status === 401 ||
+      String(error.message).toLowerCase().includes('email') ||
+      String(error.message).toLowerCase().includes('password')
+    ) {
+      feedback.textContent = 'Incorrect email or password.';
+    } else {
+      feedback.textContent = error.message || 'Incorrect email or password.';
+    }
   } finally {
     button.disabled = false;
   }

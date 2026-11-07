@@ -114,14 +114,20 @@ if (setupAdmin()) {
     consentBox.style.marginTop = '1rem';
     consentBox.style.fontSize = '0.85rem';
     consentBox.style.color = '#475569';
-    consentBox.innerHTML = `
-      <p><strong>Consent Verifications:</strong></p>
-      <ul>
-        <li>Genuine Experience: ${story.consent_genuine ? 'Confirmed' : 'No'}</li>
-        <li>Public Sharing Consent: ${story.consent_publish ? 'Confirmed' : 'No'}</li>
-        <li>Child / Guardian Consent: ${story.consent_child_guardian ? 'Confirmed' : 'No'}</li>
-      </ul>
-    `;
+
+    const consentTitle = el('p');
+    const consentStrong = el('strong', 'Consent Verifications:');
+    consentTitle.append(consentStrong);
+
+    const consentList = el('ul');
+    const item1 = el('li', `Genuine Experience: ${story.consent_genuine ? 'Confirmed' : 'No'}`);
+    const item2 = el('li', `Public Sharing Consent: ${story.consent_publish ? 'Confirmed' : 'No'}`);
+    const item3 = el(
+      'li',
+      `Child / Guardian Consent: ${story.consent_child_guardian ? 'Confirmed' : 'No'}`
+    );
+    consentList.append(item1, item2, item3);
+    consentBox.append(consentTitle, consentList);
 
     // Moderation controls
     const actionBox = el('div');

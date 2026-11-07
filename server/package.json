@@ -14,7 +14,7 @@
     "test:watch": "NODE_ENV=test jest --watch",
     "migrate": "node database/migrate.js up",
     "migrate:down": "node database/migrate.js down",
-    "seed": "node database/seed.js",
+    "seed": "node database/seeds/create-admin.js",
     "admin:reset-password": "node scripts/reset-admin-password.js",
     "db:reset": "node database/reset.js"
   },

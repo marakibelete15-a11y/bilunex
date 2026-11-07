@@ -312,21 +312,35 @@ const mentorRepository = {
   },
 
   /**
-   * Update mentor profile (availability, phone, subject_specializations)
+   * Update mentor profile (name, university, field_of_study, availability, phone, subject_specializations)
    */
-  async updateProfile(id, { availability, phone, subject_specializations }) {
+  async updateProfile(
+    id,
+    { name, university, field_of_study, availability, phone, subject_specializations }
+  ) {
     const text = `
       UPDATE mentor_profiles
       SET
-        availability = COALESCE($1, availability),
-        phone = COALESCE($2, phone),
-        subject_specializations = COALESCE($3, subject_specializations),
+        name = COALESCE($1, name),
+        university = COALESCE($2, university),
+        field_of_study = COALESCE($3, field_of_study),
+        availability = COALESCE($4, availability),
+        phone = COALESCE($5, phone),
+        subject_specializations = COALESCE($6, subject_specializations),
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $4 AND account_status = 'active'
+      WHERE id = $7 AND account_status = 'active'
       RETURNING id, application_id, name, email, phone, university,
                 field_of_study, subject_specializations, availability, account_status, updated_at;
     `;
-    const res = await db.query(text, [availability, phone, subject_specializations, id]);
+    const res = await db.query(text, [
+      name,
+      university,
+      field_of_study,
+      availability,
+      phone,
+      subject_specializations,
+      id,
+    ]);
     return res.rows[0] || null;
   },
 
