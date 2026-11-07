@@ -6,7 +6,15 @@
 
 const { z } = require('zod');
 
-const ETHIOPIAN_PHONE_REGEX = /^(\+2519\d{8}|09\d{8})$/;
+const isValidPhone = val => {
+  if (!val || typeof val !== 'string') return false;
+  const cleaned = val.replace(/[\s\-\(\)\.]/g, '');
+  // Ethiopian local: 09XXXXXXXX or 07XXXXXXXX (10 digits)
+  if (/^0[79]\d{8}$/.test(cleaned)) return true;
+  // International format: optional +, 7 to 15 digits, starting with 1-9
+  if (/^\+?[1-9]\d{6,14}$/.test(cleaned)) return true;
+  return false;
+};
 
 const createParentRegistrationSchema = z
   .object({
@@ -22,24 +30,24 @@ const createParentRegistrationSchema = z
     phone: z
       .string()
       .trim()
-      .regex(
-        ETHIOPIAN_PHONE_REGEX,
-        'Phone number must follow Ethiopian format (+2519XXXXXXXX or 09XXXXXXXX)'
-      )
       .optional()
       .nullable()
       .or(z.literal(''))
+      .refine(val => !val || isValidPhone(val), {
+        message:
+          'Phone number must follow Ethiopian (+2519..., 09...) or valid international format',
+      })
       .transform(val => (val && val.length > 0 ? val : null)),
     secondary_phone: z
       .string()
       .trim()
-      .regex(
-        ETHIOPIAN_PHONE_REGEX,
-        'Secondary phone must follow Ethiopian format (+2519XXXXXXXX or 09XXXXXXXX)'
-      )
       .optional()
       .nullable()
       .or(z.literal(''))
+      .refine(val => !val || isValidPhone(val), {
+        message:
+          'Secondary phone must follow Ethiopian (+2519..., 09...) or valid international format',
+      })
       .transform(val => (val && val.length > 0 ? val : null)),
     preferred_communication_method: z
       .array(z.string().trim())
@@ -102,10 +110,10 @@ const createMentorApplicationSchema = z
     phone: z
       .string()
       .trim()
-      .regex(
-        ETHIOPIAN_PHONE_REGEX,
-        'Phone number must follow Ethiopian format (+2519XXXXXXXX or 09XXXXXXXX)'
-      ),
+      .refine(val => isValidPhone(val), {
+        message:
+          'Phone number must follow Ethiopian (+2519..., 09...) or valid international format',
+      }),
     telegram_username: z
       .string()
       .trim()
@@ -224,6 +232,10 @@ const createInquirySchema = z
       .optional()
       .nullable()
       .or(z.literal(''))
+      .refine(val => !val || isValidPhone(val), {
+        message:
+          'Phone number must follow Ethiopian (+2519..., 09...) or valid international format',
+      })
       .transform(val => (val && val.length > 0 ? val : null)),
     inquiry_type: z
       .enum(['general', 'parent_support', 'mentor_application', 'counseling'], {

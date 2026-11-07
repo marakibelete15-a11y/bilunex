@@ -25,8 +25,9 @@ const {
   idParamSchema,
 } = require('../validators/admin.validator');
 
-// Admin Authentication (Public Login)
+// Admin Authentication (Public Login & Logout)
 router.post('/auth/login', strictLimiter, validate(adminLoginSchema), adminController.login);
+router.post('/auth/logout', adminController.logout);
 
 // All subsequent routes require authentication and admin role (FR-5.1)
 router.use(authenticateToken, requireAdmin);
@@ -40,30 +41,15 @@ router.get(
   validate({ query: parentRegistrationFilterSchema }),
   adminController.getParentRegistrations
 );
-router.get(
-  '/parent-registrations',
-  validate({ query: parentRegistrationFilterSchema }),
-  adminController.getParentRegistrations
-);
 
 router.get(
   '/parents/:id',
   validate({ params: idParamSchema }),
   adminController.getParentRegistrationById
 );
-router.get(
-  '/parent-registrations/:id',
-  validate({ params: idParamSchema }),
-  adminController.getParentRegistrationById
-);
 
 router.patch(
   '/parents/:id/status',
-  validate({ params: idParamSchema, body: updateParentRegistrationStatusSchema }),
-  adminController.updateParentRegistrationStatus
-);
-router.patch(
-  '/parent-registrations/:id/status',
   validate({ params: idParamSchema, body: updateParentRegistrationStatusSchema }),
   adminController.updateParentRegistrationStatus
 );

@@ -43,7 +43,7 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
     await db.closePool();
   });
 
-  describe('POST /api/v1/parents/register & /api/v1/parent-registrations', () => {
+  describe('POST /api/v1/parents/register (FR-2.1)', () => {
     test('should successfully register a parent and child with valid data', async () => {
       const payload = {
         parent_name: 'Abebe Bikila',
@@ -79,7 +79,7 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
         notes: 'Verifying end-to-end database persistence in parent_registrations table.',
       };
 
-      const res = await request(app).post('/api/v1/parent-registrations').send(payload);
+      const res = await request(app).post('/api/v1/parents/register').send(payload);
 
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -130,11 +130,43 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
       expect(Array.isArray(res.body.errors)).toBe(true);
     });
 
-    test('should reject non-Ethiopian phone number with 400 Bad Request', async () => {
+    test('should accept valid international phone numbers with spaces and dashes', async () => {
+      const payload = {
+        parent_name: 'International Parent',
+        email: `intl_phone_${Date.now()}@example.com`,
+        phone: '+1 (555) 123-4567',
+        child_name: 'Global Child',
+        grade_level: 'Grade 8',
+        subjects: ['English'],
+      };
+
+      const res = await request(app).post('/api/v1/parents/register').send(payload);
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    test('should accept parent registration with only telegram_handle when phone is not provided', async () => {
+      const payload = {
+        parent_name: 'Telegram Only Parent',
+        email: `tg_only_${Date.now()}@example.com`,
+        telegram_handle: '@tg_parent_contact',
+        child_name: 'Telegram Child',
+        grade_level: 'Grade 9',
+        subjects: ['Physics'],
+      };
+
+      const res = await request(app).post('/api/v1/parents/register').send(payload);
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    test('should reject invalid phone format with 400 Bad Request', async () => {
       const payload = {
         parent_name: 'Invalid Phone Parent',
         email: `invalid_phone_${Date.now()}@example.com`,
-        phone: '+15551234567',
+        phone: '12345',
         child_name: 'Test Child',
         grade_level: 'Grade 8',
         subjects: ['English'],
@@ -145,6 +177,11 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
       expect(res.body.errors.some(e => e.field === 'phone')).toBe(true);
+    });
+
+    test('should return 404 for removed alias route /api/v1/parent-registrations', async () => {
+      const res = await request(app).post('/api/v1/parent-registrations').send({});
+      expect(res.status).toBe(404);
     });
 
     test('should still store registration (HTTP 201) even if email dispatch fails (Safe Dispatch)', async () => {
@@ -207,7 +244,7 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
     });
   });
 
-  describe('POST /api/v1/mentors/apply & /api/v1/mentor-applications', () => {
+  describe('POST /api/v1/mentors/apply (FR-3.1)', () => {
     test('should submit mentor application with status application_received', async () => {
       const payload = {
         full_name: 'Solomon Tadesse',
@@ -251,12 +288,17 @@ describe('Public Endpoints (Intake & Safe Notifications)', () => {
       expect(res.body.errors.some(e => e.field === 'motivation')).toBe(true);
     });
 
+    test('should return 404 for removed alias route /api/v1/mentor-applications', async () => {
+      const res = await request(app).post('/api/v1/mentor-applications').send({});
+      expect(res.status).toBe(404);
+    });
+
     test('logs admin and mentor notification attempts after successful application', async () => {
       nodemailer.createTransport.mockReturnValue({
         sendMail: jest.fn().mockResolvedValue({ messageId: 'ok' }),
       });
       const res = await request(app)
-        .post('/api/v1/mentor-applications')
+        .post('/api/v1/mentors/apply')
         .send({
           full_name: 'Mentor Notification Check',
           email: `mentor_${Date.now()}@example.com`,

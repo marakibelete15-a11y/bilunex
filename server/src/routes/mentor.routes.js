@@ -23,8 +23,9 @@ const {
   createSupportReportSchema,
 } = require('../validators/mentor.validator');
 
-// Mentor Authentication (Public Login)
+// Mentor Authentication (Public Login & Logout)
 router.post('/auth/login', strictLimiter, validate(mentorLoginSchema), mentorController.login);
+router.post('/auth/logout', mentorController.logout);
 
 // All subsequent routes require authentication and mentor role (FR-7.2, FR-7.5)
 router.use(authenticateToken, requireMentor);

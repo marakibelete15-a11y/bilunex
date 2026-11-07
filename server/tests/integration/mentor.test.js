@@ -20,13 +20,16 @@ const db = require('../../src/config/db');
 describe('Mentor Portal Endpoints (V1)', () => {
   let mentorToken = '';
   let mentorId = null;
+  let mentor2Token = '';
+  let mentor2Id = null;
   const mentorEmail = `mentor_test_${Date.now()}@bilunex.org`;
+  const mentor2Email = `mentor2_test_${Date.now()}@bilunex.org`;
   const suspendedEmail = `suspended_mentor_${Date.now()}@bilunex.org`;
 
   beforeAll(async () => {
     const passwordHash = await bcrypt.hash('MentorPass2026!', 12);
 
-    // 1. Create active mentor application & profile
+    // 1. Create active mentor application & profile (Mentor 1)
     const appRes = await db.query(
       `
       INSERT INTO mentor_applications (
@@ -50,7 +53,31 @@ describe('Mentor Portal Endpoints (V1)', () => {
     );
     mentorId = profileRes.rows[0].id;
 
-    // 2. Create suspended mentor application & profile
+    // 2. Create second active mentor (Mentor 2)
+    const app2Res = await db.query(
+      `
+      INSERT INTO mentor_applications (
+        full_name, email, phone, university, field_of_study, year_of_study, subjects, availability, motivation, status
+      )
+      VALUES ('Second Active Mentor', $1, '+251911332211', 'ASTU', 'Electrical Engineering', '4th', '{"Physics"}', 'Morning Only', 'Mentoring passion.', 'onboarding')
+      RETURNING id;
+    `,
+      [mentor2Email]
+    );
+
+    const profile2Res = await db.query(
+      `
+      INSERT INTO mentor_profiles (
+        application_id, full_name, email, password_hash, university, field_of_study, subjects, availability, account_status
+      )
+      VALUES ($1, 'Second Active Mentor', $2, $3, 'ASTU', 'Electrical Engineering', '{"Physics"}', 'Morning Only', 'active')
+      RETURNING id;
+    `,
+      [app2Res.rows[0].id, mentor2Email, passwordHash]
+    );
+    mentor2Id = profile2Res.rows[0].id;
+
+    // 3. Create suspended mentor application & profile
     const suspAppRes = await db.query(
       `
       INSERT INTO mentor_applications (
@@ -92,6 +119,26 @@ describe('Mentor Portal Endpoints (V1)', () => {
       expect(res.body.data.user).not.toHaveProperty('password_hash');
 
       mentorToken = res.body.data.token;
+    });
+
+    test('should authenticate mentor 2 and return JWT', async () => {
+      const res = await request(app).post('/api/v1/mentor/auth/login').send({
+        email: mentor2Email,
+        password: 'MentorPass2026!',
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      mentor2Token = res.body.data.token;
+    });
+
+    test('should clear bilunex_portal_token cookie on logout', async () => {
+      const res = await request(app).post('/api/v1/mentor/auth/logout');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      const cookies = res.headers['set-cookie'];
+      expect(cookies).toBeDefined();
+      expect(cookies.some(c => c.includes('bilunex_portal_token=;'))).toBe(true);
     });
 
     test('should reject invalid password with 401 Unauthorized', async () => {
@@ -265,6 +312,43 @@ describe('Mentor Portal Endpoints (V1)', () => {
 
       expect(res.status).toBe(403);
       expect(res.body.success).toBe(false);
+    });
+  });
+
+  describe('Mentor Data Isolation (FR-7.3, FR-7.5, FR-8.3)', () => {
+    test("two mentors cannot read or edit each other's profile or data", async () => {
+      // 1. Mentor 1 updates profile with specific schedule and subjects
+      const updateRes = await request(app)
+        .patch('/api/v1/mentor/me')
+        .set('Authorization', `Bearer ${mentorToken}`)
+        .send({
+          availability: 'Mentor 1 Exclusive Hours',
+          subjects: ['Calculus', 'Advanced Physics'],
+        });
+      expect(updateRes.status).toBe(200);
+      expect(updateRes.body.data.availability).toBe('Mentor 1 Exclusive Hours');
+
+      // 2. Mentor 2 reads own profile - verify it is completely isolated from Mentor 1
+      const m2ProfileRes = await request(app)
+        .get('/api/v1/mentor/me')
+        .set('Authorization', `Bearer ${mentor2Token}`);
+      expect(m2ProfileRes.status).toBe(200);
+      expect(m2ProfileRes.body.data.id).toBe(mentor2Id);
+      expect(m2ProfileRes.body.data.email).toBe(mentor2Email);
+      expect(m2ProfileRes.body.data.availability).toBe('Morning Only');
+      expect(m2ProfileRes.body.data.subjects).toEqual(['Physics']);
+
+      // 3. Mentors have no endpoint to target another mentor's ID (e.g. GET /mentor/me/:id or /mentor/profile/:id)
+      const targetByIdRes = await request(app)
+        .get(`/api/v1/mentor/profile/${mentorId}`)
+        .set('Authorization', `Bearer ${mentor2Token}`);
+      expect(targetByIdRes.status).toBe(404);
+
+      // 4. Report isolation: Mentor 2 cannot read any support reports
+      const reportsRes = await request(app)
+        .get('/api/v1/mentor/reports')
+        .set('Authorization', `Bearer ${mentor2Token}`);
+      expect(reportsRes.status).toBe(404);
     });
   });
 });
