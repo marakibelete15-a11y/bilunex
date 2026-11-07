@@ -1,28 +1,25 @@
 /**
  * Bilunex - Main API Router
- * All API routes are versioned under /api/v1/
+ * Aggregates versioned routes under /api/v1.
  */
 
 const express = require('express');
 const router = express.Router();
 
-const publicRoutes = require('./v1/public.routes');
-const adminRoutes = require('./v1/admin.routes');
-const mentorRoutes = require('./v1/mentor.routes');
+const publicRoutes = require('./public.routes');
+const adminRoutes = require('./admin.routes');
+const mentorRoutes = require('./mentor.routes');
 
-router.post('/v1/auth/logout', (req, res) => {
-  res.clearCookie('bilunex_portal_token', {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-  });
-  res.status(204).end();
-});
+// API Version 1 Router
+const v1Router = express.Router();
 
-// Mount version 1 endpoints
-router.use('/v1/public', publicRoutes);
-router.use('/v1/admin', adminRoutes);
-router.use('/v1/mentor', mentorRoutes);
+// Public routes mounted at /v1 and /v1/public
+v1Router.use('/public', publicRoutes);
+v1Router.use('/admin', adminRoutes);
+v1Router.use('/mentor', mentorRoutes);
+v1Router.use('/', publicRoutes);
+
+// Mount v1 router at /api/v1
+router.use('/v1', v1Router);
 
 module.exports = router;

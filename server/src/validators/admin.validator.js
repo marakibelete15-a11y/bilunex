@@ -1,6 +1,7 @@
 /**
  * Bilunex - Admin Validators
  * Request schemas for admin authentication, intake record filtering, and status updates.
+ * Traces to SRS: FR-5.1, FR-5.2, FR-5.3, FR-5.4, FR-5.5, FR-5.6, FR-5.7
  */
 
 const { z } = require('zod');
@@ -13,11 +14,8 @@ const adminLoginSchema = z
   .strict();
 
 const parentRegistrationFilterSchema = z.object({
-  status: z.enum(['new', 'contacted', 'enrolled', 'archived']).optional(),
+  status: z.enum(['new', 'contacted', 'matched', 'closed']).optional(),
   grade_level: z.string().trim().optional(),
-  subject: z.string().trim().optional(),
-  from_date: z.string().trim().optional(),
-  to_date: z.string().trim().optional(),
   search: z.string().trim().optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(50),
@@ -25,9 +23,9 @@ const parentRegistrationFilterSchema = z.object({
 
 const updateParentRegistrationStatusSchema = z
   .object({
-    status: z.enum(['new', 'contacted', 'enrolled', 'archived'], {
+    status: z.enum(['new', 'contacted', 'matched', 'closed'], {
       errorMap: () => ({
-        message: 'Status must be one of: new, contacted, enrolled, archived',
+        message: 'Status must be one of: new, contacted, matched, closed',
       }),
     }),
   })
@@ -66,6 +64,7 @@ const updateApplicationStatusSchema = z
         }),
       }
     ),
+    admin_notes: z.string().trim().optional().nullable(),
   })
   .strict();
 
@@ -82,16 +81,16 @@ const inquiryFilterSchema = z.object({
   inquiry_type: z
     .enum(['general', 'parent_support', 'mentor_application', 'counseling'])
     .optional(),
-  status: z.enum(['new', 'in_progress', 'resolved', 'archived']).optional(),
+  status: z.enum(['new', 'in_progress', 'resolved']).optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(50),
 });
 
 const updateInquiryStatusSchema = z
   .object({
-    status: z.enum(['new', 'in_progress', 'resolved', 'archived'], {
+    status: z.enum(['new', 'in_progress', 'resolved'], {
       errorMap: () => ({
-        message: 'Status must be one of: new, in_progress, resolved, archived',
+        message: 'Status must be one of: new, in_progress, resolved',
       }),
     }),
   })
@@ -106,13 +105,6 @@ const idParamSchema = z.object({
   id: z.coerce.number().int().positive('ID must be a positive integer'),
 });
 
-const eventFilterSchema = z.object({
-  event_type: z.string().trim().optional(),
-  search: z.string().trim().optional(),
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(50),
-});
-
 module.exports = {
   adminLoginSchema,
   parentRegistrationFilterSchema,
@@ -124,5 +116,4 @@ module.exports = {
   updateInquiryStatusSchema,
   supportReportFilterSchema,
   idParamSchema,
-  eventFilterSchema,
 };

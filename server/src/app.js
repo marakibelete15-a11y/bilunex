@@ -17,6 +17,8 @@ const { generalLimiter } = require('./middleware/rateLimit.middleware');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler.middleware');
 const portalPageAuth = require('./middleware/portalPageAuth.middleware');
 
+const rejectQueryCredentials = require('./middleware/rejectQueryCredentials.middleware');
+
 const app = express();
 
 // Security HTTP headers
@@ -64,6 +66,9 @@ if (env.NODE_ENV !== 'test') {
   morgan.token('referrer', req => redactCredentialQuery(req.headers.referer));
   app.use(morgan('combined', { stream: logger.stream }));
 }
+
+// Reject credentials in query parameters
+app.use('/api', rejectQueryCredentials);
 
 // Global API rate limiting
 app.use('/api', generalLimiter);

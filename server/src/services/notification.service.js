@@ -1,22 +1,25 @@
 /**
  * Bilunex - Notification & Email Service
  *
- * CRITICAL ARCHITECTURE RULE (SRS & Requirement 4):
+ * CRITICAL ARCHITECTURE RULE (SRS FR-9.5 & NFR-4):
  * All notifications are sent through safe functions that NEVER throw into the caller.
  * A failed email must never block saving a registration, application, or report.
  * If an email fails, the record is still stored, the failure is written to
  * notification_log and the logger, and the user still receives a successful response.
+ *
+ * Traces to SRS: FR-9.1, FR-9.2, FR-9.3, FR-9.4, FR-9.5
  */
 
 const nodemailer = require('nodemailer');
 const env = require('../config/env');
 const logger = require('../utils/logger');
 const notificationLogRepository = require('../repositories/notification_log.repository');
-const siteInfo = require('../config/site-info');
 
+const CUSTOMER_EMAIL = 'support@bilunex.org';
 let transporter = null;
 let etherealProvision = null;
 const MAIL_TIMEOUT_MS = 10000;
+
 const withTimeout = (promise, label) =>
   new Promise((resolve, reject) => {
     const timeout = setTimeout(
@@ -94,34 +97,43 @@ const _resetTransporter = () => {
  */
 const safeSendNotification = async ({
   to,
+  recipient,
   recipient_role = 'unknown',
   subject,
   text,
   html,
-  notification_type = 'general_notification',
+  notification_type = 'admin_new_parent',
+  related_table = null,
   related_entity_type = null,
+  related_id = null,
   related_entity_id = null,
 }) => {
+  const recipientEmail = to || recipient;
+  const relTable = related_table || related_entity_type || null;
+  const relId = related_id || related_entity_id || null;
+
   try {
     const activeTransporter = await getTransporter();
     if (!activeTransporter) {
-      logger.info(`OFFLINE EMAIL (not sent)\nTo: ${to}\nSubject: ${subject}\n\n${text || ''}`);
+      logger.info(
+        `OFFLINE EMAIL (not sent)\nTo: ${recipientEmail}\nSubject: ${subject}\n\n${text || ''}`
+      );
       await notificationLogRepository
-        .create({
+        .log({
           notification_type,
-          recipient: to,
-          recipient_role,
-          related_entity_type,
-          related_entity_id,
-          status: 'logged_not_sent',
-          error_message: 'Ethereal unavailable; development offline mode',
+          recipient_email: recipientEmail,
+          related_table: relTable,
+          related_id: relId,
+          status: 'failed',
+          error_message: 'Offline mode: no SMTP transporter configured',
         })
         .catch(logErr => logger.error('Failed to record offline notification:', logErr.message));
       return { success: false, loggedNotSent: true };
     }
+
     const mailOptions = {
       from: env.EMAIL_FROM || `"Bilunex Platform" <${env.EMAIL_USER || 'no-reply@bilunex.org'}>`,
-      to,
+      to: recipientEmail,
       subject,
       ...(env.EMAIL_REPLY_TO ? { replyTo: env.EMAIL_REPLY_TO } : {}),
       text: text || '',
@@ -132,22 +144,21 @@ const safeSendNotification = async ({
     const previewUrl = nodemailer.getTestMessageUrl ? nodemailer.getTestMessageUrl(info) : null;
 
     if (previewUrl) {
-      logger.info(`📧 Notification email sent to ${to}. Ethereal Preview URL: ${previewUrl}`);
+      logger.info(`📧 Notification email sent to ${recipientEmail}. Preview URL: ${previewUrl}`);
     } else {
       logger.info(
-        `📧 Notification email sent to ${to} (MessageId: ${info?.messageId || 'unknown'})`
+        `📧 Notification email sent to ${recipientEmail} (ID: ${info?.messageId || 'unknown'})`
       );
     }
 
     // Write success outcome to notification_log table
     await notificationLogRepository
-      .create({
+      .log({
         notification_type,
-        recipient: to,
-        recipient_role,
-        related_entity_type,
-        related_entity_id,
-        status: 'success',
+        recipient_email: recipientEmail,
+        related_table: relTable,
+        related_id: relId,
+        status: 'sent',
         error_message: null,
       })
       .catch(logErr => {
@@ -158,34 +169,31 @@ const safeSendNotification = async ({
   } catch (error) {
     const offlineDevelopment = env.NODE_ENV === 'development' && !env.EMAIL_HOST;
     if (offlineDevelopment) {
-      logger.info(`OFFLINE EMAIL (not sent)\nTo: ${to}\nSubject: ${subject}\n\n${text || ''}`);
+      logger.info(
+        `OFFLINE EMAIL (not sent)\nTo: ${recipientEmail}\nSubject: ${subject}\n\n${text || ''}`
+      );
       await notificationLogRepository
-        .create({
+        .log({
           notification_type,
-          recipient: to,
-          recipient_role,
-          related_entity_type,
-          related_entity_id,
-          status: 'logged_not_sent',
+          recipient_email: recipientEmail,
+          related_table: relTable,
+          related_id: relId,
+          status: 'failed',
           error_message: error.message,
         })
         .catch(logErr => logger.error('Failed to record offline notification:', logErr.message));
       return { success: false, loggedNotSent: true, error: error.message };
     }
-    // CRITICAL: Log failure, persist to notification_log, and NEVER throw to caller
-    logger.error(`❌ Notification email to ${to} failed: ${error.message}`, {
-      recipient: to,
-      subject,
-    });
+
+    logger.error(`❌ Notification email to ${recipientEmail} failed: ${error.message}`);
 
     await notificationLogRepository
-      .create({
+      .log({
         notification_type,
-        recipient: to,
-        recipient_role,
-        related_entity_type,
-        related_entity_id,
-        status: /timed out/i.test(error.message) ? 'timeout' : 'failure',
+        recipient_email: recipientEmail,
+        related_table: relTable,
+        related_id: relId,
+        status: 'failed',
         error_message: error.message,
       })
       .catch(logErr => {
@@ -197,7 +205,7 @@ const safeSendNotification = async ({
 };
 
 /**
- * Helper to dispatch email to one or multiple recipients (e.g. comma-separated admin emails)
+ * Helper to dispatch email to one or multiple recipients
  */
 const dispatchToRecipients = async ({
   to,
@@ -206,7 +214,9 @@ const dispatchToRecipients = async ({
   text,
   html,
   notification_type,
+  related_table,
   related_entity_type,
+  related_id,
   related_entity_id,
 }) => {
   const recipients = Array.isArray(to)
@@ -225,7 +235,9 @@ const dispatchToRecipients = async ({
       text,
       html,
       notification_type,
+      related_table,
       related_entity_type,
+      related_id,
       related_entity_id,
     });
     results.push(res);
@@ -234,13 +246,12 @@ const dispatchToRecipients = async ({
 };
 
 /**
- * Notify admin and parent upon new parent registration
+ * Notify admin and parent upon new parent registration (FR-9.1, FR-9.3)
  */
 const notifyParentRegistration = async registration => {
   const adminUrl = `${env.CLIENT_URL || 'http://localhost:5000'}/admin/index.html`;
 
-  // 1. Dispatch alert to administrator(s)
-  // Constraint: Short summary only, admin link, NO sensitive personal data, NO attachments
+  // 1. Dispatch alert to administrator(s) (FR-9.3)
   const adminSubject = `[Bilunex Alert] New Parent Registration #${registration.id}`;
   const adminText = [
     'Bilunex System Alert: New Student Registration Submitted',
@@ -269,15 +280,14 @@ const notifyParentRegistration = async registration => {
     subject: adminSubject,
     text: adminText,
     html: adminHtml,
-    notification_type: 'parent_registration_admin_alert',
-    related_entity_type: 'parent_registrations',
-    related_entity_id: registration.id,
+    notification_type: 'admin_new_parent',
+    related_table: 'parent_registrations',
+    related_id: registration.id,
   });
 
-  // 2. Dispatch confirmation to parent
-  /* [To be confirmed by Bilunex] */
+  // 2. Dispatch confirmation to parent (FR-9.1)
   const nextStepsNotice =
-    'our team will review your requirements and we will contact you within 24 hours to finalize the registration fee and schedule a Trial Session.';
+    'our team will review your requirements and we will contact you within 24 hours to finalize the registration and discuss mentor matching.';
 
   const parentSubject = `[Bilunex] Student Registration Received (#${registration.id})`;
   const parentText = [
@@ -290,14 +300,14 @@ const notifyParentRegistration = async registration => {
     'Best regards,',
     'Bilunex Admissions & Academic Team',
     '',
-    `Questions? Contact us at ${siteInfo.customerEmail}.`,
+    `Questions? Contact us at ${CUSTOMER_EMAIL}.`,
   ].join('\n');
 
   const parentHtml = `
     <p>Dear ${registration.parent_name},</p>
     <p>Thank you for registering with Bilunex. Your registration has been received under reference ID <strong>#${registration.id}</strong>.</p>
     <p>${nextStepsNotice}</p>
-    <p>Questions? Contact us at ${siteInfo.customerEmail}.</p>
+    <p>Questions? Contact us at ${CUSTOMER_EMAIL}.</p>
     <p>Best regards,<br/>Bilunex Admissions &amp; Academic Team</p>
   `;
 
@@ -307,20 +317,19 @@ const notifyParentRegistration = async registration => {
     subject: parentSubject,
     text: parentText,
     html: parentHtml,
-    notification_type: 'parent_registration_ack',
-    related_entity_type: 'parent_registrations',
-    related_entity_id: registration.id,
+    notification_type: 'parent_confirmation',
+    related_table: 'parent_registrations',
+    related_id: registration.id,
   });
 };
 
 /**
- * Notify admin and applicant upon new mentor application
+ * Notify admin and applicant upon new mentor application (FR-9.2, FR-9.4)
  */
 const notifyMentorApplication = async application => {
   const adminUrl = `${env.CLIENT_URL || 'http://localhost:5000'}/admin/index.html`;
 
-  // 1. Dispatch alert to administrator(s)
-  // Constraint: Short summary only, admin link, NO sensitive personal data, NO attachments
+  // 1. Dispatch alert to administrator(s) (FR-9.4)
   const adminSubject = `[Bilunex Alert] New Mentor Application #${application.id}`;
   const adminText = [
     'Bilunex System Alert: New Mentor Application Submitted',
@@ -331,7 +340,7 @@ const notifyMentorApplication = async application => {
     '',
     `Review in Admin Portal: ${adminUrl}`,
     '',
-    '(Note: In compliance with candidate data protection policies, personal profile details and documents are omitted from email alerts.)',
+    '(Note: In compliance with candidate data protection policies, personal profile details are omitted from email alerts.)',
   ].join('\n');
 
   const adminHtml = `
@@ -340,7 +349,7 @@ const notifyMentorApplication = async application => {
     <p><strong>Type:</strong> Mentor Application</p>
     <p><strong>Submitted At:</strong> ${new Date().toISOString()}</p>
     <p><a href="${adminUrl}">Open Admin Portal to Review Application</a></p>
-    <p><small>(Note: In compliance with candidate data protection policies, personal profile details and documents are omitted from email alerts.)</small></p>
+    <p><small>(Note: In compliance with candidate data protection policies, personal profile details are omitted from email alerts.)</small></p>
   `;
 
   await dispatchToRecipients({
@@ -349,31 +358,31 @@ const notifyMentorApplication = async application => {
     subject: adminSubject,
     text: adminText,
     html: adminHtml,
-    notification_type: 'mentor_application_admin_alert',
-    related_entity_type: 'mentor_applications',
-    related_entity_id: application.id,
+    notification_type: 'admin_new_mentor',
+    related_table: 'mentor_applications',
+    related_id: application.id,
   });
 
-  // 2. Dispatch confirmation to applicant
+  // 2. Dispatch confirmation to mentor applicant (FR-9.2)
   const mentorSubject = `[Bilunex] Mentor Application Received (#${application.id})`;
   const mentorText = [
     `Dear ${application.full_name},`,
     '',
     `Thank you for applying to become a mentor at Bilunex. Your application has been received under reference ID #${application.id}.`,
     '',
-    'Our academic screening committee will review your qualifications, academic record, and supporting documents within 3 to 5 business days. If shortlisted, you will be invited for an interview.',
+    'Our academic screening committee will review your qualifications and academic record. If shortlisted, you will be invited for an interview.',
     '',
     'Best regards,',
     'Bilunex Academic Mentorship Team',
     '',
-    `Questions? Contact us at ${siteInfo.customerEmail}.`,
+    `Questions? Contact us at ${CUSTOMER_EMAIL}.`,
   ].join('\n');
 
   const mentorHtml = `
     <p>Dear ${application.full_name},</p>
     <p>Thank you for applying to become a mentor at Bilunex. Your application has been received under reference ID <strong>#${application.id}</strong>.</p>
-    <p>Our academic screening committee will review your qualifications, academic record, and supporting documents within 3 to 5 business days. If shortlisted, you will be invited for an interview.</p>
-    <p>Questions? Contact us at ${siteInfo.customerEmail}.</p>
+    <p>Our academic screening committee will review your qualifications and academic record. If shortlisted, you will be invited for an interview.</p>
+    <p>Questions? Contact us at ${CUSTOMER_EMAIL}.</p>
     <p>Best regards,<br/>Bilunex Academic Mentorship Team</p>
   `;
 
@@ -383,14 +392,14 @@ const notifyMentorApplication = async application => {
     subject: mentorSubject,
     text: mentorText,
     html: mentorHtml,
-    notification_type: 'mentor_application_ack',
-    related_entity_type: 'mentor_applications',
-    related_entity_id: application.id,
+    notification_type: 'mentor_confirmation',
+    related_table: 'mentor_applications',
+    related_id: application.id,
   });
 };
 
 /**
- * Notify admin when a student support report is filed
+ * Notify admin when a student support report is filed (FR-8.4)
  */
 const notifySupportReportFiled = async (report, mentorName) => {
   const adminUrl = `${env.CLIENT_URL || 'http://localhost:5000'}/admin/index.html`;
@@ -401,7 +410,7 @@ const notifySupportReportFiled = async (report, mentorName) => {
     `Report ID: #${report.id}`,
     `Filed By Mentor: ${mentorName || 'Assigned Mentor'}`,
     `Student: ${report.student_name}`,
-    `Observed Need: ${report.support_need_observed}`,
+    `Observed Need: ${report.support_need || report.support_need_observed || 'Support needed'}`,
     '',
     `Review in Admin Portal: ${adminUrl}`,
   ].join('\n');
@@ -411,7 +420,6 @@ const notifySupportReportFiled = async (report, mentorName) => {
     <p><strong>Report ID:</strong> #${report.id}</p>
     <p><strong>Mentor:</strong> ${mentorName || 'Assigned Mentor'}</p>
     <p><strong>Student:</strong> ${report.student_name}</p>
-    <p><strong>Support Need Observed:</strong> ${report.support_need_observed}</p>
     <p><a href="${adminUrl}">Open Admin Portal to Review Report</a></p>
   `;
 
@@ -421,9 +429,9 @@ const notifySupportReportFiled = async (report, mentorName) => {
     subject,
     text,
     html,
-    notification_type: 'support_report_filed_admin_alert',
-    related_entity_type: 'student_support_reports',
-    related_entity_id: report.id,
+    notification_type: 'admin_new_parent',
+    related_table: 'student_support_reports',
+    related_id: report.id,
   });
 };
 
@@ -437,24 +445,9 @@ const notifyInquiry = async inquiry => {
     subject,
     text,
     html: `<p>${text.replace(/\n/g, '<br>')}</p>`,
-    notification_type: 'inquiry_admin_alert',
-    related_entity_type: 'inquiries',
-    related_entity_id: inquiry.id,
-  });
-};
-
-const notifyStorySubmitted = async story => {
-  const adminUrl = `${env.CLIENT_URL || 'http://localhost:5000'}/admin/stories.html`;
-  const text = `A new story submission (#${story.id}) is waiting for moderation. Open the admin portal: ${adminUrl}`;
-  return dispatchToRecipients({
-    to: env.ADMIN_NOTIFICATION_EMAIL,
-    recipient_role: 'admin',
-    subject: `[Bilunex Alert] Story submission #${story.id} needs review`,
-    text,
-    html: `<p>${text}</p>`,
-    notification_type: 'story_submitted_admin_alert',
-    related_entity_type: 'stories',
-    related_entity_id: story.id,
+    notification_type: 'admin_new_parent',
+    related_table: 'inquiries',
+    related_id: inquiry.id,
   });
 };
 
@@ -464,7 +457,6 @@ module.exports = {
   notifyMentorApplication,
   notifySupportReportFiled,
   notifyInquiry,
-  notifyStorySubmitted,
   getTransporter,
   _resetTransporter,
 };
