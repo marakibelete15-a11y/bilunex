@@ -8,6 +8,11 @@ const { execSync } = require('child_process');
 const path = require('path');
 const logger = require('../src/utils/logger');
 
+if (process.env.NODE_ENV === 'production') {
+  logger.error('CRITICAL: Attempted to run database reset in production environment! Aborting.');
+  process.exit(1);
+}
+
 try {
   logger.info('🔄 Resetting Bilunex local database (DOWN -> UP -> SEED)...');
   const serverDir = path.resolve(__dirname, '..');

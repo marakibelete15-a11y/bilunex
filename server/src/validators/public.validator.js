@@ -1,6 +1,7 @@
 /**
  * Bilunex - Public API Validators
  * Strict validation for public intake forms: parent registrations, mentor applications, inquiries.
+ * Traces to SRS: FR-2.1, FR-2.2, FR-3.1, FR-3.2, FR-4.1
  */
 
 const { z } = require('zod');
@@ -24,7 +25,11 @@ const createParentRegistrationSchema = z
       .regex(
         ETHIOPIAN_PHONE_REGEX,
         'Phone number must follow Ethiopian format (+2519XXXXXXXX or 09XXXXXXXX)'
-      ),
+      )
+      .optional()
+      .nullable()
+      .or(z.literal(''))
+      .transform(val => (val && val.length > 0 ? val : null)),
     secondary_phone: z
       .string()
       .trim()
@@ -51,29 +56,44 @@ const createParentRegistrationSchema = z
     telegram_handle: z
       .string()
       .trim()
+      .max(100, 'Telegram handle must be at most 100 characters')
       .optional()
       .nullable()
+      .or(z.literal(''))
       .transform(val => (val && val.length > 0 ? val : null)),
     child_name: z.string().trim().min(2, 'Child name must be at least 2 characters'),
     grade_level: z.string().trim().min(1, 'Grade level is required'),
-    subjects: z
-      .array(z.string().trim().min(1, 'Subject name cannot be empty'))
-      .min(1, 'At least one subject must be specified'),
-    support_category: z
-      .enum(['tutoring', 'mentoring', 'counseling', 'combined'], {
-        errorMap: () => ({
-          message: 'Support category must be tutoring, mentoring, counseling, or combined',
-        }),
-      })
-      .default('combined'),
+    subjects: z.preprocess(
+      val => {
+        if (typeof val === 'string') {
+          try {
+            const parsed = JSON.parse(val);
+            if (Array.isArray(parsed)) return parsed;
+          } catch {}
+          return val
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean);
+        }
+        return val;
+      },
+      z
+        .array(z.string().trim().min(1, 'Subject name cannot be empty'))
+        .min(1, 'At least one subject must be specified')
+    ),
     notes: z
       .string()
       .trim()
       .optional()
       .nullable()
+      .or(z.literal(''))
       .transform(val => (val && val.length > 0 ? val : null)),
   })
-  .strict();
+  .strict()
+  .refine(data => Boolean(data.phone || data.telegram_handle), {
+    message: 'At least one contact method (phone or telegram handle) is required',
+    path: ['phone'],
+  });
 
 const createMentorApplicationSchema = z
   .object({
@@ -91,12 +111,14 @@ const createMentorApplicationSchema = z
       .trim()
       .optional()
       .nullable()
+      .or(z.literal(''))
       .transform(val => (val && val.length > 0 ? val : null)),
     telegram_handle: z
       .string()
       .trim()
       .optional()
       .nullable()
+      .or(z.literal(''))
       .transform(val => (val && val.length > 0 ? val : null)),
     university: z.string().trim().min(2, 'University must be at least 2 characters').optional(),
     university_name: z
@@ -104,12 +126,6 @@ const createMentorApplicationSchema = z
       .trim()
       .min(2, 'University name must be at least 2 characters')
       .optional(),
-    campus: z
-      .string()
-      .trim()
-      .optional()
-      .nullable()
-      .transform(val => (val && val.length > 0 ? val : null)),
     field_of_study: z.string().trim().min(2, 'Field of study / department is required').optional(),
     department: z.string().trim().min(2, 'Field of study / department is required').optional(),
     academic_year: z.string().trim().min(1, 'Academic year / year of study is required').optional(),
@@ -138,57 +154,23 @@ const createMentorApplicationSchema = z
         )
         .min(1, 'At least one subject must be specified')
         .max(17, 'Select no more than 17 subjects')
-        .transform(subjects =>
-          subjects.map(subject => subject.replace(/<[^>]*>/g, '').trim()).filter(Boolean)
-        )
     ),
-    has_teaching_experience: z
+    availability: z.string().trim().min(2, 'Availability must be specified').optional(),
+    available_hours: z
       .preprocess(val => {
-        if (typeof val === 'string') return val === 'true' || val === '1' || val === 'yes';
-        return Boolean(val);
-      }, z.boolean())
-      .default(false),
-    teaching_experience: z
-      .string()
-      .trim()
-      .optional()
-      .nullable()
-      .transform(val => (val && val.length > 0 ? val : null)),
-    teaching_experience_duration: z
-      .string()
-      .trim()
-      .optional()
-      .nullable()
-      .transform(val => (val && val.length > 0 ? val : null)),
-    experience_details: z
-      .string()
-      .trim()
-      .optional()
-      .nullable()
-      .transform(val => (val && val.length > 0 ? val : null)),
-    cgpa: z.preprocess(
-      val => {
-        if (val === '' || val === null || val === undefined) return null;
-        return typeof val === 'string' ? parseFloat(val) : val;
-      },
-      z
-        .number({ invalid_type_error: 'CGPA must be numeric' })
-        .min(0, 'CGPA cannot be less than 0.00')
-        .max(4.0, 'CGPA cannot exceed 4.00')
-    ),
-    entrance_exam_stream: z.enum(['natural_science', 'social_science']),
-    entrance_exam_result: z.preprocess(
-      val => {
-        if (val === '' || val === null || val === undefined) return null;
-        return typeof val === 'string' ? parseFloat(val) : val;
-      },
-      z
-        .number({ invalid_type_error: 'Entrance exam result must be a number' })
-        .min(0, 'Entrance exam result cannot be less than 0')
-        .max(700, 'Entrance exam result cannot exceed 700')
-        .optional()
-        .nullable()
-    ),
+        if (typeof val === 'string') {
+          try {
+            const parsed = JSON.parse(val);
+            if (Array.isArray(parsed)) return parsed;
+          } catch {}
+          return val
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean);
+        }
+        return val;
+      }, z.array(z.string().trim()))
+      .optional(),
     available_days: z
       .preprocess(val => {
         if (typeof val === 'string') {
@@ -201,41 +183,10 @@ const createMentorApplicationSchema = z
             .map(s => s.trim())
             .filter(Boolean);
         }
-        return val || [];
+        return val;
       }, z.array(z.string().trim()))
-      .default([]),
-    available_hours: z.preprocess(
-      val =>
-        typeof val === 'string'
-          ? val
-              .split(',')
-              .map(s => s.trim())
-              .filter(Boolean)
-          : val,
-      z.array(z.enum(['Morning', 'Afternoon', 'Evening'])).min(1, 'Select available hours')
-    ),
-    availability: z
-      .string()
-      .trim()
-      .optional()
-      .nullable()
-      .transform(val => (val && val.length > 0 ? val : null)),
+      .optional(),
     motivation: z.string().trim().min(10, 'Motivation must be at least 10 characters'),
-    commitment_agreement: z.preprocess(
-      val => {
-        if (typeof val === 'string') return val === 'true' || val === '1' || val === 'yes';
-        return Boolean(val);
-      },
-      z.literal(true, {
-        errorMap: () => ({ message: 'Commitment agreement must be accepted to apply' }),
-      })
-    ),
-    referral_source: z
-      .string()
-      .trim()
-      .optional()
-      .nullable()
-      .transform(val => (val && val.length > 0 ? val : null)),
   })
   .strict()
   .refine(data => data.university || data.university_name, {
@@ -246,26 +197,19 @@ const createMentorApplicationSchema = z
     message: 'Field of study / department is required',
     path: ['field_of_study'],
   })
-  .refine(
-    data =>
-      data.entrance_exam_result == null ||
-      data.entrance_exam_result <= (data.entrance_exam_stream === 'social_science' ? 600 : 700),
-    {
-      message: 'Entrance exam result exceeds the maximum for the selected stream',
-      path: ['entrance_exam_result'],
-    }
-  )
   .refine(data => data.academic_year || data.year_of_study, {
     message: 'Academic year / year of study is required',
-    path: ['academic_year'],
+    path: ['year_of_study'],
   })
   .refine(
     data =>
-      data.availability ||
-      data.available_hours ||
-      (data.available_days && data.available_days.length > 0),
+      Boolean(
+        data.availability ||
+        (data.available_hours && data.available_hours.length > 0) ||
+        (data.available_days && data.available_days.length > 0)
+      ),
     {
-      message: 'Availability details or available days must be specified',
+      message: 'Availability details must be specified',
       path: ['availability'],
     }
   );
@@ -279,6 +223,7 @@ const createInquirySchema = z
       .trim()
       .optional()
       .nullable()
+      .or(z.literal(''))
       .transform(val => (val && val.length > 0 ? val : null)),
     inquiry_type: z
       .enum(['general', 'parent_support', 'mentor_application', 'counseling'], {

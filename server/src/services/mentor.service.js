@@ -2,7 +2,12 @@
  * Bilunex - Mentor Service
  * Business logic for mentor authentication, profile self-management,
  * and confidential student support reports.
- * Architecture rule: Mentors can strictly only access and file their own reports.
+ *
+ * CRITICAL ARCHITECTURE RULE (SRS FR-7.5, FR-8.3):
+ * Mentors can strictly ONLY access and update their own profile and submit reports.
+ * Mentors must NEVER have access to read any student support reports.
+ *
+ * Traces to SRS: FR-7.2, FR-7.3, FR-7.4, FR-7.5, FR-8.1, FR-8.2, FR-8.3, FR-8.4
  */
 
 const bcrypt = require('bcrypt');
@@ -15,8 +20,8 @@ const logger = require('../utils/logger');
 
 const mentorService = {
   /**
-   * Authenticate a verified mentor
-   * Requirement 13: Login succeeds only if account_status === 'active'
+   * Authenticate a verified mentor (FR-7.2)
+   * Login succeeds only if account_status === 'active'
    */
   async login({ email, password }) {
     const mentor = await mentorRepository.findProfileByEmail(email);
@@ -28,7 +33,7 @@ const mentorService = {
 
     if (mentor.account_status !== 'active') {
       const error = new Error('Account is inactive or suspended. Please contact administration.');
-      error.statusCode = 401;
+      error.statusCode = 403;
       throw error;
     }
 
@@ -39,23 +44,25 @@ const mentorService = {
       throw error;
     }
 
+    await mentorRepository.updateLastLogin(mentor.id);
+
     const token = jwt.sign(
       {
         id: mentor.id,
         mentorId: mentor.id,
         email: mentor.email,
         role: 'mentor',
-        name: mentor.name,
+        name: mentor.full_name,
       },
       env.JWT_SECRET,
-      { expiresIn: env.JWT_EXPIRES_IN }
+      { expiresIn: env.JWT_EXPIRES_IN || '24h' }
     );
 
     return {
       token,
       user: {
         id: mentor.id,
-        name: mentor.name,
+        name: mentor.full_name,
         email: mentor.email,
         role: 'mentor',
         account_status: mentor.account_status,
@@ -64,8 +71,7 @@ const mentorService = {
   },
 
   /**
-   * Retrieve own mentor profile
-   * Requirement 14: GET /mentor/profile
+   * Retrieve own mentor profile (FR-7.3, FR-7.5)
    */
   async getProfile(mentorId) {
     const profile = await mentorRepository.findProfileById(mentorId);
@@ -74,45 +80,70 @@ const mentorService = {
       error.statusCode = 404;
       throw error;
     }
-    return profile;
+    const { password_hash, ...safeProfile } = profile;
+    return safeProfile;
   },
 
   /**
-   * Update own mentor profile (availability, phone, subject_specializations)
-   * Requirement 15: PATCH /mentor/profile
+   * Update own mentor profile (FR-7.4, FR-7.5)
+   * Only personal details, university, subjects, and availability may be edited.
    */
-  async updateProfile(
-    mentorId,
-    { name, university, field_of_study, availability, phone, subject_specializations }
-  ) {
+  async updateProfile(mentorId, updateData) {
     const updated = await mentorRepository.updateProfile(mentorId, {
-      name,
-      university,
-      field_of_study,
-      availability,
-      phone,
-      subject_specializations,
+      full_name: updateData.full_name,
+      university: updateData.university,
+      field_of_study: updateData.field_of_study,
+      subjects: updateData.subjects,
+      availability: updateData.availability,
     });
+
     if (!updated) {
       const error = new Error('Mentor profile not found or inactive');
       error.statusCode = 404;
       throw error;
     }
+
     return updated;
   },
 
   /**
-   * File a student support report
-   * Requirement 16: POST /mentor/reports
+   * Change own password (FR-7.2, FR-7.5)
+   */
+  async changePassword({ mentorId, currentPassword, newPassword }) {
+    const mentor = await mentorRepository.findProfileById(mentorId);
+    if (!mentor) {
+      const error = new Error('Mentor profile not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, mentor.password_hash);
+    if (!isMatch) {
+      const error = new Error('Current password does not match');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 12);
+    await mentorRepository.updatePassword(mentorId, newHash);
+
+    return { success: true, message: 'Password updated successfully' };
+  },
+
+  /**
+   * File a student support report (FR-8.1, FR-8.2, FR-8.3, FR-8.4)
+   * Mentors submit reports; submitted reports are visible only to admins.
    */
   async submitSupportReport(mentorId, mentorName, reportData) {
     const report = await reportRepository.create({
       mentor_id: mentorId,
-      ...reportData,
+      student_name: reportData.student_name,
+      support_need: reportData.support_need,
+      observations: reportData.observations,
+      recommended_action: reportData.recommended_action,
     });
 
-    // Notification delivery and logging happen independently of the report response.
-    // Deferring invocation also keeps synchronous notifier errors out of this request.
+    // Notify administrators asynchronously without blocking report submission response
     Promise.resolve()
       .then(() => notificationService.notifySupportReportFiled(report, mentorName))
       .catch(err => {
@@ -120,45 +151,6 @@ const mentorService = {
       });
 
     return report;
-  },
-
-  /**
-   * Fetch reports filed by the logged-in mentor only
-   * Requirement 17: GET /mentor/reports (Strict query isolation)
-   */
-  async getReportsForMentor(mentorId) {
-    return await reportRepository.findByMentorId(mentorId);
-  },
-
-  /**
-   * Legacy and helper methods
-   */
-  async submitApplication(applicationData) {
-    const application = await mentorRepository.createApplication(applicationData);
-    notificationService.notifyMentorApplication(application).catch(() => {});
-    return application;
-  },
-
-  async getApplications() {
-    return await mentorRepository.findAllApplications();
-  },
-
-  async updateApplicationStatus(id, status) {
-    const updated = await mentorRepository.updateApplicationStatus(id, status);
-    if (!updated) {
-      const error = new Error('Application not found');
-      error.statusCode = 404;
-      throw error;
-    }
-    return updated;
-  },
-
-  async getProfileByUserId(userId) {
-    return this.getProfile(userId);
-  },
-
-  async getActiveMentors() {
-    return await mentorRepository.findAllActiveMentors();
   },
 };
 

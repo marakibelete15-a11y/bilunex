@@ -18,7 +18,7 @@ describe('API Route Middleware & Error Handling', () => {
   });
 
   test('should return 400 when parent registration payload fails validation', async () => {
-    const res = await request(app).post('/api/v1/public/parents/register').send({
+    const res = await request(app).post('/api/v1/parents/register').send({
       parent_name: 'J', // Invalid: too short
       email: 'invalid-email-address',
     });
@@ -38,7 +38,7 @@ describe('API Route Middleware & Error Handling', () => {
   });
 
   test('should return 401 when accessing protected mentor endpoint without token', async () => {
-    const res = await request(app).get('/api/v1/mentor/profile');
+    const res = await request(app).get('/api/v1/mentor/me');
 
     expect(res.status).toBe(401);
     expect(res.body.success).toBe(false);
@@ -84,7 +84,7 @@ describe('API Route Middleware & Error Handling', () => {
   });
 
   test('protects portal pages with role-specific session cookies', async () => {
-    const unauthenticated = await request(app).get('/admin/stories.html');
+    const unauthenticated = await request(app).get('/admin/index.html');
     expect(unauthenticated.status).toBe(302);
     expect(unauthenticated.headers.location).toBe('/admin/login.html');
     const directoryIndex = await request(app).get('/admin/');
@@ -97,7 +97,7 @@ describe('API Route Middleware & Error Handling', () => {
       { expiresIn: '1h' }
     );
     const wrongRole = await request(app)
-      .get('/admin/stories.html')
+      .get('/admin/index.html')
       .set('Cookie', `bilunex_portal_token=${mentorCookie}`);
     expect(wrongRole.status).toBe(302);
     expect(wrongRole.headers.location).toBe('/admin/login.html');
@@ -108,7 +108,7 @@ describe('API Route Middleware & Error Handling', () => {
       { expiresIn: '-1h' }
     );
     const expired = await request(app)
-      .get('/admin/stories.html')
+      .get('/admin/index.html')
       .set('Cookie', `bilunex_portal_token=${expiredCookie}`);
     expect(expired.status).toBe(302);
     expect(expired.headers.location).toBe('/admin/login.html');
@@ -119,7 +119,7 @@ describe('API Route Middleware & Error Handling', () => {
       { expiresIn: '1h' }
     );
     const authorized = await request(app)
-      .get('/admin/stories.html')
+      .get('/admin/index.html')
       .set('Cookie', `bilunex_portal_token=${adminCookie}`);
     expect(authorized.status).toBe(200);
   });

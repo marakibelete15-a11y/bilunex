@@ -1,211 +1,109 @@
 /**
  * Bilunex - Parent Registration Repository
- * ALL SQL queries regarding parent registrations live here.
- * Aligned with SRS entities (child_name, grade_level, subjects) and soft deletes.
+ * Parameterized queries for parent_registrations table.
  */
 
 const db = require('../config/db');
 
 const parentRepository = {
-  /**
-   * Save a parent registration into the database
-   */
   async create({
     parent_name,
     email,
     phone,
-    secondary_phone = null,
-    preferred_title = null,
-    preferred_communication_method = ['phone_call'],
-    telegram_handle = null,
+    telegram_handle,
     child_name,
-    student_name, // Fallback
     grade_level,
-    student_grade, // Fallback
-    subjects = [],
-    support_category,
-    support_type, // Fallback
-    notes = null,
+    subjects,
+    notes,
   }) {
-    const finalChildName = child_name || student_name;
-    const finalGradeLevel = grade_level || student_grade;
-    const finalSupportCategory = support_category || support_type || 'combined';
-    const subjectsArray = Array.isArray(subjects) ? subjects : [];
-    const commMethods =
-      Array.isArray(preferred_communication_method) && preferred_communication_method.length > 0
-        ? preferred_communication_method
-        : ['phone_call'];
-
     const text = `
       INSERT INTO parent_registrations (
-        parent_name, email, phone, secondary_phone, preferred_title,
-        preferred_communication_method, telegram_handle, child_name,
-        grade_level, subjects, support_category, notes, status
+        parent_name, email, phone, telegram_handle, child_name, grade_level, subjects, notes, status
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'new')
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'new')
       RETURNING *;
     `;
     const res = await db.query(text, [
       parent_name,
       email,
-      phone,
-      secondary_phone || null,
-      preferred_title || null,
-      commMethods,
-      telegram_handle,
-      finalChildName,
-      finalGradeLevel,
-      subjectsArray,
-      finalSupportCategory,
+      phone || null,
+      telegram_handle || null,
+      child_name,
+      grade_level,
+      subjects,
       notes || null,
     ]);
     return res.rows[0];
   },
 
-  /**
-   * Find a parent registration by ID
-   */
   async findById(id) {
-    const text = `
-      SELECT *
-      FROM parent_registrations
-      WHERE id = $1 AND deleted_at IS NULL
-      LIMIT 1;
-    `;
+    const text = `SELECT * FROM parent_registrations WHERE id = $1 LIMIT 1;`;
     const res = await db.query(text, [id]);
     return res.rows[0] || null;
   },
 
-  /**
-   * Fetch active parent registrations with flexible filtering, search, and pagination
-   */
-  async findWithFilters({
-    status = null,
-    grade_level = null,
-    subject = null,
-    from_date = null,
-    to_date = null,
-    search = null,
-    limit = 50,
-    offset = 0,
-  } = {}) {
-    const text = `
-      SELECT
-        id, parent_name, email, phone, secondary_phone, preferred_title,
-        preferred_communication_method, telegram_handle, child_name,
-        grade_level, subjects, support_category, notes, status, created_at, updated_at
-      FROM parent_registrations
-      WHERE deleted_at IS NULL
-        AND ($1::parent_registration_status IS NULL OR status = $1)
-        AND ($2::varchar IS NULL OR grade_level = $2)
-        AND ($3::varchar IS NULL OR $3 = ANY(subjects))
-        AND ($4::timestamptz IS NULL OR created_at >= $4)
-        AND ($5::timestamptz IS NULL OR created_at <= $5)
-        AND ($6::varchar IS NULL OR (
-            parent_name ILIKE '%' || $6 || '%'
-            OR child_name ILIKE '%' || $6 || '%'
-            OR email ILIKE '%' || $6 || '%'
-            OR phone ILIKE '%' || $6 || '%'
-            OR telegram_handle ILIKE '%' || $6 || '%'
-        ))
-      ORDER BY created_at DESC
-      LIMIT $7 OFFSET $8;
-    `;
-    const res = await db.query(text, [
-      status,
-      grade_level,
-      subject,
-      from_date,
-      to_date,
-      search,
-      limit,
-      offset,
-    ]);
-    return res.rows;
-  },
-
-  /**
-   * Count total registrations matching filter criteria
-   */
-  async countWithFilters({
-    status = null,
-    grade_level = null,
-    subject = null,
-    from_date = null,
-    to_date = null,
-    search = null,
-  } = {}) {
-    const text = `
-      SELECT COUNT(*)::int AS count
-      FROM parent_registrations
-      WHERE deleted_at IS NULL
-        AND ($1::parent_registration_status IS NULL OR status = $1)
-        AND ($2::varchar IS NULL OR grade_level = $2)
-        AND ($3::varchar IS NULL OR $3 = ANY(subjects))
-        AND ($4::timestamptz IS NULL OR created_at >= $4)
-        AND ($5::timestamptz IS NULL OR created_at <= $5)
-        AND ($6::varchar IS NULL OR (
-            parent_name ILIKE '%' || $6 || '%'
-            OR child_name ILIKE '%' || $6 || '%'
-            OR email ILIKE '%' || $6 || '%'
-            OR phone ILIKE '%' || $6 || '%'
-            OR telegram_handle ILIKE '%' || $6 || '%'
-        ));
-    `;
-    const res = await db.query(text, [status, grade_level, subject, from_date, to_date, search]);
-    return res.rows[0]?.count || 0;
-  },
-
-  /**
-   * Count parent registrations grouped by status
-   */
-  async countByStatus() {
-    const text = `
-      SELECT status, COUNT(*)::int AS count
-      FROM parent_registrations
-      WHERE deleted_at IS NULL
-      GROUP BY status;
-    `;
-    const res = await db.query(text);
-    return res.rows;
-  },
-
-  /**
-   * Fetch active parent registrations (legacy helper)
-   */
-  async findAll(limit = 50) {
+  async findAll({ search = null, status = null, grade_level = null, limit = 50, offset = 0 } = {}) {
+    const searchPattern = search ? `%${search.trim()}%` : null;
     const text = `
       SELECT *
       FROM parent_registrations
-      WHERE deleted_at IS NULL
+      WHERE ($1::text IS NULL OR parent_name ILIKE $1 OR email::text ILIKE $1 OR child_name ILIKE $1)
+        AND ($2::registration_status IS NULL OR status = $2)
+        AND ($3::varchar IS NULL OR grade_level = $3)
       ORDER BY created_at DESC
-      LIMIT $1;
+      LIMIT $4 OFFSET $5;
     `;
-    const res = await db.query(text, [limit]);
+    const res = await db.query(text, [searchPattern, status, grade_level, limit, offset]);
     return res.rows;
   },
 
-  /**
-   * Update status of parent registration
-   */
+  async countAll({ search = null, status = null, grade_level = null } = {}) {
+    const searchPattern = search ? `%${search.trim()}%` : null;
+    const text = `
+      SELECT COUNT(*)::int AS count
+      FROM parent_registrations
+      WHERE ($1::text IS NULL OR parent_name ILIKE $1 OR email::text ILIKE $1 OR child_name ILIKE $1)
+        AND ($2::registration_status IS NULL OR status = $2)
+        AND ($3::varchar IS NULL OR grade_level = $3);
+    `;
+    const res = await db.query(text, [searchPattern, status, grade_level]);
+    return res.rows[0]?.count || 0;
+  },
+
   async updateStatus(id, status) {
     const text = `
       UPDATE parent_registrations
-      SET status = $1, updated_at = NOW()
-      WHERE id = $2 AND deleted_at IS NULL
+      SET status = $1::registration_status, updated_at = now()
+      WHERE id = $2
       RETURNING *;
     `;
     const res = await db.query(text, [status, id]);
     return res.rows[0] || null;
   },
 
-  /**
-   * Count total active parent registrations
-   */
-  async countAll() {
-    const text = `SELECT COUNT(*)::int AS count FROM parent_registrations WHERE deleted_at IS NULL;`;
+  async countByStatus() {
+    const text = `
+      SELECT status, COUNT(*)::int AS count
+      FROM parent_registrations
+      GROUP BY status
+      ORDER BY
+        CASE status
+          WHEN 'new' THEN 1
+          WHEN 'contacted' THEN 2
+          WHEN 'matched' THEN 3
+          WHEN 'closed' THEN 4
+        END;
+    `;
     const res = await db.query(text);
-    return res.rows[0]?.count || 0;
+    return res.rows;
+  },
+
+  findWithFilters(args) {
+    return this.findAll(args);
+  },
+
+  countWithFilters(args) {
+    return this.countAll(args);
   },
 };
 
