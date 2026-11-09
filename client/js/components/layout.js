@@ -297,223 +297,145 @@ export function initLayout(activeKey = '') {
 export function initPortalLayout() {
   const host = document.getElementById('portal-header');
   if (!host) return;
+
   const role = window.location.pathname.includes('/admin/') ? 'Admin' : 'Mentor';
   const identityId = role === 'Admin' ? 'admin-user-display' : 'mentor-display';
   const identityText = role === 'Admin' ? 'Admin' : 'Mentor';
-  const header = document.createElement('div');
-  header.className = 'container header-inner portal-header-inner';
-  const logo = makeBrandMark('brand-logo');
-  logo.href = '/public/index.html';
-  header.appendChild(logo);
-  const layout = document.querySelector('.portal-layout');
-  const navItems =
-    role === 'Admin'
-      ? [
-          [
-            '/admin/index.html#overview',
-            'Overview',
-            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>',
-          ],
-          [
-            '/admin/index.html#parents',
-            'Parents',
-            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>',
-          ],
-          [
-            '/admin/index.html#mentors',
-            'Mentor Applications',
-            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M22 10v6M2 10l10-5 10 5-10 5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>',
-          ],
-          [
-            '/admin/index.html#inquiries',
-            'Inquiries',
-            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-4a2 2 0 00-2 2v1a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1a2 2 0 00-2-2H4"/></svg>',
-          ],
-          [
-            '/admin/index.html#reports',
-            'Support Reports',
-            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>',
-          ],
-        ]
-      : [
-          [
-            '/mentor/profile.html',
-            'My Profile',
-            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>',
-          ],
-          [
-            '/mentor/report.html',
-            'Submit Support Report',
-            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>',
-          ],
-        ];
+  const isLoginPage = window.location.pathname.endsWith('/login.html');
 
-  if (layout) {
-    const currentPage = window.location.pathname;
-    const currentHash = window.location.hash || '#overview';
-    const aside = document.createElement('aside');
-    aside.className = 'portal-sidebar';
-    aside.id = 'portal-navigation';
+  // Top Bar Outer
+  const topBar = document.createElement('div');
+  topBar.className = 'portal-top-bar';
 
-    // Top section: Brand / Dashboard title (Matching Image 2 ADMIN PANEL header)
-    const brandDiv = document.createElement('div');
-    brandDiv.className = 'sidebar-brand';
-    brandDiv.innerHTML = `
-      <svg class="portal-brand-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-        <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-        <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-      </svg>
-      <span class="sidebar-title">${role === 'Admin' ? 'ADMIN PANEL' : 'MENTOR PORTAL'}</span>
-    `;
-    aside.appendChild(brandDiv);
+  // Inner Container
+  const inner = document.createElement('div');
+  inner.className = 'container portal-header-inner';
 
-    // Nav list with icons
-    const nav = document.createElement('nav');
-    nav.setAttribute('aria-label', `${role} navigation`);
-    const list = document.createElement('ul');
-    list.className = 'portal-nav';
-    navItems.forEach(([href, label, iconSvg]) => {
-      const item = document.createElement('li');
-      const link = document.createElement('a');
-      link.href = href;
-      link.innerHTML = `${iconSvg}<span>${label}</span>`;
-      const targetHash = href.includes('#') ? '#' + href.split('#')[1] : '';
-      const isCurrentPage =
-        href.split('#')[0] === currentPage ||
-        (href.startsWith('/admin/index.html') &&
-          (currentPage.endsWith('/admin/') || currentPage.endsWith('/admin/index.html')));
+  // Left Brand Area: Logo + Role Tag
+  const brandWrap = document.createElement('div');
+  brandWrap.className = 'portal-brand-wrap';
+  const logoHref = isLoginPage
+    ? '#'
+    : role === 'Admin'
+      ? '/admin/index.html'
+      : '/mentor/profile.html';
+  const logo = makeLogo('brand-logo', logoHref);
+  const roleTag = document.createElement('span');
+  roleTag.className = 'portal-role-tag';
+  roleTag.textContent = `${role} Portal`;
+  brandWrap.append(logo, roleTag);
 
-      if (targetHash && isCurrentPage && targetHash === currentHash) {
-        link.classList.add('active');
-        link.setAttribute('aria-current', 'page');
-      } else if (!targetHash && isCurrentPage) {
-        link.classList.add('active');
-        link.setAttribute('aria-current', 'page');
-      }
+  inner.appendChild(brandWrap);
 
-      link.addEventListener('click', () => {
-        list.querySelectorAll('a').forEach(a => {
-          a.classList.remove('active');
-          a.removeAttribute('aria-current');
-        });
-        link.classList.add('active');
-        link.setAttribute('aria-current', 'page');
-      });
+  // Right Controls: User Name + Logout Button
+  if (!isLoginPage) {
+    const controls = document.createElement('div');
+    controls.className = 'portal-header-controls';
 
-      item.appendChild(link);
-      list.appendChild(item);
-    });
-    nav.appendChild(list);
-    aside.appendChild(nav);
-
-    // Bottom section: User Info & Logout
     const user = auth.getUser();
-    const userEmail = user?.email || identityText;
-    const initial = (user?.name || userEmail)[0]?.toUpperCase() || 'U';
+    const userEmail = user?.name || user?.email || identityText;
 
-    const userFooter = document.createElement('div');
-    userFooter.className = 'sidebar-user-footer';
-
-    const userInfo = document.createElement('div');
-    userInfo.className = 'sidebar-user-info';
-
-    const avatar = document.createElement('div');
-    avatar.className = 'sidebar-avatar';
-    avatar.setAttribute('aria-hidden', 'true');
-    avatar.textContent = initial;
-
-    const userMeta = document.createElement('div');
-    userMeta.className = 'sidebar-user-meta';
-
-    const userNameSpan = document.createElement('span');
-    userNameSpan.className = 'sidebar-user-name';
-    userNameSpan.title = userEmail;
-    userNameSpan.textContent = userEmail;
-
-    const userRoleSpan = document.createElement('span');
-    userRoleSpan.className = 'sidebar-user-role';
-    userRoleSpan.textContent = role;
-
-    userMeta.append(userNameSpan, userRoleSpan);
-    userInfo.append(avatar, userMeta);
+    const identitySpan = document.createElement('span');
+    identitySpan.id = identityId;
+    identitySpan.className = 'portal-user-name';
+    identitySpan.textContent = userEmail;
+    controls.appendChild(identitySpan);
 
     const logoutBtn = document.createElement('button');
     logoutBtn.type = 'button';
-    logoutBtn.className = 'sidebar-logout-btn';
-    logoutBtn.textContent = 'Log out';
+    logoutBtn.id = 'logout-btn';
+    logoutBtn.className = 'btn btn-outline btn-sm';
+    logoutBtn.textContent = role === 'Admin' ? 'Logout' : 'Sign Out';
     logoutBtn.addEventListener('click', () => {
       auth.logout(role === 'Admin' ? '/admin/login.html' : '/mentor/login.html');
     });
+    controls.appendChild(logoutBtn);
 
-    userFooter.append(userInfo, logoutBtn);
-    aside.appendChild(userFooter);
-
-    layout.querySelector('.portal-sidebar')?.remove();
-    layout.insertBefore(aside, layout.querySelector('.portal-main'));
-
-    // Mobile Hamburger
-    const menu = document.createElement('button');
-    menu.type = 'button';
-    menu.className = 'portal-menu-toggle';
-    menu.setAttribute('aria-expanded', 'false');
-    menu.setAttribute('aria-controls', 'portal-navigation');
-    menu.textContent = 'Menu';
-    menu.addEventListener('click', () => {
-      const open = menu.getAttribute('aria-expanded') !== 'true';
-      menu.setAttribute('aria-expanded', String(open));
-      aside.classList.toggle('is-open', open);
-    });
-    header.appendChild(menu);
-
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && aside.classList.contains('is-open')) {
-        aside.classList.remove('is-open');
-        menu.setAttribute('aria-expanded', 'false');
-        menu.focus();
-      }
-    });
-
-    document.addEventListener('click', event => {
-      if (
-        aside.classList.contains('is-open') &&
-        !aside.contains(event.target) &&
-        !menu.contains(event.target)
-      ) {
-        aside.classList.remove('is-open');
-        menu.setAttribute('aria-expanded', 'false');
-      }
-    });
+    inner.appendChild(controls);
   }
 
-  const controls = document.createElement('div');
-  controls.className = 'portal-header-controls';
-  const badge = document.createElement('span');
-  badge.className = 'brand-tag portal-role-tag';
-  badge.textContent = `${role} Portal`;
-  controls.appendChild(badge);
-  if (!window.location.pathname.endsWith('/login.html')) {
-    const identity = document.createElement('span');
-    identity.id = identityId;
-    identity.textContent = identityText;
-    controls.appendChild(identity);
-    const logout = document.createElement('button');
-    logout.type = 'button';
-    logout.id = 'logout-btn';
-    logout.className = 'btn btn-outline btn-sm';
-    logout.textContent = role === 'Admin' ? 'Logout' : 'Sign Out';
-    controls.appendChild(logout);
-    logout.addEventListener('click', () =>
-      auth.logout(role === 'Admin' ? '/admin/login.html' : '/mentor/login.html')
-    );
+  topBar.appendChild(inner);
+
+  const headerFragments = [topBar];
+
+  // Tab Navigation Bar under top bar
+  if (!isLoginPage) {
+    const tabsBar = document.createElement('nav');
+    tabsBar.className = 'portal-tabs-bar';
+    tabsBar.setAttribute('aria-label', `${role} Portal Navigation`);
+
+    const tabsContainer = document.createElement('div');
+    tabsContainer.className = 'container';
+
+    const tabsList = document.createElement('ul');
+    tabsList.className = 'portal-nav';
+
+    if (role === 'Admin') {
+      const adminTabs = [
+        ['#overview', 'Overview'],
+        ['#parents', 'Parents'],
+        ['#mentors', 'Mentor Applications'],
+        ['#inquiries', 'Inquiries'],
+        ['#reports', 'Support Reports'],
+      ];
+      const currentHash = window.location.hash || '#overview';
+
+      adminTabs.forEach(([href, label]) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = href;
+        a.className = 'portal-tab-link';
+        a.textContent = label;
+        if (href === currentHash) {
+          a.classList.add('active');
+          a.setAttribute('aria-current', 'page');
+        }
+        li.appendChild(a);
+        tabsList.appendChild(li);
+      });
+    } else {
+      const mentorTabs = [
+        ['/mentor/profile.html', 'My Profile'],
+        ['/mentor/report.html', 'Submit Student Report'],
+      ];
+      const currentPath = window.location.pathname;
+
+      mentorTabs.forEach(([href, label]) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = href;
+        a.className = 'portal-tab-link';
+        a.textContent = label;
+        if (
+          currentPath.includes(href) ||
+          (href.includes('profile') && currentPath.endsWith('/mentor/'))
+        ) {
+          a.classList.add('active');
+          a.setAttribute('aria-current', 'page');
+        }
+        li.appendChild(a);
+        tabsList.appendChild(li);
+      });
+    }
+
+    tabsContainer.appendChild(tabsList);
+    tabsBar.appendChild(tabsContainer);
+    headerFragments.push(tabsBar);
   }
-  header.appendChild(controls);
-  host.replaceChildren(header);
-  if (window.location.pathname.endsWith('/login.html')) {
-    document
-      .querySelector('.admin-login-card')
-      ?.prepend(makeLogo('brand-logo login-brand-logo', '../public/index.html'));
+
+  host.replaceChildren(...headerFragments);
+
+  // Clean up any old sidebar if present in the page
+  const layout = document.querySelector('.portal-layout');
+  layout?.querySelector('.portal-sidebar')?.remove();
+
+  // If on login page, prepend the logo inside the login card
+  if (isLoginPage) {
+    const card = document.querySelector('.admin-login-card');
+    if (card && !card.querySelector('.login-brand-logo')) {
+      card.prepend(makeLogo('brand-logo login-brand-logo', '#'));
+    }
   }
+
   loadLogoMarks();
 }

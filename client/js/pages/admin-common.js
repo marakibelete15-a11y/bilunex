@@ -46,12 +46,75 @@ export function table(host, headers, rows, empty = 'No records found.') {
 export function cell(value) {
   return el('td', value ?? '—');
 }
+export const STATUS_LABELS = {
+  // Parent registrations
+  new: 'New',
+  contacted: 'Contacted',
+  matched: 'Matched',
+  closed: 'Closed',
+
+  // Mentor applications
+  application_received: 'Received',
+  under_review: 'Under review',
+  interview_stage: 'Interview',
+  accepted: 'Accepted',
+  onboarding: 'Onboarding',
+  rejected: 'Rejected',
+
+  // Inquiries
+  in_progress: 'In progress',
+  resolved: 'Resolved',
+
+  // Mentor account / general
+  active: 'Active',
+  inactive: 'Inactive',
+  pending: 'Pending',
+};
+
+export const STATUS_CLASSES = {
+  // Green pill (Success): matched, accepted, active, resolved
+  matched: 'status-success',
+  accepted: 'status-success',
+  active: 'status-success',
+  resolved: 'status-success',
+
+  // Amber/Orange pill (Warning): new, application_received, under_review, pending
+  new: 'status-warning',
+  application_received: 'status-warning',
+  under_review: 'status-warning',
+  pending: 'status-warning',
+
+  // Blue pill (Info): contacted, interview_stage, onboarding, in_progress
+  contacted: 'status-info',
+  interview_stage: 'status-info',
+  onboarding: 'status-info',
+  in_progress: 'status-info',
+
+  // Red/Coral pill (Danger): closed, rejected, inactive
+  closed: 'status-danger',
+  rejected: 'status-danger',
+  inactive: 'status-danger',
+};
+
+export function getStatusLabel(rawStatus) {
+  if (!rawStatus) return '—';
+  const key = String(rawStatus).toLowerCase().trim();
+  return STATUS_LABELS[key] || String(rawStatus).replace(/_/g, ' ');
+}
+
+export function createStatusBadge(rawStatus) {
+  const badge = document.createElement('span');
+  const normalized = String(rawStatus || '')
+    .toLowerCase()
+    .trim();
+  const semanticClass = STATUS_CLASSES[normalized] || 'status-neutral';
+  badge.className = `status-badge ${semanticClass} status-${normalized.replace(/_/g, '-')}`;
+  badge.textContent = getStatusLabel(normalized);
+  return badge;
+}
+
 export function statusBadge(value) {
-  return el(
-    'span',
-    value || 'unknown',
-    `status-badge status-${String(value || '').replaceAll('_', '-')}`
-  );
+  return createStatusBadge(value);
 }
 export function dateText(value) {
   return value ? new Date(value).toLocaleString() : '—';

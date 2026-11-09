@@ -12,6 +12,7 @@ if (setupMentor()) {
     button.disabled = true;
 
     try {
+      const formData = new FormData(form);
       const need =
         formData.get('support_need_observed')?.trim() || formData.get('support_need')?.trim();
       const payload = {

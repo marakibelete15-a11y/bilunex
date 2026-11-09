@@ -1,5 +1,6 @@
 import { api, ApiError } from '../api.js';
 import { initPortalLayout } from '../components/layout.js';
+import { createStatusBadge, getStatusLabel } from './admin-common.js';
 
 try {
   initPortalLayout();
@@ -73,6 +74,44 @@ function openModal(title, contentNodes = [], footerNodes = []) {
 }
 
 // ---------------------------------------------------------------------------
+// Empty State Helper
+// ---------------------------------------------------------------------------
+function createEmptyStateRow(colSpan, messageText) {
+  const tr = document.createElement('tr');
+  const td = document.createElement('td');
+  td.colSpan = colSpan;
+  td.className = 'empty-state-cell';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'empty-state';
+
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '1.5');
+  icon.setAttribute('aria-hidden', 'true');
+  icon.classList.add('empty-state-icon');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('stroke-linecap', 'round');
+  path.setAttribute('stroke-linejoin', 'round');
+  path.setAttribute(
+    'd',
+    'M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-4a2 2 0 00-2 2v1a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1a2 2 0 00-2-2H4'
+  );
+  icon.appendChild(path);
+
+  const p = document.createElement('p');
+  p.className = 'empty-state-text';
+  p.textContent = messageText;
+
+  wrap.append(icon, p);
+  td.appendChild(wrap);
+  tr.appendChild(td);
+  return tr;
+}
+
+// ---------------------------------------------------------------------------
 // Tab 1: Overview
 // ---------------------------------------------------------------------------
 const statsState = document.getElementById('stats-state');
@@ -82,8 +121,12 @@ function createStatCard(title, mainNumber, details = []) {
   const card = document.createElement('article');
   card.className = 'card stat-card';
 
+  const header = document.createElement('div');
+  header.className = 'stat-card-header';
   const h3 = document.createElement('h3');
+  h3.className = 'stat-card-title';
   h3.textContent = title;
+  header.appendChild(h3);
 
   const count = document.createElement('div');
   count.className = 'stat-count';
@@ -91,18 +134,40 @@ function createStatCard(title, mainNumber, details = []) {
 
   const ul = document.createElement('ul');
   ul.className = 'stat-details-list';
-  details.forEach(([lbl, val]) => {
+  details.forEach(item => {
     const li = document.createElement('li');
-    const spanLabel = document.createElement('span');
-    spanLabel.textContent = lbl;
-    const spanVal = document.createElement('strong');
-    spanVal.textContent = String(val);
-    li.append(spanLabel, spanVal);
+    li.className = 'stat-detail-row';
+
+    const labelSpan = item.status ? createStatusBadge(item.status) : document.createElement('span');
+    if (!item.status) {
+      labelSpan.className = 'stat-detail-label';
+      labelSpan.textContent = item.label;
+    }
+
+    const valStrong = document.createElement('strong');
+    valStrong.className = 'stat-detail-count';
+    valStrong.textContent = String(item.count);
+
+    li.append(labelSpan, valStrong);
     ul.appendChild(li);
   });
 
-  card.append(h3, count, ul);
+  card.append(header, count, ul);
   return card;
+}
+
+function extractStatusCounts(data) {
+  const counts = {};
+  if (Array.isArray(data)) {
+    data.forEach(item => {
+      if (item && item.status) counts[item.status] = Number(item.count) || 0;
+    });
+  } else if (data && typeof data === 'object') {
+    Object.entries(data).forEach(([key, val]) => {
+      counts[key] = Number(val) || 0;
+    });
+  }
+  return counts;
 }
 
 async function loadStats() {
@@ -112,50 +177,70 @@ async function loadStats() {
     const stats = res.data || {};
     summaryCards.replaceChildren();
 
-    const pByStatus = stats.registrationsByStatus || {};
-    const pTotal = Object.values(pByStatus).reduce((a, b) => a + Number(b), 0);
+    // 1. Parent Registrations (new, contacted, matched, closed)
+    const pByStatus = extractStatusCounts(
+      stats.parent_registrations || stats.registrationsByStatus
+    );
+    const pStatuses = [
+      ['new', 'New'],
+      ['contacted', 'Contacted'],
+      ['matched', 'Matched'],
+      ['closed', 'Closed'],
+    ];
+    const pTotal = pStatuses.reduce((sum, [st]) => sum + (pByStatus[st] || 0), 0);
+    const pDetails = pStatuses.map(([st, label]) => ({
+      status: st,
+      label,
+      count: pByStatus[st] || 0,
+    }));
+    summaryCards.appendChild(createStatCard('Parent Registrations', pTotal, pDetails));
+
+    // 2. Mentor Applications (application_received, under_review, interview_stage, accepted, onboarding, rejected)
+    const mByStatus = extractStatusCounts(stats.mentor_applications || stats.applicationsByStatus);
+    const mStatuses = [
+      ['application_received', 'Received'],
+      ['under_review', 'Under review'],
+      ['interview_stage', 'Interview'],
+      ['accepted', 'Accepted'],
+      ['onboarding', 'Onboarding'],
+      ['rejected', 'Rejected'],
+    ];
+    const mTotal = mStatuses.reduce((sum, [st]) => sum + (mByStatus[st] || 0), 0);
+    const mDetails = mStatuses.map(([st, label]) => ({
+      status: st,
+      label,
+      count: mByStatus[st] || 0,
+    }));
+    summaryCards.appendChild(createStatCard('Mentor Applications', mTotal, mDetails));
+
+    // 3. Public Inquiries (new, in_progress, resolved)
+    const iByStatus = extractStatusCounts(stats.inquiries || stats.inquiriesByStatus);
+    const iStatuses = [
+      ['new', 'New'],
+      ['in_progress', 'In progress'],
+      ['resolved', 'Resolved'],
+    ];
+    const iTotal = iStatuses.reduce((sum, [st]) => sum + (iByStatus[st] || 0), 0);
+    const iDetails = iStatuses.map(([st, label]) => ({
+      status: st,
+      label,
+      count: iByStatus[st] || 0,
+    }));
+    summaryCards.appendChild(createStatCard('Public Inquiries', iTotal, iDetails));
+
+    // 4. Student Reports
+    const reportsTotal = Number(stats.support_reports_count ?? stats.totalReports ?? 0);
     summaryCards.appendChild(
-      createStatCard('Parent Registrations', pTotal, [
-        ['Received', pByStatus.received || 0],
-        ['Contacted', pByStatus.contacted || 0],
-        ['Matched', pByStatus.matched || 0],
-        ['Enrolled', pByStatus.enrolled || 0],
-        ['Closed', pByStatus.closed || 0],
+      createStatCard('Student Reports', reportsTotal, [
+        { label: 'Total Filed', count: reportsTotal },
       ])
     );
 
-    const mByStatus = stats.applicationsByStatus || {};
-    const mTotal = Object.values(mByStatus).reduce((a, b) => a + Number(b), 0);
+    // 5. Active Mentors
+    const mentorsTotal = Number(stats.active_mentors ?? stats.totalActiveMentors ?? 0);
     summaryCards.appendChild(
-      createStatCard('Mentor Applications', mTotal, [
-        ['Received', mByStatus.application_received || 0],
-        ['Screening', mByStatus.screening || 0],
-        ['Accepted', mByStatus.accepted || 0],
-        ['Onboarding', mByStatus.onboarding || 0],
-        ['Rejected', mByStatus.rejected || 0],
-      ])
-    );
-
-    const iByStatus = stats.inquiriesByStatus || {};
-    const iTotal = Object.values(iByStatus).reduce((a, b) => a + Number(b), 0);
-    summaryCards.appendChild(
-      createStatCard('Public Inquiries', iTotal, [
-        ['New', iByStatus.new || 0],
-        ['In Progress', iByStatus.in_progress || 0],
-        ['Resolved', iByStatus.resolved || 0],
-        ['Closed', iByStatus.closed || 0],
-      ])
-    );
-
-    summaryCards.appendChild(
-      createStatCard('Student Reports', stats.totalReports || 0, [
-        ['Total Filed', stats.totalReports || 0],
-      ])
-    );
-
-    summaryCards.appendChild(
-      createStatCard('Active Mentors', stats.totalActiveMentors || 0, [
-        ['Activated Accounts', stats.totalActiveMentors || 0],
+      createStatCard('Active Mentors', mentorsTotal, [
+        { label: 'Activated Accounts', count: mentorsTotal, status: 'matched' },
       ])
     );
 
@@ -222,12 +307,7 @@ async function loadParents(page = 1) {
     const pagination = res.data?.pagination || {};
 
     if (items.length === 0) {
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.colSpan = 7;
-      td.textContent = 'No parent registrations found.';
-      tr.appendChild(td);
-      parentsTbody.appendChild(tr);
+      parentsTbody.appendChild(createEmptyStateRow(7, 'No parent registrations found.'));
     } else {
       items.forEach(r => {
         const tr = document.createElement('tr');
@@ -249,10 +329,7 @@ async function loadParents(page = 1) {
         tdContact.textContent = contactArr.join(' · ');
 
         const tdStatus = document.createElement('td');
-        const badge = document.createElement('span');
-        badge.className = `badge status-badge badge-${r.status}`;
-        badge.textContent = r.status;
-        tdStatus.appendChild(badge);
+        tdStatus.appendChild(createStatusBadge(r.status));
 
         const tdActions = document.createElement('td');
         const updateBtn = document.createElement('button');
@@ -291,7 +368,7 @@ function openUpdateParentModal(registration) {
   ['new', 'contacted', 'matched', 'closed'].forEach(st => {
     const opt = document.createElement('option');
     opt.value = st;
-    opt.textContent = st;
+    opt.textContent = getStatusLabel(st);
     if (st === registration.status) opt.selected = true;
     select.appendChild(opt);
   });
@@ -304,7 +381,7 @@ function openUpdateParentModal(registration) {
 
   const saveBtn = document.createElement('button');
   saveBtn.type = 'button';
-  saveBtn.className = 'btn btn-primary';
+  saveBtn.className = 'btn btn-accent';
   saveBtn.textContent = 'Save Status';
   saveBtn.addEventListener('click', async () => {
     saveBtn.disabled = true;
@@ -363,12 +440,7 @@ async function loadMentors(page = 1) {
     const pagination = res.data?.pagination || {};
 
     if (items.length === 0) {
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.colSpan = 6;
-      td.textContent = 'No mentor applications found.';
-      tr.appendChild(td);
-      mentorsTbody.appendChild(tr);
+      mentorsTbody.appendChild(createEmptyStateRow(6, 'No mentor applications found.'));
     } else {
       items.forEach(m => {
         const tr = document.createElement('tr');
@@ -387,10 +459,7 @@ async function loadMentors(page = 1) {
         tdContact.textContent = contactArr.join(' · ');
 
         const tdStage = document.createElement('td');
-        const badge = document.createElement('span');
-        badge.className = `badge status-badge badge-${m.status}`;
-        badge.textContent = m.status;
-        tdStage.appendChild(badge);
+        tdStage.appendChild(createStatusBadge(m.status));
 
         const tdActions = document.createElement('td');
         tdActions.className = 'action-buttons-group';
@@ -461,7 +530,7 @@ async function openViewMentorModal(applicationId) {
     addRow('Available Hours', m.available_hours);
     addRow('Available Days', m.available_days);
     addRow('Motivation', m.motivation);
-    addRow('Current Stage', m.status);
+    addRow('Current Stage', getStatusLabel(m.status));
     addRow('Notes', m.notes);
 
     const closeBtn = document.createElement('button');
@@ -500,7 +569,7 @@ function openUpdateMentorStageModal(application) {
   ].forEach(st => {
     const opt = document.createElement('option');
     opt.value = st;
-    opt.textContent = st;
+    opt.textContent = getStatusLabel(st);
     if (st === application.status) opt.selected = true;
     select.appendChild(opt);
   });
@@ -524,7 +593,7 @@ function openUpdateMentorStageModal(application) {
 
   const saveBtn = document.createElement('button');
   saveBtn.type = 'button';
-  saveBtn.className = 'btn btn-primary';
+  saveBtn.className = 'btn btn-accent';
   saveBtn.textContent = 'Save Stage & Notes';
   saveBtn.addEventListener('click', async () => {
     saveBtn.disabled = true;
@@ -642,12 +711,7 @@ async function loadInquiries(page = 1) {
     const pagination = res.data?.pagination || {};
 
     if (items.length === 0) {
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.colSpan = 7;
-      td.textContent = 'No inquiries found.';
-      tr.appendChild(td);
-      inquiriesTbody.appendChild(tr);
+      inquiriesTbody.appendChild(createEmptyStateRow(7, 'No inquiries found.'));
     } else {
       items.forEach(inq => {
         const tr = document.createElement('tr');
@@ -669,10 +733,7 @@ async function loadInquiries(page = 1) {
         tdContact.textContent = [inq.email, inq.phone].filter(Boolean).join(' · ');
 
         const tdStatus = document.createElement('td');
-        const badge = document.createElement('span');
-        badge.className = `badge status-badge badge-${inq.status}`;
-        badge.textContent = inq.status;
-        tdStatus.appendChild(badge);
+        tdStatus.appendChild(createStatusBadge(inq.status));
 
         const tdActions = document.createElement('td');
         const viewBtn = document.createElement('button');
@@ -731,7 +792,7 @@ function openInquiryModal(inq) {
   ['new', 'in_progress', 'resolved'].forEach(st => {
     const opt = document.createElement('option');
     opt.value = st;
-    opt.textContent = st;
+    opt.textContent = getStatusLabel(st);
     if (st === inq.status) opt.selected = true;
     select.appendChild(opt);
   });
@@ -744,7 +805,7 @@ function openInquiryModal(inq) {
 
   const saveBtn = document.createElement('button');
   saveBtn.type = 'button';
-  saveBtn.className = 'btn btn-primary';
+  saveBtn.className = 'btn btn-accent';
   saveBtn.textContent = 'Save Status';
   saveBtn.addEventListener('click', async () => {
     saveBtn.disabled = true;
@@ -797,12 +858,7 @@ async function loadReports(page = 1) {
     const pagination = res.data?.pagination || {};
 
     if (items.length === 0) {
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.colSpan = 5;
-      td.textContent = 'No support reports submitted yet.';
-      tr.appendChild(td);
-      reportsTbody.appendChild(tr);
+      reportsTbody.appendChild(createEmptyStateRow(5, 'No support reports submitted yet.'));
     } else {
       items.forEach(rep => {
         const tr = document.createElement('tr');
@@ -864,15 +920,17 @@ async function openViewReportModal(reportId) {
     addRow('Support Need', rep.support_need);
 
     const obsTitle = document.createElement('h3');
+    obsTitle.className = 'report-section-title';
     obsTitle.textContent = 'Observations:';
     const obsP = document.createElement('p');
-    obsP.className = 'card';
+    obsP.className = 'report-detail-card';
     obsP.textContent = rep.observations;
 
     const actTitle = document.createElement('h3');
+    actTitle.className = 'report-section-title';
     actTitle.textContent = 'Recommended Action:';
     const actP = document.createElement('p');
-    actP.className = 'card';
+    actP.className = 'report-detail-card';
     actP.textContent = rep.recommended_action || 'None specified';
 
     container.append(obsTitle, obsP, actTitle, actP);

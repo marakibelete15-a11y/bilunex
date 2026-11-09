@@ -1,5 +1,6 @@
 import { api, ApiError } from '../api.js';
 import { setupMentor, showMessage } from './mentor-common.js';
+import { createStatusBadge } from './admin-common.js';
 
 if (setupMentor()) {
   const profileFeedback = document.getElementById('profile-feedback');
@@ -25,11 +26,7 @@ if (setupMentor()) {
 
     const statusEl = document.getElementById('profile-status');
     if (statusEl) {
-      statusEl.replaceChildren();
-      const badge = document.createElement('span');
-      badge.className = `badge status-badge badge-${profile.account_status || 'active'}`;
-      badge.textContent = profile.account_status || 'active';
-      statusEl.appendChild(badge);
+      statusEl.replaceChildren(createStatusBadge(profile.account_status || 'active'));
     }
 
     document.getElementById('profile-university').textContent = profile.university || '—';
