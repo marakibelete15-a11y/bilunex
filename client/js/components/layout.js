@@ -244,12 +244,6 @@ export function renderFooter() {
     entry.appendChild(link);
     linkList.appendChild(entry);
   });
-  const storyEntry = document.createElement('li');
-  const storyLink = document.createElement('a');
-  storyLink.href = 'share-your-story.html';
-  storyLink.textContent = 'Share Your Story';
-  storyEntry.appendChild(storyLink);
-  linkList.appendChild(storyEntry);
   links.append(linksTitle, linkList);
   grid.appendChild(links);
 
@@ -276,9 +270,6 @@ export function renderFooter() {
   addContactLink('Phone', phone);
   const location = document.createElement('p');
   location.textContent = `Location: ${siteInfo.address}`;
-  const mentorLogin = document.createElement('a');
-  mentorLogin.href = '../mentor/login.html';
-  mentorLogin.textContent = 'Mentor portal login';
   const telegram = document.createElement('a');
   telegram.href = siteInfo.telegramUrl;
   telegram.textContent = siteInfo.telegram;
@@ -286,33 +277,6 @@ export function renderFooter() {
   addContactLink('Telegram', telegram);
   contact.append(contactTitle, contactList, location);
   grid.appendChild(contact);
-
-  const mentors = document.createElement('div');
-  mentors.className = 'footer-col footer-mentors';
-  const mentorsTitle = document.createElement('h2');
-  mentorsTitle.textContent = 'For mentors';
-  const mentorList = document.createElement('ul');
-  mentorList.className = 'footer-nav-list';
-  const mentorEntry = document.createElement('li');
-  mentorEntry.appendChild(mentorLogin);
-  mentorList.appendChild(mentorEntry);
-  mentors.append(mentorsTitle, mentorList);
-  grid.appendChild(mentors);
-
-  const admin = document.createElement('div');
-  admin.className = 'footer-col footer-admin';
-  const adminTitle = document.createElement('h2');
-  adminTitle.textContent = 'For administrators';
-  const adminList = document.createElement('ul');
-  adminList.className = 'footer-nav-list';
-  const adminEntry = document.createElement('li');
-  const adminLogin = document.createElement('a');
-  adminLogin.href = '../admin/login.html';
-  adminLogin.textContent = 'Admin portal login';
-  adminEntry.appendChild(adminLogin);
-  adminList.appendChild(adminEntry);
-  admin.append(adminTitle, adminList);
-  grid.appendChild(admin);
 
   const bottom = document.createElement('div');
   bottom.className = 'footer-bottom';
@@ -346,37 +310,32 @@ export function initPortalLayout() {
     role === 'Admin'
       ? [
           [
-            '/admin/index.html',
+            '/admin/index.html#overview',
             'Overview',
             '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>',
           ],
           [
-            '/admin/registrations.html',
+            '/admin/index.html#parents',
             'Parents',
             '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>',
           ],
           [
-            '/admin/applications.html',
+            '/admin/index.html#mentors',
             'Mentor Applications',
             '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M22 10v6M2 10l10-5 10 5-10 5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/></svg>',
           ],
           [
-            '/admin/inquiries.html',
+            '/admin/index.html#inquiries',
             'Inquiries',
             '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-4a2 2 0 00-2 2v1a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1a2 2 0 00-2-2H4"/></svg>',
           ],
           [
-            '/admin/reports.html',
+            '/admin/index.html#reports',
             'Support Reports',
             '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>',
           ],
         ]
       : [
-          [
-            '/mentor/index.html',
-            'Dashboard',
-            '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>',
-          ],
           [
             '/mentor/profile.html',
             'My Profile',
@@ -384,13 +343,14 @@ export function initPortalLayout() {
           ],
           [
             '/mentor/report.html',
-            'Student Support Reports',
+            'Submit Support Report',
             '<svg class="portal-nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>',
           ],
         ];
 
   if (layout) {
     const currentPage = window.location.pathname;
+    const currentHash = window.location.hash || '#overview';
     const aside = document.createElement('aside');
     aside.className = 'portal-sidebar';
     aside.id = 'portal-navigation';
@@ -419,14 +379,29 @@ export function initPortalLayout() {
       const link = document.createElement('a');
       link.href = href;
       link.innerHTML = `${iconSvg}<span>${label}</span>`;
-      if (
-        href === currentPage ||
-        (href.endsWith('/index.html') &&
-          (currentPage.endsWith('/admin/') || currentPage.endsWith('/mentor/')))
-      ) {
+      const targetHash = href.includes('#') ? '#' + href.split('#')[1] : '';
+      const isCurrentPage =
+        href.split('#')[0] === currentPage ||
+        (href.startsWith('/admin/index.html') &&
+          (currentPage.endsWith('/admin/') || currentPage.endsWith('/admin/index.html')));
+
+      if (targetHash && isCurrentPage && targetHash === currentHash) {
+        link.classList.add('active');
+        link.setAttribute('aria-current', 'page');
+      } else if (!targetHash && isCurrentPage) {
         link.classList.add('active');
         link.setAttribute('aria-current', 'page');
       }
+
+      link.addEventListener('click', () => {
+        list.querySelectorAll('a').forEach(a => {
+          a.classList.remove('active');
+          a.removeAttribute('aria-current');
+        });
+        link.classList.add('active');
+        link.setAttribute('aria-current', 'page');
+      });
+
       item.appendChild(link);
       list.appendChild(item);
     });

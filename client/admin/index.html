@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Bilunex administrator portal — operations summary." />
-    <title>Overview | Bilunex</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Bilunex Administrator Dashboard" />
+    <title>Admin Dashboard | Bilunex</title>
     <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="../assets/images/apple-touch-icon.png" />
@@ -21,100 +22,246 @@
     <main class="main-content">
       <div class="container portal-layout">
         <section class="portal-main">
-          <header class="page-header">
-            <h1 id="main-heading">Overview</h1>
-            <p>Intake monitoring, screening pipeline counts, and operational summary.</p>
-          </header>
-
-          <section class="card admin-quick-nav-card" aria-label="Intake Channels">
-            <h2>Intake & Record Management</h2>
-            <div class="admin-quick-nav-grid">
-              <a class="quick-nav-item" href="registrations.html">
-                <span class="quick-nav-title">Parents</span>
-                <span class="quick-nav-desc">View, search, and filter student registrations</span>
-                <span class="quick-nav-action">Manage registrations &rarr;</span>
-              </a>
-              <a class="quick-nav-item" href="applications.html">
-                <span class="quick-nav-title">Mentor Applications</span>
-                <span class="quick-nav-desc"
-                  >Screen applicants across 6 stages and activate accounts</span
-                >
-                <span class="quick-nav-action">Review applications &rarr;</span>
-              </a>
-              <a class="quick-nav-item" href="inquiries.html">
-                <span class="quick-nav-title">Inquiries</span>
-                <span class="quick-nav-desc">Review general questions and counseling requests</span>
-                <span class="quick-nav-action">View inquiries &rarr;</span>
-              </a>
-              <a class="quick-nav-item" href="reports.html">
-                <span class="quick-nav-title">Support Reports</span>
-                <span class="quick-nav-desc">Review student help reports submitted by mentors</span>
-                <span class="quick-nav-action">View reports &rarr;</span>
-              </a>
-            </div>
-          </section>
-
-          <section class="dashboard-section">
-            <h2 class="section-title">Operational Summary Metrics</h2>
-            <div id="dashboard-state" role="status" aria-live="polite"></div>
-            <div id="summary-cards" class="admin-summary-grid"></div>
-            <section class="card admin-failure-card">
-              <h2>Failed notifications</h2>
-              <p>
-                Recorded delivery failures in the last 7 days:
-                <strong id="failed-notifications">—</strong>
-              </p>
-            </section>
-          </section>
-
-          <section class="card admin-events-card" aria-label="System Events">
-            <header class="events-header">
-              <div>
-                <h2>All System Events & Activity Stream</h2>
-                <p>
-                  Consolidated chronological feed across parent registrations, mentor applications,
-                  inquiries, stories, and student reports.
-                </p>
-              </div>
+          <!-- Overview Tab -->
+          <section id="tab-overview" class="admin-tab-content">
+            <header class="page-header">
+              <h1 id="main-heading">Overview</h1>
+              <p>Operational summary, intake counts, and screening pipeline metrics.</p>
             </header>
+            <div id="stats-state" role="status" aria-live="polite"></div>
+            <div id="summary-cards" class="admin-summary-grid"></div>
+          </section>
 
-            <form id="events-filter-form" class="admin-filters">
+          <!-- Parents Tab -->
+          <section id="tab-parents" class="admin-tab-content" hidden>
+            <header class="page-header">
+              <h2>Parent &amp; Student Registrations</h2>
+              <p>Review and update incoming student tutoring and mentoring requests.</p>
+            </header>
+            <form id="parents-filter-form" class="admin-filters">
               <label>
-                Event Type
-                <select id="event-type-select" name="event_type">
-                  <option value="all">All event types</option>
-                  <option value="parent_registration">Parent Registrations</option>
-                  <option value="mentor_application">Mentor Applications</option>
-                  <option value="inquiry">Inquiries</option>
-                  <option value="story">Stories</option>
-                  <option value="student_support">Student Support Reports</option>
-                  <option value="notification">System Notifications</option>
+                Status
+                <select id="parents-status-filter" name="status">
+                  <option value="all">All statuses</option>
+                  <option value="new">New</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="matched">Matched</option>
+                  <option value="closed">Closed</option>
                 </select>
               </label>
               <label>
-                Search Events
+                Grade Level
                 <input
-                  id="event-search-input"
-                  name="search"
-                  type="search"
-                  placeholder="Search by name, student, or detail..."
+                  id="parents-grade-filter"
+                  name="grade_level"
+                  type="text"
+                  placeholder="e.g. Grade 10"
                 />
               </label>
-              <button class="btn btn-primary" type="submit">Filter Events</button>
-              <button class="btn btn-outline" type="button" id="events-refresh-btn">Refresh</button>
+              <label>
+                Search
+                <input
+                  id="parents-search"
+                  name="search"
+                  type="search"
+                  placeholder="Parent or child name..."
+                />
+              </label>
+              <button class="btn btn-primary" type="submit">Filter</button>
+              <button class="btn btn-outline" type="button" id="parents-refresh-btn">
+                Refresh
+              </button>
             </form>
-
-            <div id="events-state" role="status" aria-live="polite"></div>
-            <div id="events-table" class="table-responsive"></div>
+            <div id="parents-state" role="status" aria-live="polite"></div>
+            <div class="table-responsive">
+              <table class="data-table" id="parents-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Parent Name</th>
+                    <th>Student Name</th>
+                    <th>Grade</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="parents-tbody"></tbody>
+              </table>
+            </div>
             <nav
-              id="events-pagination"
+              id="parents-pagination"
               class="admin-pagination"
-              aria-label="Events pagination"
+              aria-label="Parents pagination"
+            ></nav>
+          </section>
+
+          <!-- Mentor Applications Tab -->
+          <section id="tab-mentors" class="admin-tab-content" hidden>
+            <header class="page-header">
+              <h2>Mentor Applications &amp; Activation</h2>
+              <p>Screen candidates across recruitment stages and activate approved mentors.</p>
+            </header>
+            <form id="mentors-filter-form" class="admin-filters">
+              <label>
+                Stage
+                <select id="mentors-status-filter" name="status">
+                  <option value="all">All stages</option>
+                  <option value="application_received">Application Received</option>
+                  <option value="under_review">Under Review</option>
+                  <option value="interview_stage">Interview Stage</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="onboarding">Onboarding</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </label>
+              <label>
+                Search
+                <input
+                  id="mentors-search"
+                  name="search"
+                  type="search"
+                  placeholder="Name, university, subject..."
+                />
+              </label>
+              <button class="btn btn-primary" type="submit">Filter</button>
+              <button class="btn btn-outline" type="button" id="mentors-refresh-btn">
+                Refresh
+              </button>
+            </form>
+            <div id="mentors-state" role="status" aria-live="polite"></div>
+            <div class="table-responsive">
+              <table class="data-table" id="mentors-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Full Name</th>
+                    <th>University &amp; Field</th>
+                    <th>Contact</th>
+                    <th>Stage</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="mentors-tbody"></tbody>
+              </table>
+            </div>
+            <nav
+              id="mentors-pagination"
+              class="admin-pagination"
+              aria-label="Mentors pagination"
+            ></nav>
+          </section>
+
+          <!-- Inquiries Tab -->
+          <section id="tab-inquiries" class="admin-tab-content" hidden>
+            <header class="page-header">
+              <h2>Inquiries</h2>
+              <p>Manage general questions, counseling inquiries, and public messages.</p>
+            </header>
+            <form id="inquiries-filter-form" class="admin-filters">
+              <label>
+                Status
+                <select id="inquiries-status-filter" name="status">
+                  <option value="all">All statuses</option>
+                  <option value="new">New</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+              </label>
+              <label>
+                Type
+                <select id="inquiries-type-filter" name="inquiry_type">
+                  <option value="all">All types</option>
+                  <option value="general">General</option>
+                  <option value="parent_support">Parent Support</option>
+                  <option value="mentor_application">Mentor Application</option>
+                  <option value="counseling">Counseling</option>
+                </select>
+              </label>
+              <button class="btn btn-primary" type="submit">Filter</button>
+              <button class="btn btn-outline" type="button" id="inquiries-refresh-btn">
+                Refresh
+              </button>
+            </form>
+            <div id="inquiries-state" role="status" aria-live="polite"></div>
+            <div class="table-responsive">
+              <table class="data-table" id="inquiries-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Message Snippet</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="inquiries-tbody"></tbody>
+              </table>
+            </div>
+            <nav
+              id="inquiries-pagination"
+              class="admin-pagination"
+              aria-label="Inquiries pagination"
+            ></nav>
+          </section>
+
+          <!-- Support Reports Tab -->
+          <section id="tab-reports" class="admin-tab-content" hidden>
+            <header class="page-header">
+              <h2>Student Support Reports</h2>
+              <p>Confidential lesson observations and recommendations filed by active mentors.</p>
+            </header>
+            <div class="admin-filters">
+              <button class="btn btn-outline" type="button" id="reports-refresh-btn">
+                Refresh
+              </button>
+            </div>
+            <div id="reports-state" role="status" aria-live="polite"></div>
+            <div class="table-responsive">
+              <table class="data-table" id="reports-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Student Name</th>
+                    <th>Support Need</th>
+                    <th>Mentor Name</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="reports-tbody"></tbody>
+              </table>
+            </div>
+            <nav
+              id="reports-pagination"
+              class="admin-pagination"
+              aria-label="Reports pagination"
             ></nav>
           </section>
         </section>
       </div>
     </main>
+
+    <!-- Global Accessible Detail Modal -->
+    <dialog id="admin-modal" class="portal-modal">
+      <div class="modal-content card">
+        <header class="modal-header">
+          <h2 id="modal-title">Details</h2>
+          <button
+            type="button"
+            class="btn btn-outline btn-sm modal-close-btn"
+            id="modal-close-btn"
+            aria-label="Close modal"
+          >
+            &times;
+          </button>
+        </header>
+        <div id="modal-body" class="modal-body"></div>
+        <footer id="modal-footer" class="modal-footer"></footer>
+      </div>
+    </dialog>
+
     <script type="module" src="../js/pages/admin-dashboard.js"></script>
   </body>
 </html>

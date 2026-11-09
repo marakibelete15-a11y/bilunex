@@ -12,10 +12,11 @@ if (setupMentor()) {
     button.disabled = true;
 
     try {
-      const formData = new FormData(form);
+      const need =
+        formData.get('support_need_observed')?.trim() || formData.get('support_need')?.trim();
       const payload = {
         student_name: formData.get('student_name')?.trim(),
-        support_need_observed: formData.get('support_need_observed')?.trim(),
+        support_need: need,
         observations: formData.get('observations')?.trim(),
         recommended_action: formData.get('recommended_action')?.trim(),
       };

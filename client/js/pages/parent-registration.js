@@ -16,6 +16,7 @@ let currentStep = 0;
 let submitting = false;
 
 const field = name => form.elements.namedItem(name);
+
 const clearErrors = () => {
   validator.clearFormErrors(form);
   form
@@ -49,88 +50,125 @@ const setStep = index => {
     if (stepIndex === index) item.setAttribute('aria-current', 'step');
     else item.removeAttribute('aria-current');
   });
-  document.getElementById('form-progress-bar').dataset.currentStep = String(index + 1);
+  const progressBar = document.getElementById('form-progress-bar');
+  if (progressBar) progressBar.dataset.currentStep = String(index + 1);
   if (index > 0) steps[index].querySelector('h2')?.focus();
+};
+
+const isValidPhone = val => {
+  if (!val || typeof val !== 'string') return false;
+  const cleaned = val.replace(/[\s\-\(\)\.]/g, '');
+  if (/^0[79]\d{8}$/.test(cleaned)) return true;
+  if (/^\+251[79]\d{8}$/.test(cleaned)) return true;
+  if (/^\+?[1-9]\d{6,14}$/.test(cleaned)) return true;
+  return false;
 };
 
 const validateStep = index => {
   clearErrors();
   const errors = [];
   if (index === 0) {
-    if (!validator.hasMinLength(field('parent_name').value, 2))
+    if (!validator.hasMinLength(field('parent_name').value, 2)) {
       errors.push([
         field('parent_name'),
         'parent_name-error',
         'Enter your full name (at least 2 characters).',
       ]);
-    if (!validator.isValidEmail(field('email').value))
+    }
+    if (!validator.isValidEmail(field('email').value)) {
       errors.push([field('email'), 'email-error', 'Enter a valid email address.']);
-    const phonePattern = /^(\+2519\d{8}|09\d{8})$/;
-    if (!phonePattern.test(field('phone').value.trim()))
-      errors.push([field('phone'), 'phone-error', 'Use +2519XXXXXXXX or 09XXXXXXXX.']);
-    if (
-      field('secondary_phone').value.trim() &&
-      !phonePattern.test(field('secondary_phone').value.trim())
-    )
+    }
+
+    const phoneVal = field('phone').value.trim();
+    const telegramVal = field('telegram_handle').value.trim();
+
+    if (!phoneVal && !telegramVal) {
+      errors.push([
+        field('phone'),
+        'phone-error',
+        'Provide a phone number or telegram handle so we can contact you.',
+      ]);
+    } else if (phoneVal && !isValidPhone(phoneVal)) {
+      errors.push([
+        field('phone'),
+        'phone-error',
+        'Use Ethiopian (+2519..., 09...) or valid international phone format.',
+      ]);
+    }
+
+    const secondaryVal = field('secondary_phone').value.trim();
+    if (secondaryVal && !isValidPhone(secondaryVal)) {
       errors.push([
         field('secondary_phone'),
         'secondary_phone-error',
-        'Use +2519XXXXXXXX or 09XXXXXXXX.',
+        'Use Ethiopian (+2519..., 09...) or valid international phone format.',
       ]);
+    }
+
     const selectedTitles = [...form.querySelectorAll('[name="title-choice"]:checked')];
-    if (selectedTitles.length > 1)
+    if (selectedTitles.length > 1) {
       errors.push([
         selectedTitles[1],
         'preferred-title-error',
-        'The API accepts one preferred title. Choose only one option.',
+        'The registration accepts one preferred title. Choose only one option.',
       ]);
-    if (selectedTitles[0]?.value === 'Other' && !titleOther.value.trim())
+    }
+    if (selectedTitles[0]?.value === 'Other' && !titleOther.value.trim()) {
       errors.push([titleOther, 'preferred-title-error', 'Enter your preferred title.']);
+    }
+
     const communication = [
       ...form.querySelectorAll('[name="preferred_communication_method"]:checked'),
     ];
-    if (!communication.length)
+    if (!communication.length) {
       errors.push([
         field('preferred_communication_method')[0],
         'communication-error',
         'Choose at least one preferred communication method.',
       ]);
+    }
   } else {
-    if (!validator.hasMinLength(field('child_name').value, 2))
+    if (!validator.hasMinLength(field('child_name').value, 2)) {
       errors.push([
         field('child_name'),
         'child_name-error',
         'Enter the student’s full name (at least 2 characters).',
       ]);
-    if (!validator.isRequired(field('grade_level').value))
+    }
+    if (!validator.isRequired(field('grade_level').value)) {
       errors.push([
         field('grade_level'),
         'grade_level-error',
         'Enter the student’s grade or level.',
       ]);
-    if (
-      !field('subjects')
-        .value.split(',')
-        .map(value => value.trim())
-        .filter(Boolean).length
-    )
+    }
+    const subjects = field('subjects')
+      .value.split(',')
+      .map(value => value.trim())
+      .filter(Boolean);
+    if (!subjects.length) {
       errors.push([field('subjects'), 'subjects-error', 'Enter at least one subject.']);
-    if (!form.querySelector('[name="support_category"]:checked'))
+    }
+    if (!form.querySelector('[name="support_category"]:checked')) {
       errors.push([
         field('support_category')[0],
         'support_category-error',
         'Choose a support category.',
       ]);
+    }
   }
+
   errors.forEach(([input, errorId, message]) => setError(input, errorId, message));
   if (errors.length) errors[0][0]?.focus();
   return errors.length === 0;
 };
 
 const syncCustomTitle = () => {
-  const otherSelected = document.getElementById('title-other-check').checked;
-  titleOther.disabled = !otherSelected;
-  if (!otherSelected) titleOther.value = '';
+  const otherSelected = document.getElementById('title-other-check')?.checked;
+  if (titleOther) {
+    titleOther.disabled = !otherSelected;
+    if (!otherSelected) titleOther.value = '';
+  }
 };
 
 form.querySelectorAll('[name="title-choice"]').forEach(checkbox => {
@@ -141,22 +179,29 @@ form.querySelectorAll('[name="title-choice"]').forEach(checkbox => {
       });
     }
     syncCustomTitle();
-    if (checkbox.value === 'Other' && checkbox.checked) titleOther.focus();
+    if (checkbox.value === 'Other' && checkbox.checked && titleOther) titleOther.focus();
   });
 });
 
-form.querySelector('[data-next-step]').addEventListener('click', () => {
+form.querySelector('[data-next-step]')?.addEventListener('click', () => {
   if (validateStep(0)) setStep(1);
 });
-form.querySelector('[data-previous-step]').addEventListener('click', () => setStep(0));
+form.querySelector('[data-previous-step]')?.addEventListener('click', () => setStep(0));
 
 const buildPayload = () => {
   const titles = [...form.querySelectorAll('[name="title-choice"]:checked')];
   const preferredTitle = titles[0]?.value === 'Other' ? titleOther.value.trim() : titles[0]?.value;
+  const supportCategory = form.querySelector('[name="support_category"]:checked')?.value;
+  const rawNotes = field('notes').value.trim();
+  const notes =
+    [supportCategory ? `Requested Support: ${supportCategory}` : '', rawNotes]
+      .filter(Boolean)
+      .join('\n\n') || undefined;
+
   return {
     parent_name: field('parent_name').value.trim(),
     email: field('email').value.trim(),
-    phone: field('phone').value.trim(),
+    phone: field('phone').value.trim() || undefined,
     secondary_phone: field('secondary_phone').value.trim() || undefined,
     preferred_title: preferredTitle || undefined,
     preferred_communication_method: [
@@ -169,8 +214,7 @@ const buildPayload = () => {
       .value.split(',')
       .map(value => value.trim())
       .filter(Boolean),
-    support_category: form.querySelector('[name="support_category"]:checked')?.value,
-    notes: field('notes').value.trim() || undefined,
+    notes,
   };
 };
 
@@ -180,8 +224,9 @@ form.addEventListener('submit', async event => {
   submitting = true;
   feedback.textContent = '';
   ui.setButtonLoading(submitButton, true, 'Submitting…');
+
   try {
-    const response = await api.post('/public/parent-registrations', buildPayload(), {
+    const response = await api.post('/parents/register', buildPayload(), {
       expectedStatus: 201,
     });
     const reference = response.data?.id;
@@ -193,7 +238,9 @@ form.addEventListener('submit', async event => {
     );
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch (error) {
-    if (error instanceof ApiError && error.errors) validator.applyServerErrors(form, error.errors);
+    if (error instanceof ApiError && error.errors) {
+      validator.applyServerErrors(form, error.errors);
+    }
     if (error instanceof ApiError && error.status === 429) {
       feedback.textContent =
         'We received too many requests from this connection. Please wait a little while and try again.';

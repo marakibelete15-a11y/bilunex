@@ -66,12 +66,6 @@ export const api = {
     const headers = { ...options.headers };
     if (!isFormData && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
 
-    // Attach Bearer token from sessionStorage if a user session exists
-    const token = sessionStorage.getItem('bilunex_token');
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
     const config = {
       ...options,
       headers,
@@ -99,13 +93,10 @@ export const api = {
       }
 
       if (!response.ok) {
-        if (
-          response.status === 401 &&
-          token &&
-          (window.location.pathname.includes('/admin/') ||
-            window.location.pathname.includes('/mentor/'))
-        ) {
-          sessionStorage.removeItem('bilunex_token');
+        const path = window.location.pathname || '';
+        const isPortal = path.includes('/admin/') || path.includes('/mentor/');
+        const isLoginPage = path.endsWith('/login.html') || path.endsWith('/login');
+        if (response.status === 401 && isPortal && !isLoginPage) {
           sessionStorage.removeItem('bilunex_user');
           redirectToLogin();
         }
