@@ -34,6 +34,24 @@ const adminController = {
   },
 
   /**
+   * Admin Logout
+   * POST /api/v1/admin/auth/logout
+   */
+  async logout(req, res, next) {
+    try {
+      res.clearCookie('bilunex_portal_token', {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+      });
+      return sendSuccess(res, null, 'Logged out successfully', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
    * Get Current Admin Profile
    * GET /api/v1/admin/auth/me
    */

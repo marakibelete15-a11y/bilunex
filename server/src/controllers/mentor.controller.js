@@ -35,6 +35,24 @@ const mentorController = {
   },
 
   /**
+   * Mentor Logout
+   * POST /api/v1/mentor/auth/logout
+   */
+  async logout(req, res, next) {
+    try {
+      res.clearCookie('bilunex_portal_token', {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+      });
+      return sendSuccess(res, null, 'Logged out successfully', 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
    * Retrieve Authenticated Mentor's Profile
    * GET /api/v1/mentor/me or /api/v1/mentor/profile
    */

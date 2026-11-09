@@ -25,29 +25,17 @@ router.get('/health', (req, res) => {
   });
 });
 
-// Parent Registration (supports both /parents/register and /parent-registrations)
+// Parent Registration (FR-2.1)
 router.post(
   '/parents/register',
   strictLimiter,
   validate(createParentRegistrationSchema),
   publicController.registerParent
 );
-router.post(
-  '/parent-registrations',
-  strictLimiter,
-  validate(createParentRegistrationSchema),
-  publicController.registerParent
-);
 
-// Mentor Application (supports both /mentors/apply and /mentor-applications)
+// Mentor Application (FR-3.1)
 router.post(
   '/mentors/apply',
-  strictLimiter,
-  validate(createMentorApplicationSchema),
-  publicController.applyMentor
-);
-router.post(
-  '/mentor-applications',
   strictLimiter,
   validate(createMentorApplicationSchema),
   publicController.applyMentor

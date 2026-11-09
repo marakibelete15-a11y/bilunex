@@ -153,6 +153,15 @@ describe('Admin Management Endpoints (V1)', () => {
       expect(res.status).toBe(401);
       expect(res.body.success).toBe(false);
     });
+
+    test('should clear portal token cookie on logout', async () => {
+      const res = await request(app).post('/api/v1/admin/auth/logout');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      const cookies = res.headers['set-cookie'];
+      expect(cookies).toBeDefined();
+      expect(cookies.some(c => c.includes('bilunex_portal_token=;'))).toBe(true);
+    });
   });
 
   describe('GET /api/v1/admin/auth/me', () => {
@@ -227,6 +236,13 @@ describe('Admin Management Endpoints (V1)', () => {
       expect(res.status).toBe(400);
       expect(res.body.success).toBe(false);
     });
+
+    test('should return 404 for removed alias route /api/v1/admin/parent-registrations', async () => {
+      const res = await request(app)
+        .get('/api/v1/admin/parent-registrations')
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(res.status).toBe(404);
+    });
   });
 
   describe('Mentor Applications (Admin Review & Activation)', () => {
@@ -248,6 +264,27 @@ describe('Admin Management Endpoints (V1)', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.id).toBe(testApplicationId);
+    });
+
+    test('should reject activation with 400 Bad Request when application status is not accepted or onboarding', async () => {
+      const unacceptedRes = await db.query(
+        `
+        INSERT INTO mentor_applications (full_name, email, phone, university, field_of_study, year_of_study, subjects, availability, motivation, status)
+        VALUES ('Unaccepted Applicant', $1, '+251911223399', 'AAU', 'Biology', '2nd', '{"Biology"}', 'Weekends', 'Motivation text here.', 'application_received')
+        RETURNING id;
+      `,
+        [`unaccepted.${Date.now()}@example.com`]
+      );
+      const unacceptedId = unacceptedRes.rows[0].id;
+
+      const res = await request(app)
+        .post(`/api/v1/admin/mentor-applications/${unacceptedId}/activate`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ initial_password: 'InitialPassword123!' });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toContain("Status must be 'accepted' or 'onboarding'");
     });
 
     test('should activate accepted mentor into mentor_profiles via ACID transaction', async () => {
