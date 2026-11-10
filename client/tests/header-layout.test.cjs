@@ -149,7 +149,7 @@ test('drawer CTA is the same single element and CSS shares the hamburger breakpo
   assert.match(layoutCss, /@media\s*\(min-width:\s*1200px\)/);
 });
 
-test('footer links render as separate list items with dedicated story and mentor groups', () => {
+test('footer links render as separate list items with no unlinked portal doors', () => {
   const host = new Element('footer');
   const document = {
     createElement: tagName => new Element(tagName),
@@ -188,17 +188,11 @@ test('footer links render as separate list items with dedicated story and mentor
   visit(footer);
   const quickLinks = footer.children[0].children.find(child => child.children.some(item => item.textContent === 'Quick links'));
   const quickList = quickLinks.children.find(child => child.className === 'footer-nav-list');
-  const mentorGroup = footer.children[0].children.find(child => child.className === 'footer-col footer-mentors');
-  const mentorList = mentorGroup.children.find(child => child.className === 'footer-nav-list');
 
-  assert.equal(quickList.children.length, 8, 'seven nav links and Share Your Story are list items');
-  assert.equal(quickList.children.at(-1).children[0].textContent, 'Share Your Story');
-  assert.equal(mentorList.children.length, 1);
-  assert.equal(mentorList.children[0].children[0].textContent, 'Mentor portal login');
-  const adminGroup = footer.children[0].children.find(child => child.className === 'footer-col footer-admin');
-  const adminList = adminGroup.children.find(child => child.className === 'footer-nav-list');
-  assert.equal(adminList.children.length, 1);
-  assert.equal(adminList.children[0].children[0].textContent, 'Admin portal login');
+  assert.equal(quickList.children.length, 7, 'seven nav links are list items');
+  assert.equal(all.filter(link => link.textContent === 'Share Your Story').length, 0);
+  assert.equal(all.filter(link => link.textContent === 'Mentor portal login').length, 0);
+  assert.equal(all.filter(link => link.textContent === 'Admin portal login').length, 0);
   const listLinks = [];
   const collectListItems = node => {
     if (node.tagName === 'li') {
@@ -214,9 +208,6 @@ test('footer links render as separate list items with dedicated story and mentor
     all.filter(link => link.className !== 'footer-logo').length,
     'every footer text link is inside its own list item'
   );
-  assert.equal(all.filter(link => link.textContent === 'Share Your Story').length, 1);
-  assert.equal(all.filter(link => link.textContent === 'Mentor portal login').length, 1);
-  assert.equal(all.filter(link => link.textContent === 'Admin portal login').length, 1);
 });
 
 test('logo uses one inline SVG source and shared size tokens without per-page overrides', () => {

@@ -1,15 +1,29 @@
-/** Role-specific browser session helpers. Tokens stay in tab-scoped sessionStorage. */
-const TOKEN_KEY = 'bilunex_token';
+/**
+ * Bilunex - Session & Authentication Helpers
+ * Authentication is managed via httpOnly bilunex_portal_token cookie.
+ * Non-sensitive user profile metadata (e.g. name, role) is held in sessionStorage.
+ */
+
 const USER_KEY = 'bilunex_user';
 
 export const auth = {
-  setSession(token, user) {
-    sessionStorage.setItem(TOKEN_KEY, token);
-    sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+  /**
+   * Store user profile metadata in sessionStorage (no tokens).
+   * Supports both setSession(user) and legacy setSession(token, user).
+   */
+  setSession(arg1, arg2) {
+    const user = arg2 !== undefined ? arg2 : arg1;
+    if (user && typeof user === 'object') {
+      sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
   },
-  getToken() {
-    return sessionStorage.getItem(TOKEN_KEY);
+
+  setUser(user) {
+    if (user && typeof user === 'object') {
+      sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
   },
+
   getUser() {
     try {
       return JSON.parse(sessionStorage.getItem(USER_KEY) || 'null');
@@ -17,28 +31,47 @@ export const auth = {
       return null;
     }
   },
+
   clearSession() {
-    sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(USER_KEY);
+    sessionStorage.removeItem('bilunex_token'); // Clean up any stale legacy key
   },
+
   async logout(redirectUrl) {
+    const path = window.location.pathname || '';
+    const area = path.includes('/admin/') ? 'admin' : 'mentor';
+    const fallbackUrl = redirectUrl || `/${area}/login.html`;
+
     try {
-      await window.apiClient?.post('/auth/logout');
+      if (window.apiClient) {
+        await window.apiClient.post(`/${area}/auth/logout`);
+      } else {
+        await fetch(`/api/v1/${area}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include',
+        });
+      }
     } catch {
-      // Local state is cleared even when the server cannot be reached.
+      // Local state is cleared even if network fails
     }
+
     this.clearSession();
-    window.location.assign(redirectUrl);
+    window.location.assign(fallbackUrl);
   },
+
   protectPage(requiredRole, fallbackLoginUrl) {
     const user = this.getUser();
     const roleMatches =
       requiredRole === 'admin'
         ? user?.role === 'admin' || user?.role === 'super_admin'
         : user?.role === requiredRole;
-    if (this.getToken() && roleMatches) return true;
+
+    if (user && roleMatches) {
+      return true;
+    }
+
     this.clearSession();
-    window.location.replace(fallbackLoginUrl);
+    window.location.replace(fallbackLoginUrl || `/${requiredRole}/login.html`);
     return false;
   },
 };

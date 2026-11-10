@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
     <meta name="description" content="Secure Bilunex administrator sign in." />
     <title>Admin Login | Bilunex</title>
     <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
@@ -22,16 +23,31 @@
         <section class="card admin-login-card">
           <h1>Administrator log in</h1>
           <p>Use your Bilunex administrator account.</p>
-          <form id="admin-login-form" method="post" action="/api/v1/admin/auth/login">
-            <label>Email<input name="email" type="email" autocomplete="username" required /></label
-            ><label
-              >Password<input
+          <form id="admin-login-form">
+            <div class="form-group">
+              <label class="form-label" for="admin-email">Email</label>
+              <input
+                id="admin-email"
+                name="email"
+                type="email"
+                class="form-control"
+                autocomplete="username"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="admin-password">Password</label>
+              <input
+                id="admin-password"
                 name="password"
                 type="password"
+                class="form-control"
                 autocomplete="current-password"
-                required /></label
-            ><button class="btn btn-primary" type="submit">Log in</button>
-            <p id="login-feedback" role="status" aria-live="polite"></p>
+                required
+              />
+            </div>
+            <button class="btn btn-accent btn-block" type="submit">Log in</button>
+            <p id="login-feedback" class="form-feedback" role="status" aria-live="polite"></p>
           </form>
         </section>
       </div>

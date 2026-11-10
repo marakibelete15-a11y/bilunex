@@ -3,10 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Bilunex mentor portal — mentor profile and own support reports."
-    />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Bilunex mentor portal — mentor profile self-management." />
     <title>My Profile | Bilunex</title>
     <link rel="icon" type="image/svg+xml" href="../assets/images/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon-32.png" />
@@ -36,13 +34,13 @@
           >
             <div>
               <h1 id="main-heading">My Profile</h1>
-              <p>Your verified Bilunex mentor profile details and availability.</p>
+              <p>Your verified Bilunex mentor profile details, subjects, and availability.</p>
             </div>
             <div class="page-header-actions" style="display: flex; gap: 0.75rem; flex-wrap: wrap">
               <button type="button" id="edit-profile-btn" class="btn btn-outline">
                 Edit profile
               </button>
-              <a href="report.html" class="btn btn-primary">Submit student report</a>
+              <a href="report.html" class="btn btn-accent">Submit student report</a>
             </div>
           </header>
 
@@ -50,12 +48,16 @@
             <h2>Profile Details</h2>
             <dl>
               <div>
-                <dt>Name</dt>
+                <dt>Full Name</dt>
                 <dd id="profile-name">Loading…</dd>
               </div>
               <div>
-                <dt>Email</dt>
+                <dt>Email (Read-only)</dt>
                 <dd id="profile-email">Loading…</dd>
+              </div>
+              <div>
+                <dt>Account Status</dt>
+                <dd id="profile-status"><span class="badge status-badge">Loading…</span></dd>
               </div>
               <div>
                 <dt>University</dt>
@@ -66,7 +68,7 @@
                 <dd id="profile-field">Loading…</dd>
               </div>
               <div>
-                <dt>Subject Specializations</dt>
+                <dt>Subjects</dt>
                 <dd id="profile-subjects-display">—</dd>
               </div>
               <div>
@@ -80,51 +82,121 @@
             <h2>Edit Profile</h2>
             <div id="profile-feedback" role="status" aria-live="polite"></div>
             <form id="profile-form">
-              <label
-                >Name<input
-                  name="name"
+              <div class="form-group">
+                <label class="form-label" for="edit-full-name">Full Name</label>
+                <input
+                  id="edit-full-name"
+                  name="full_name"
                   type="text"
+                  class="form-control"
                   minlength="2"
                   required
-                  placeholder="Your full name"
-              /></label>
-              <label
-                >University<input
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="edit-university">University</label>
+                <input
+                  id="edit-university"
                   name="university"
                   type="text"
+                  class="form-control"
                   minlength="2"
                   required
-                  placeholder="e.g. Addis Ababa University"
-              /></label>
-              <label
-                >Field of Study<input
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="edit-field">Field of Study</label>
+                <input
+                  id="edit-field"
                   name="field_of_study"
                   type="text"
+                  class="form-control"
                   minlength="2"
                   required
-                  placeholder="e.g. Computer Science"
-              /></label>
-              <label>
-                Subject Specializations
-                <span class="help-text"
-                  >Separate subjects with commas (e.g. Mathematics, Physics, Chemistry).</span
-                >
-                <input
-                  name="subject_specializations"
-                  type="text"
-                  required
-                  placeholder="Mathematics, English, Physics"
                 />
-              </label>
-              <label
-                >Availability<input
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="edit-subjects">
+                  Subjects of Expertise
+                  <span
+                    class="help-text"
+                    style="display: block; font-weight: 400; font-size: 0.85rem"
+                    >Separate subjects with commas (e.g. Mathematics, Physics, Chemistry).</span
+                  >
+                </label>
+                <input
+                  id="edit-subjects"
+                  name="subjects"
+                  type="text"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="edit-availability">Availability</label>
+                <input
+                  id="edit-availability"
                   name="availability"
                   type="text"
+                  class="form-control"
                   minlength="2"
                   required
-                  placeholder="e.g. Weekday afternoons, Saturdays"
-              /></label>
-              <button class="btn btn-primary" type="submit">Save profile</button>
+                />
+              </div>
+              <button class="btn btn-accent" type="submit">Save Profile</button>
+            </form>
+          </section>
+
+          <!-- Change Password Section (FR-7.4) -->
+          <section
+            id="change-password-section"
+            class="card mentor-edit-card"
+            style="margin-top: 1.5rem"
+          >
+            <h2>Change Password</h2>
+            <p style="color: var(--portal-text-muted); font-size: 0.9rem">
+              Update your portal account password.
+            </p>
+            <div id="password-feedback" role="status" aria-live="polite"></div>
+            <form id="password-form">
+              <div class="form-group">
+                <label class="form-label" for="current-password">Current Password</label>
+                <input
+                  id="current-password"
+                  name="current_password"
+                  type="password"
+                  class="form-control"
+                  autocomplete="current-password"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="new-password"
+                  >New Password (minimum 8 characters)</label
+                >
+                <input
+                  id="new-password"
+                  name="new_password"
+                  type="password"
+                  class="form-control"
+                  minlength="8"
+                  autocomplete="new-password"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="confirm-password">Confirm New Password</label>
+                <input
+                  id="confirm-password"
+                  name="confirm_password"
+                  type="password"
+                  class="form-control"
+                  minlength="8"
+                  autocomplete="new-password"
+                  required
+                />
+              </div>
+              <button class="btn btn-accent" type="submit">Update Password</button>
             </form>
           </section>
         </section>

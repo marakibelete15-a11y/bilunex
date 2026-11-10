@@ -38,8 +38,18 @@ router.patch('/me', validate(updateProfileSchema), mentorController.updateProfil
 router.patch('/profile', validate(updateProfileSchema), mentorController.updateProfile);
 
 // Password Change
-router.patch('/me/password', validate(updatePasswordSchema), mentorController.changePassword);
-router.patch('/profile/password', validate(updatePasswordSchema), mentorController.changePassword);
+router.patch(
+  '/me/password',
+  strictLimiter,
+  validate(updatePasswordSchema),
+  mentorController.changePassword
+);
+router.patch(
+  '/profile/password',
+  strictLimiter,
+  validate(updatePasswordSchema),
+  mentorController.changePassword
+);
 
 // Student Support Report Submission (FR-8.1, FR-8.2)
 // NOTE: Mentors only submit reports. There is NO GET /reports for mentors.

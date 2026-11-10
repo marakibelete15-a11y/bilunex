@@ -268,6 +268,43 @@ const adminController = {
       next(err);
     }
   },
+
+  /**
+   * Reset Mentor Password (Admin only)
+   * POST /api/v1/admin/mentors/:mentorId/reset-password
+   */
+  async resetMentorPassword(req, res, next) {
+    try {
+      const { mentorId } = req.params;
+      const { new_password } = req.body;
+      const result = await adminService.resetMentorPassword({
+        mentorId,
+        newPassword: new_password,
+      });
+      return sendSuccess(res, null, result.message, 200);
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Admin Change Own Password
+   * PATCH /api/v1/admin/me/password
+   */
+  async changePassword(req, res, next) {
+    try {
+      const adminId = req.user.id;
+      const { current_password, new_password } = req.body;
+      const result = await adminService.changeAdminPassword({
+        adminId,
+        currentPassword: current_password,
+        newPassword: new_password,
+      });
+      return sendSuccess(res, null, result.message, 200);
+    } catch (err) {
+      next(err);
+    }
+  },
 };
 
 module.exports = adminController;

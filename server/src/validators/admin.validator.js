@@ -105,6 +105,23 @@ const idParamSchema = z.object({
   id: z.coerce.number().int().positive('ID must be a positive integer'),
 });
 
+const mentorIdParamSchema = z.object({
+  mentorId: z.coerce.number().int().positive('Mentor ID must be a positive integer'),
+});
+
+const resetMentorPasswordSchema = z
+  .object({
+    new_password: z.string().min(8, 'New password must be at least 8 characters'),
+  })
+  .strict();
+
+const adminChangePasswordSchema = z
+  .object({
+    current_password: z.string().min(1, 'Current password is required'),
+    new_password: z.string().min(8, 'New password must be at least 8 characters'),
+  })
+  .strict();
+
 module.exports = {
   adminLoginSchema,
   parentRegistrationFilterSchema,
@@ -116,4 +133,7 @@ module.exports = {
   updateInquiryStatusSchema,
   supportReportFilterSchema,
   idParamSchema,
+  mentorIdParamSchema,
+  resetMentorPasswordSchema,
+  adminChangePasswordSchema,
 };

@@ -331,6 +331,57 @@ const adminService = {
       failed_notifications_last_7_days: failedNotificationsCount,
     };
   },
+
+  /**
+   * Reset a mentor's password (Admin only)
+   * Updates mentor_profiles.password_hash only.
+   * NEVER returns or logs the password or hash.
+   */
+  async resetMentorPassword({ mentorId, newPassword }) {
+    const mentor = await mentorRepository.findProfileById(mentorId);
+    if (!mentor) {
+      const error = new Error('Mentor profile not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await mentorRepository.updatePassword(mentorId, passwordHash);
+
+    return { message: 'Mentor password has been successfully reset.' };
+  },
+
+  /**
+   * Admin change own password
+   * Verifies current password, rejects if new equals current, updates hash.
+   * NEVER returns or logs the password or hash.
+   */
+  async changeAdminPassword({ adminId, currentPassword, newPassword }) {
+    const admin = await adminRepository.findByIdWithPassword(adminId);
+    if (!admin) {
+      const error = new Error('Admin not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, admin.password_hash);
+    if (!isMatch) {
+      const error = new Error('Current password does not match');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    if (currentPassword === newPassword) {
+      const error = new Error('New password cannot be the same as the current password');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await adminRepository.updatePassword(adminId, passwordHash);
+
+    return { message: 'Password updated successfully' };
+  },
 };
 
 module.exports = adminService;
