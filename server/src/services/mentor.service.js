@@ -124,6 +124,12 @@ const mentorService = {
       throw error;
     }
 
+    if (currentPassword === newPassword) {
+      const error = new Error('New password cannot be the same as the current password');
+      error.statusCode = 400;
+      throw error;
+    }
+
     const newHash = await bcrypt.hash(newPassword, 12);
     await mentorRepository.updatePassword(mentorId, newHash);
 

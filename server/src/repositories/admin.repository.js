@@ -48,6 +48,28 @@ const adminRepository = {
     const res = await db.query(text, [name, email, password_hash, role]);
     return res.rows[0];
   },
+
+  async findByIdWithPassword(id) {
+    const text = `
+      SELECT id, name, email, password_hash, role, is_active, last_login_at, created_at, updated_at
+      FROM admin_users
+      WHERE id = $1
+      LIMIT 1;
+    `;
+    const res = await db.query(text, [id]);
+    return res.rows[0] || null;
+  },
+
+  async updatePassword(id, password_hash) {
+    const text = `
+      UPDATE admin_users
+      SET password_hash = $2, updated_at = now()
+      WHERE id = $1
+      RETURNING id, name, email, role, is_active, updated_at;
+    `;
+    const res = await db.query(text, [id, password_hash]);
+    return res.rows[0] || null;
+  },
 };
 
 module.exports = adminRepository;

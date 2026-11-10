@@ -29,6 +29,7 @@ describe('Admin Management Endpoints (V1)', () => {
   let testInquiryId = null;
   let testReportId = null;
   let testApplicantEmail = '';
+  let activatedMentorProfileId = null;
 
   beforeAll(async () => {
     // Ensure admin user exists with known test password
@@ -298,6 +299,7 @@ describe('Admin Management Endpoints (V1)', () => {
       expect(res.body.data).toHaveProperty('id');
       expect(res.body.data.email).toBe(testApplicantEmail);
       expect(res.body.data.account_status).toBe('active');
+      activatedMentorProfileId = res.body.data.id;
 
       // Verify in DB that application status is now onboarding
       const appCheck = await db.query('SELECT status FROM mentor_applications WHERE id = $1', [
@@ -315,6 +317,133 @@ describe('Admin Management Endpoints (V1)', () => {
         [res.body.data.id]
       );
       testReportId = reportRes.rows[0].id;
+    });
+
+    test('should include mentor_profile_id and account_status in application response', async () => {
+      const res = await request(app)
+        .get(`/api/v1/admin/mentor-applications/${testApplicationId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(Number(res.body.data.mentor_profile_id)).toBe(Number(activatedMentorProfileId));
+      expect(res.body.data.account_status).toBe('active');
+    });
+  });
+
+  describe('Password Management (Admin & Mentor)', () => {
+    test('admin reset of mentor password works and updates password', async () => {
+      const res = await request(app)
+        .post(`/api/v1/admin/mentors/${activatedMentorProfileId}/reset-password`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ new_password: 'ResetPassword2026!' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body).toHaveProperty('message');
+      // Verify password and hash NEVER appear in response body
+      expect(res.body).not.toHaveProperty('password');
+      expect(res.body).not.toHaveProperty('password_hash');
+      expect(res.body.data).toBeNull();
+
+      // Mentor CANNOT log in with old password
+      const oldLogin = await request(app).post('/api/v1/mentor/auth/login').send({
+        email: testApplicantEmail,
+        password: 'InitialPassword123!',
+      });
+      expect(oldLogin.status).toBe(401);
+
+      // Mentor CAN log in with new password
+      const newLogin = await request(app).post('/api/v1/mentor/auth/login').send({
+        email: testApplicantEmail,
+        password: 'ResetPassword2026!',
+      });
+      expect(newLogin.status).toBe(200);
+      expect(newLogin.body.success).toBe(true);
+    });
+
+    test('mentor token gets 403 on mentor reset password route', async () => {
+      const res = await request(app)
+        .post(`/api/v1/admin/mentors/${activatedMentorProfileId}/reset-password`)
+        .set('Authorization', `Bearer ${mentorToken}`)
+        .send({ new_password: 'UnauthorizedReset123!' });
+
+      expect(res.status).toBe(403);
+    });
+
+    test('unknown mentor ID gets 404 on reset route', async () => {
+      const res = await request(app)
+        .post('/api/v1/admin/mentors/999999/reset-password')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ new_password: 'SomeNewPassword123!' });
+
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+    });
+
+    test('admin self-change password fails with wrong current password', async () => {
+      const res = await request(app)
+        .patch('/api/v1/admin/me/password')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          current_password: 'WrongCurrentPassword!',
+          new_password: 'NewAdminPassword123!',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toContain('Current password does not match');
+    });
+
+    test('admin self-change password fails when new password equals current password', async () => {
+      const res = await request(app)
+        .patch('/api/v1/admin/me/password')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          current_password: 'Admin123!',
+          new_password: 'Admin123!',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toContain('New password cannot be the same as the current password');
+    });
+
+    test('admin self-change password succeeds and verifies login', async () => {
+      const res = await request(app)
+        .patch('/api/v1/admin/me/password')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          current_password: 'Admin123!',
+          new_password: 'UpdatedAdminPass2026!',
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body).not.toHaveProperty('password');
+      expect(res.body).not.toHaveProperty('password_hash');
+
+      // Admin CANNOT log in with old password
+      const oldLogin = await request(app).post('/api/v1/admin/auth/login').send({
+        email: 'admin@bilunex.org',
+        password: 'Admin123!',
+      });
+      expect(oldLogin.status).toBe(401);
+
+      // Admin CAN log in with new password
+      const newLogin = await request(app).post('/api/v1/admin/auth/login').send({
+        email: 'admin@bilunex.org',
+        password: 'UpdatedAdminPass2026!',
+      });
+      expect(newLogin.status).toBe(200);
+      expect(newLogin.body.success).toBe(true);
+
+      // Restore admin password to Admin123! so other tests/hooks continue cleanly
+      const restoreHash = await bcrypt.hash('Admin123!', 12);
+      await db.query(
+        `UPDATE admin_users SET password_hash = $1 WHERE email = 'admin@bilunex.org'`,
+        [restoreHash]
+      );
     });
   });
 

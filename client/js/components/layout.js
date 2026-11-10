@@ -341,6 +341,15 @@ export function initPortalLayout() {
     identitySpan.textContent = userEmail;
     controls.appendChild(identitySpan);
 
+    if (role === 'Admin') {
+      const changePwBtn = document.createElement('button');
+      changePwBtn.type = 'button';
+      changePwBtn.id = 'admin-change-pw-btn';
+      changePwBtn.className = 'btn btn-outline btn-sm';
+      changePwBtn.textContent = 'Change Password';
+      controls.appendChild(changePwBtn);
+    }
+
     const logoutBtn = document.createElement('button');
     logoutBtn.type = 'button';
     logoutBtn.id = 'logout-btn';

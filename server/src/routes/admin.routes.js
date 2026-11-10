@@ -23,6 +23,9 @@ const {
   updateInquiryStatusSchema,
   supportReportFilterSchema,
   idParamSchema,
+  mentorIdParamSchema,
+  resetMentorPasswordSchema,
+  adminChangePasswordSchema,
 } = require('../validators/admin.validator');
 
 // Admin Authentication (Public Login & Logout)
@@ -32,8 +35,22 @@ router.post('/auth/logout', adminController.logout);
 // All subsequent routes require authentication and admin role (FR-5.1)
 router.use(authenticateToken, requireAdmin);
 
-// Admin Profile
+// Admin Profile & Self-Management
 router.get('/auth/me', adminController.getMe);
+router.patch(
+  '/me/password',
+  strictLimiter,
+  validate(adminChangePasswordSchema),
+  adminController.changePassword
+);
+
+// Admin Reset Mentor Password
+router.post(
+  '/mentors/:mentorId/reset-password',
+  strictLimiter,
+  validate({ params: mentorIdParamSchema, body: resetMentorPasswordSchema }),
+  adminController.resetMentorPassword
+);
 
 // Parent Registrations (FR-5.2)
 router.get(

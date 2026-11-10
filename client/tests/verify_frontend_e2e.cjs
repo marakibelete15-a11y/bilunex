@@ -191,6 +191,43 @@ async function run() {
     assert.equal(activateRes.status, 201, 'Admin activate mentor must return 201');
     console.log(`✓ Admin activated mentor with temporary password: ${tempPassword}`);
 
+    // Verify GET mentor-applications/:id includes mentor_profile_id and account_status
+    const appDetail = await request(`/api/v1/admin/mentor-applications/${mentorAppId}`, {
+      headers: { Cookie: adminCookie },
+    });
+    assert.equal(appDetail.status, 200, 'Admin get mentor application details must return 200');
+    assert.ok(appDetail.data.data.mentor_profile_id, 'Application must include mentor_profile_id');
+    assert.equal(appDetail.data.data.account_status, 'active');
+    const mentorProfileId = appDetail.data.data.mentor_profile_id;
+    console.log(`✓ Admin retrieved application with mentor_profile_id: ${mentorProfileId}`);
+
+    // Admin resets mentor's password
+    const resetMentorPass = 'ResetMentorPass2026!';
+    const resetRes = await request(`/api/v1/admin/mentors/${mentorProfileId}/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Cookie: adminCookie },
+      body: { new_password: resetMentorPass },
+    });
+    assert.equal(resetRes.status, 200, 'Admin reset mentor password must return 200');
+    assert.equal(resetRes.data.data, null);
+    assert.ok(!resetRes.data.password && !resetRes.data.password_hash);
+    console.log('✓ Admin successfully reset mentor password (password/hash omitted from response)');
+
+    // Admin changes own password
+    const newAdminPass = 'NewAdminPass2026!';
+    const adminChangePwRes = await request('/api/v1/admin/me/password', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Cookie: adminCookie },
+      body: {
+        current_password: 'Admin12345678!',
+        new_password: newAdminPass,
+      },
+    });
+    assert.equal(adminChangePwRes.status, 200, 'Admin change own password must return 200');
+    assert.ok(!adminChangePwRes.data.password && !adminChangePwRes.data.password_hash);
+    console.log('✓ Admin successfully changed own password');
+
+    // Admin logout
     const adminLogoutRes = await request('/api/v1/admin/auth/logout', {
       method: 'POST',
       headers: { Cookie: adminCookie },
@@ -198,11 +235,48 @@ async function run() {
     assert.equal(adminLogoutRes.status, 200, 'Admin logout must return 200');
     console.log('✓ Admin logout cleared session cookie');
 
+    // Verify old admin password fails
+    const oldAdminLogin = await request('/api/v1/admin/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: {
+        email: 'admin@bilunex.org',
+        password: 'Admin12345678!',
+      },
+    });
+    assert.equal(oldAdminLogin.status, 401, 'Old admin password must be rejected');
+    console.log('✓ Old admin password rejected with 401');
+
+    // Verify new admin password succeeds
+    const newAdminLogin = await request('/api/v1/admin/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: {
+        email: 'admin@bilunex.org',
+        password: newAdminPass,
+      },
+    });
+    assert.equal(newAdminLogin.status, 200, 'New admin password must succeed');
+    console.log('✓ Admin login succeeded with new password');
+
+    // Restore admin password back to seeded Admin12345678!
+    const restoredAdminCookie = extractCookie(newAdminLogin.headers);
+    await request('/api/v1/admin/me/password', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Cookie: restoredAdminCookie },
+      body: {
+        current_password: newAdminPass,
+        new_password: 'Admin12345678!',
+      },
+    });
+    console.log('✓ Admin password restored back to baseline Admin12345678!');
+
     // -------------------------------------------------------------
     // 4. Mentor Workflow
     // -------------------------------------------------------------
     console.log('\n--- 4. Testing Mentor Workflow ---');
-    const mentorLoginRes = await request('/api/v1/mentor/auth/login', {
+    // Old password must fail after admin reset
+    const oldMentorLogin = await request('/api/v1/mentor/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: {
@@ -210,10 +284,22 @@ async function run() {
         password: tempPassword,
       },
     });
-    assert.equal(mentorLoginRes.status, 200, 'Mentor login must return 200');
+    assert.equal(oldMentorLogin.status, 401, 'Old temporary password must fail after admin reset');
+    console.log('✓ Old mentor password rejected with 401');
+
+    // New password succeeds
+    const mentorLoginRes = await request('/api/v1/mentor/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: {
+        email: `mentor${testId}@example.com`,
+        password: resetMentorPass,
+      },
+    });
+    assert.equal(mentorLoginRes.status, 200, 'Mentor login must return 200 with new password');
     const mentorCookie = extractCookie(mentorLoginRes.headers);
     assert.ok(mentorCookie, 'Mentor login must set cookie');
-    console.log('✓ Mentor login succeeded with activated account');
+    console.log('✓ Mentor login succeeded with admin-reset password');
 
     const mentorProfile = await request('/api/v1/mentor/me', {
       headers: { Cookie: mentorCookie },
@@ -237,7 +323,7 @@ async function run() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Cookie: mentorCookie },
       body: {
-        current_password: tempPassword,
+        current_password: resetMentorPass,
         new_password: newPassword,
       },
     });

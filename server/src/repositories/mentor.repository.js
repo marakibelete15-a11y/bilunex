@@ -45,9 +45,11 @@ const mentorRepository = {
 
   async findApplicationById(id) {
     const text = `
-      SELECT a.*, u.name AS reviewer_name, u.email AS reviewer_email
+      SELECT a.*, u.name AS reviewer_name, u.email AS reviewer_email,
+             p.id AS mentor_profile_id, p.account_status
       FROM mentor_applications a
       LEFT JOIN admin_users u ON a.reviewed_by = u.id
+      LEFT JOIN mentor_profiles p ON p.application_id = a.id
       WHERE a.id = $1
       LIMIT 1;
     `;
@@ -57,9 +59,11 @@ const mentorRepository = {
 
   async findAllApplications({ status = null, limit = 50, offset = 0 } = {}) {
     const text = `
-      SELECT a.*, u.name AS reviewer_name
+      SELECT a.*, u.name AS reviewer_name,
+             p.id AS mentor_profile_id, p.account_status
       FROM mentor_applications a
       LEFT JOIN admin_users u ON a.reviewed_by = u.id
+      LEFT JOIN mentor_profiles p ON p.application_id = a.id
       WHERE ($1::application_status IS NULL OR a.status = $1)
       ORDER BY a.created_at DESC
       LIMIT $2 OFFSET $3;

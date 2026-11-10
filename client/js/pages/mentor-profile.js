@@ -114,9 +114,32 @@ if (setupMentor()) {
 
     const current_password = passwordForm.elements.current_password.value;
     const new_password = passwordForm.elements.new_password.value;
+    const confirm_password = passwordForm.elements.confirm_password?.value;
+
+    if (!current_password) {
+      showMessage(passwordFeedback, 'Current password is required.', 'error');
+      if (button) button.disabled = false;
+      return;
+    }
 
     if (!new_password || new_password.length < 8) {
       showMessage(passwordFeedback, 'New password must be at least 8 characters.', 'error');
+      if (button) button.disabled = false;
+      return;
+    }
+
+    if (new_password !== confirm_password) {
+      showMessage(passwordFeedback, 'New password and confirmation do not match.', 'error');
+      if (button) button.disabled = false;
+      return;
+    }
+
+    if (new_password === current_password) {
+      showMessage(
+        passwordFeedback,
+        'New password cannot be the same as the current password.',
+        'error'
+      );
       if (button) button.disabled = false;
       return;
     }

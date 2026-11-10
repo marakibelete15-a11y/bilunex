@@ -227,6 +227,20 @@ describe('Mentor Portal Endpoints (V1)', () => {
       expect(res.body.success).toBe(false);
     });
 
+    test('should reject password change when new password equals current password', async () => {
+      const res = await request(app)
+        .patch('/api/v1/mentor/me/password')
+        .set('Authorization', `Bearer ${mentorToken}`)
+        .send({
+          current_password: 'MentorPass2026!',
+          new_password: 'MentorPass2026!',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toContain('New password cannot be the same as the current password');
+    });
+
     test('should successfully change password with valid credentials', async () => {
       const res = await request(app)
         .patch('/api/v1/mentor/me/password')

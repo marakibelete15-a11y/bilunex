@@ -56,6 +56,8 @@ function closeModal() {
   if (modal) {
     if (typeof modal.close === 'function') modal.close();
     else modal.removeAttribute('open');
+    if (modalBody) modalBody.replaceChildren();
+    if (modalFooter) modalFooter.replaceChildren();
   }
 }
 
@@ -71,6 +73,177 @@ function openModal(title, contentNodes = [], footerNodes = []) {
   modalFooter.replaceChildren(...footerNodes);
   if (typeof modal.showModal === 'function') modal.showModal();
   else modal.setAttribute('open', '');
+}
+
+// ---------------------------------------------------------------------------
+// Password Management & Security Helpers
+// ---------------------------------------------------------------------------
+function generateStrongPassword(length = 16) {
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const digits = '0123456789';
+  const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+  const allChars = lowercase + uppercase + digits + symbols;
+
+  const array = new Uint32Array(length);
+  window.crypto.getRandomValues(array);
+
+  const pwdChars = [
+    lowercase[array[0] % lowercase.length],
+    uppercase[array[1] % uppercase.length],
+    digits[array[2] % digits.length],
+    symbols[array[3] % symbols.length],
+  ];
+
+  for (let i = 4; i < length; i++) {
+    pwdChars.push(allChars[array[i] % allChars.length]);
+  }
+
+  // Shuffle using Fisher-Yates
+  const shuffleArr = new Uint32Array(length);
+  window.crypto.getRandomValues(shuffleArr);
+  for (let i = length - 1; i > 0; i--) {
+    const j = shuffleArr[i] % (i + 1);
+    const temp = pwdChars[i];
+    pwdChars[i] = pwdChars[j];
+    pwdChars[j] = temp;
+  }
+
+  return pwdChars.join('');
+}
+
+function createPasswordInputWithControls({
+  id = '',
+  name = 'password',
+  autocomplete = 'new-password',
+  placeholder = '',
+  minLength = 8,
+  required = true,
+  includeGenerator = true,
+  onGenerate = null,
+} = {}) {
+  const wrap = document.createElement('div');
+  wrap.className = 'password-input-wrap';
+  wrap.style.display = 'flex';
+  wrap.style.gap = '0.5rem';
+  wrap.style.alignItems = 'center';
+
+  const input = document.createElement('input');
+  input.type = 'password';
+  if (id) input.id = id;
+  input.name = name;
+  input.className = 'form-control';
+  input.autocomplete = autocomplete;
+  if (placeholder) input.placeholder = placeholder;
+  if (minLength) input.minLength = minLength;
+  input.required = required;
+  input.style.flex = '1';
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.type = 'button';
+  toggleBtn.className = 'btn btn-outline btn-sm';
+  toggleBtn.textContent = 'Show';
+  toggleBtn.setAttribute('aria-label', 'Toggle password visibility');
+  toggleBtn.addEventListener('click', () => {
+    if (input.type === 'password') {
+      input.type = 'text';
+      toggleBtn.textContent = 'Hide';
+    } else {
+      input.type = 'password';
+      toggleBtn.textContent = 'Show';
+    }
+  });
+
+  wrap.append(input, toggleBtn);
+
+  if (includeGenerator) {
+    const genBtn = document.createElement('button');
+    genBtn.type = 'button';
+    genBtn.className = 'btn btn-outline btn-sm';
+    genBtn.textContent = 'Generate';
+    genBtn.title = 'Generate strong password';
+    genBtn.addEventListener('click', () => {
+      const strongPw = generateStrongPassword(16);
+      input.value = strongPw;
+      input.type = 'text';
+      toggleBtn.textContent = 'Hide';
+      if (typeof onGenerate === 'function') onGenerate(strongPw);
+    });
+    wrap.appendChild(genBtn);
+  }
+
+  return { wrap, input, toggleBtn };
+}
+
+function showOneTimePasswordDisplay(container, password, onDone) {
+  container.replaceChildren();
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.background = '#f0fdf4';
+  card.style.border = '1px solid #86efac';
+  card.style.padding = '1.25rem';
+  card.style.marginTop = '0.75rem';
+
+  const title = document.createElement('h3');
+  title.style.margin = '0 0 0.5rem 0';
+  title.style.color = '#166534';
+  title.style.fontSize = '1.1rem';
+  title.textContent = 'Password Set Successfully';
+
+  const pNote = document.createElement('p');
+  pNote.style.color = '#15803d';
+  pNote.style.fontSize = '0.95rem';
+  pNote.style.marginBottom = '1rem';
+  pNote.textContent = 'Share this with the mentor securely. It will not be shown again.';
+
+  const displayWrap = document.createElement('div');
+  displayWrap.style.display = 'flex';
+  displayWrap.style.alignItems = 'center';
+  displayWrap.style.gap = '0.5rem';
+  displayWrap.style.marginBottom = '1rem';
+
+  const code = document.createElement('code');
+  code.style.padding = '0.5rem 0.75rem';
+  code.style.background = '#ffffff';
+  code.style.border = '1px solid #bbf7d0';
+  code.style.borderRadius = '4px';
+  code.style.fontSize = '1.1rem';
+  code.style.fontWeight = 'bold';
+  code.style.letterSpacing = '0.05em';
+  code.style.flex = '1';
+  code.textContent = password;
+
+  const copyBtn = document.createElement('button');
+  copyBtn.type = 'button';
+  copyBtn.className = 'btn btn-outline btn-sm';
+  copyBtn.textContent = 'Copy';
+  copyBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(password);
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 2000);
+    } catch {
+      copyBtn.textContent = 'Copied!';
+    }
+  });
+
+  displayWrap.append(code, copyBtn);
+
+  const doneBtn = document.createElement('button');
+  doneBtn.type = 'button';
+  doneBtn.className = 'btn btn-accent';
+  doneBtn.textContent = 'Done';
+  doneBtn.addEventListener('click', () => {
+    code.textContent = '';
+    closeModal();
+    if (typeof onDone === 'function') onDone();
+  });
+
+  card.append(title, pNote, displayWrap, doneBtn);
+  container.appendChild(card);
 }
 
 // ---------------------------------------------------------------------------
@@ -532,6 +705,10 @@ async function openViewMentorModal(applicationId) {
     addRow('Motivation', m.motivation);
     addRow('Current Stage', getStatusLabel(m.status));
     addRow('Notes', m.notes);
+    if (m.mentor_profile_id) {
+      addRow('Mentor Profile ID', `#${m.mentor_profile_id}`);
+      addRow('Account Status', m.account_status || 'active');
+    }
 
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
@@ -539,7 +716,20 @@ async function openViewMentorModal(applicationId) {
     closeBtn.textContent = 'Close';
     closeBtn.addEventListener('click', closeModal);
 
-    openModal(`Application: ${m.full_name}`, [container], [closeBtn]);
+    const footerButtons = [closeBtn];
+
+    if (m.mentor_profile_id) {
+      const resetBtn = document.createElement('button');
+      resetBtn.type = 'button';
+      resetBtn.className = 'btn btn-accent';
+      resetBtn.textContent = 'Reset Password';
+      resetBtn.addEventListener('click', () => {
+        openResetMentorPasswordModal(m);
+      });
+      footerButtons.push(resetBtn);
+    }
+
+    openModal(`Application: ${m.full_name}`, [container], footerButtons);
   } catch (err) {
     alert(`Could not load application details: ${err.message}`);
   }
@@ -632,12 +822,13 @@ function openActivateMentorModal(application) {
   labelPass.className = 'form-label';
   labelPass.textContent = 'Assign Temporary Password (minimum 8 characters):';
 
-  const inputPass = document.createElement('input');
-  inputPass.type = 'password';
-  inputPass.className = 'form-control';
-  inputPass.minLength = 8;
-  inputPass.required = true;
-  groupPass.append(labelPass, inputPass);
+  const { wrap, input } = createPasswordInputWithControls({
+    autocomplete: 'new-password',
+    minLength: 8,
+    required: true,
+    includeGenerator: true,
+  });
+  groupPass.append(labelPass, wrap);
 
   const errorP = document.createElement('p');
   errorP.className = 'form-error';
@@ -649,7 +840,7 @@ function openActivateMentorModal(application) {
   activateBtn.className = 'btn btn-accent';
   activateBtn.textContent = 'Confirm Activation';
   activateBtn.addEventListener('click', async () => {
-    const pw = inputPass.value;
+    const pw = input.value;
     if (!pw || pw.length < 8) {
       errorP.textContent = 'Password must be at least 8 characters long.';
       return;
@@ -660,9 +851,11 @@ function openActivateMentorModal(application) {
       await api.post(`/admin/mentor-applications/${application.id}/activate`, {
         initial_password: pw,
       });
-      closeModal();
-      alert(`Mentor ${application.full_name} has been activated successfully!`);
-      loadMentors(mentorsPage);
+      input.value = '';
+      modalFooter.replaceChildren();
+      showOneTimePasswordDisplay(container, pw, () => {
+        loadMentors(mentorsPage);
+      });
     } catch (err) {
       errorP.textContent = err.message || 'Could not activate mentor.';
       activateBtn.disabled = false;
@@ -676,6 +869,186 @@ function openActivateMentorModal(application) {
   cancelBtn.addEventListener('click', closeModal);
 
   openModal(`Activate Mentor: ${application.full_name}`, [container], [cancelBtn, activateBtn]);
+}
+
+function openResetMentorPasswordModal(application) {
+  const container = document.createElement('div');
+
+  const pDesc = document.createElement('p');
+  pDesc.textContent = `Reset password for active mentor: ${application.full_name} (${application.email})`;
+
+  const groupPass = document.createElement('div');
+  groupPass.className = 'form-group';
+  const labelPass = document.createElement('label');
+  labelPass.className = 'form-label';
+  labelPass.textContent = 'New Password (minimum 8 characters):';
+
+  const { wrap, input } = createPasswordInputWithControls({
+    autocomplete: 'new-password',
+    minLength: 8,
+    required: true,
+    includeGenerator: true,
+  });
+  groupPass.append(labelPass, wrap);
+
+  const errorP = document.createElement('p');
+  errorP.className = 'form-error';
+
+  container.append(pDesc, groupPass, errorP);
+
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.className = 'btn btn-accent';
+  saveBtn.textContent = 'Save Password';
+  saveBtn.addEventListener('click', async () => {
+    const pw = input.value;
+    if (!pw || pw.length < 8) {
+      errorP.textContent = 'Password must be at least 8 characters long.';
+      return;
+    }
+    saveBtn.disabled = true;
+    errorP.textContent = '';
+    try {
+      await api.post(`/admin/mentors/${application.mentor_profile_id}/reset-password`, {
+        new_password: pw,
+      });
+      input.value = '';
+      modalFooter.replaceChildren();
+      showOneTimePasswordDisplay(container, pw, () => {
+        loadMentors(mentorsPage);
+      });
+    } catch (err) {
+      errorP.textContent = err.message || 'Could not reset mentor password.';
+      saveBtn.disabled = false;
+    }
+  });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'btn btn-outline';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', closeModal);
+
+  openModal(`Reset Password: ${application.full_name}`, [container], [cancelBtn, saveBtn]);
+}
+
+function openAdminChangePasswordModal() {
+  const container = document.createElement('div');
+
+  const pDesc = document.createElement('p');
+  pDesc.textContent = 'Update your administrator portal password.';
+
+  // Current password
+  const groupCur = document.createElement('div');
+  groupCur.className = 'form-group';
+  const labelCur = document.createElement('label');
+  labelCur.className = 'form-label';
+  labelCur.textContent = 'Current Password:';
+  const curCtrl = createPasswordInputWithControls({
+    autocomplete: 'current-password',
+    minLength: 1,
+    required: true,
+    includeGenerator: false,
+  });
+  groupCur.append(labelCur, curCtrl.wrap);
+
+  // New password
+  const groupNew = document.createElement('div');
+  groupNew.className = 'form-group';
+  const labelNew = document.createElement('label');
+  labelNew.className = 'form-label';
+  labelNew.textContent = 'New Password (minimum 8 characters):';
+  const newCtrl = createPasswordInputWithControls({
+    autocomplete: 'new-password',
+    minLength: 8,
+    required: true,
+    includeGenerator: true,
+  });
+  groupNew.append(labelNew, newCtrl.wrap);
+
+  // Confirm password
+  const groupConfirm = document.createElement('div');
+  groupConfirm.className = 'form-group';
+  const labelConfirm = document.createElement('label');
+  labelConfirm.className = 'form-label';
+  labelConfirm.textContent = 'Confirm New Password:';
+  const confirmCtrl = createPasswordInputWithControls({
+    autocomplete: 'new-password',
+    minLength: 8,
+    required: true,
+    includeGenerator: false,
+  });
+  groupConfirm.append(labelConfirm, confirmCtrl.wrap);
+
+  const errorP = document.createElement('p');
+  errorP.className = 'form-error';
+
+  container.append(pDesc, groupCur, groupNew, groupConfirm, errorP);
+
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.className = 'btn btn-accent';
+  saveBtn.textContent = 'Update Password';
+  saveBtn.addEventListener('click', async () => {
+    const curPw = curCtrl.input.value;
+    const newPw = newCtrl.input.value;
+    const confirmPw = confirmCtrl.input.value;
+
+    if (!curPw) {
+      errorP.className = 'form-error';
+      errorP.textContent = 'Current password is required.';
+      return;
+    }
+    if (!newPw || newPw.length < 8) {
+      errorP.className = 'form-error';
+      errorP.textContent = 'New password must be at least 8 characters long.';
+      return;
+    }
+    if (newPw !== confirmPw) {
+      errorP.className = 'form-error';
+      errorP.textContent = 'New password and confirmation do not match.';
+      return;
+    }
+    if (newPw === curPw) {
+      errorP.className = 'form-error';
+      errorP.textContent = 'New password cannot be the same as the current password.';
+      return;
+    }
+
+    saveBtn.disabled = true;
+    errorP.textContent = '';
+    try {
+      await api.patch('/admin/me/password', {
+        current_password: curPw,
+        new_password: newPw,
+      });
+
+      curCtrl.input.value = '';
+      newCtrl.input.value = '';
+      confirmCtrl.input.value = '';
+
+      errorP.className = 'form-success';
+      errorP.style.color = '#15803d';
+      errorP.textContent = 'Password changed successfully.';
+
+      setTimeout(() => {
+        closeModal();
+      }, 1500);
+    } catch (err) {
+      errorP.className = 'form-error';
+      errorP.style.color = '';
+      errorP.textContent = err.message || 'Could not change password.';
+      saveBtn.disabled = false;
+    }
+  });
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'btn btn-outline';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', closeModal);
+
+  openModal('Change Administrator Password', [container], [cancelBtn, saveBtn]);
 }
 
 mentorsFilterForm?.addEventListener('submit', event => {
@@ -948,6 +1321,9 @@ async function openViewReportModal(reportId) {
 }
 
 document.getElementById('reports-refresh-btn')?.addEventListener('click', () => loadReports(1));
+document
+  .getElementById('admin-change-pw-btn')
+  ?.addEventListener('click', openAdminChangePasswordModal);
 
 // ---------------------------------------------------------------------------
 // Initial Boot
